@@ -1,34 +1,35 @@
-import * as Sentry from '@sentry/nextjs';
-
-const sentryOptions: Sentry.NodeOptions | Sentry.EdgeOptions = {
-  // Sentry DSN
-  dsn: process.env.NEXT_PUBLIC_SENTRY_DSN,
-
-  // Enable Spotlight in development
-  spotlight: process.env.NODE_ENV === 'development',
-
-  // Adds request headers and IP for users, for more info visit
-  sendDefaultPii: true,
-
-  // Adjust this value in production, or use tracesSampler for greater control
-  tracesSampleRate: 1,
-
-  // Setting this option to true will print useful information to the console while you're setting up Sentry.
-  debug: false
-};
+// Gunakan dynamic import untuk menghindari eager loading saat HMR pada edge runtime.
+// Hal ini mencegah error "module factory is not available" yang muncul dengan Turbopack.
+import type * as SentryType from '@sentry/nextjs';
 
 export async function register() {
-  if (!process.env.NEXT_PUBLIC_SENTRY_DISABLED) {
-    if (process.env.NEXT_RUNTIME === 'nodejs') {
-      // Node.js Sentry configuration
-      Sentry.init(sentryOptions);
-    }
+  if (process.env.NEXT_PUBLIC_SENTRY_DISABLED) return;
 
-    if (process.env.NEXT_RUNTIME === 'edge') {
-      // Edge Sentry configuration
-      Sentry.init(sentryOptions);
-    }
+  const Sentry = await import('@sentry/nextjs');
+
+  const sentryOptions: SentryType.NodeOptions | SentryType.EdgeOptions = {
+    dsn: process.env.NEXT_PUBLIC_SENTRY_DSN,
+    spotlight: process.env.NODE_ENV === 'development',
+    sendDefaultPii: true,
+    tracesSampleRate: 1,
+    debug: false
+  };
+
+  // Initialize for both runtimes, respecting NEXT_RUNTIME.
+  if (
+    process.env.NEXT_RUNTIME === 'nodejs' ||
+    process.env.NEXT_RUNTIME === 'edge'
+  ) {
+    Sentry.init(sentryOptions as any);
   }
 }
 
-export const onRequestError = Sentry.captureRequestError;
+// Ekspor handler yang di-resolve saat runtime untuk menghindari instansiasi modul pada eval time.
+export async function onRequestError(
+  error: unknown,
+  request?: any,
+  response?: any
+): Promise<any> {
+  const { captureRequestError } = await import('@sentry/nextjs');
+  return captureRequestError(error as any, request as any, response as any);
+}

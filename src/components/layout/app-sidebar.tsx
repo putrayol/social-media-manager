@@ -74,6 +74,39 @@ export default function AppSidebar() {
     // Side effects based on sidebar state changes
   }, [isOpen]);
 
+  // Derive sidebar-specific nav: remove Product & Kanban, move Social Media Manager under Dashboard,
+  // and trim Social Media Manager subitems to only Data Aktivitas & Laporan.
+  const displayNavItems = React.useMemo(() => {
+    const excluded = new Set(['Product', 'Kanban']);
+    // Create a shallow copy to avoid mutating the shared constants
+    const base = navItems
+      .filter((item) => !excluded.has(item.title))
+      .map((item) => ({
+        ...item,
+        items: item.items ? [...item.items] : []
+      }));
+
+    const dashboardIndex = base.findIndex((i) => i.title === 'Dashboard');
+    const smIndex = base.findIndex((i) => i.title === 'Social Media Manager');
+    if (
+      dashboardIndex !== -1 &&
+      smIndex !== -1 &&
+      smIndex !== dashboardIndex + 1
+    ) {
+      const [smItem] = base.splice(smIndex, 1);
+      base.splice(dashboardIndex + 1, 0, smItem);
+    }
+
+    const sm = base.find((i) => i.title === 'Social Media Manager');
+    if (sm && sm.items) {
+      sm.items = sm.items.filter((sub) =>
+        ['Data Aktivitas', 'Laporan'].includes(sub.title)
+      );
+    }
+
+    return base;
+  }, []);
+
   return (
     <Sidebar collapsible='icon'>
       <SidebarHeader>
@@ -87,7 +120,7 @@ export default function AppSidebar() {
         <SidebarGroup>
           <SidebarGroupLabel>Overview</SidebarGroupLabel>
           <SidebarMenu>
-            {navItems.map((item) => {
+            {displayNavItems.map((item) => {
               const Icon = item.icon ? Icons[item.icon] : Icons.logo;
               return item?.items && item?.items?.length > 0 ? (
                 <Collapsible
@@ -148,10 +181,7 @@ export default function AppSidebar() {
           <SidebarMenuItem>
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
-                <SidebarMenuButton
-                  size='lg'
-                  className='data-[state=open]:bg-sidebar-accent data-[state=open]:text-sidebar-accent-foreground'
-                >
+                <SidebarMenuButton size='lg' className=''>
                   {user && (
                     <UserAvatarProfile
                       className='h-8 w-8 rounded-lg'

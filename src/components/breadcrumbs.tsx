@@ -11,9 +11,16 @@ import { useBreadcrumbs } from '@/hooks/use-breadcrumbs';
 import { IconSlash } from '@tabler/icons-react';
 import { Fragment } from 'react';
 
-export function Breadcrumbs() {
-  const items = useBreadcrumbs();
-  if (items.length === 0) return null;
+type BreadcrumbItemType = {
+  title: string;
+  link: string;
+};
+
+export function Breadcrumbs(props: { items?: BreadcrumbItemType[] } = {}) {
+  const generatedItems = useBreadcrumbs();
+  const items =
+    props.items && props.items.length > 0 ? props.items : generatedItems;
+  if (!items || items.length === 0) return null;
 
   return (
     <Breadcrumb>

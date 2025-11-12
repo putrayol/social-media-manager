@@ -57,6 +57,39 @@ export const navItems: NavItem[] = [
     shortcut: ['k', 'k'],
     isActive: false,
     items: [] // No child items
+  },
+  {
+    title: 'Social Media Manager',
+    url: '/dashboard/social-media-manager',
+    icon: 'socialMedia',
+    shortcut: ['s', 'm'],
+    isActive: false,
+    items: [
+      {
+        title: 'Data Aktivitas',
+        url: '/dashboard/social-media-manager'
+      },
+      {
+        title: 'Laporan',
+        url: '/dashboard/social-media-manager/reports'
+      },
+      {
+        title: 'Aktivator',
+        url: '/dashboard/social-media-manager#aktivator'
+      },
+      {
+        title: 'Cyber Troops',
+        url: '/dashboard/social-media-manager#cyber-troops'
+      },
+      {
+        title: 'Top Komentar',
+        url: '/dashboard/social-media-manager#top-komentar'
+      },
+      {
+        title: 'Laporan Khusus',
+        url: '/dashboard/social-media-manager/lapsus'
+      }
+    ]
   }
 ];
 

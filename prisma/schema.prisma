@@ -1,0 +1,56 @@
+// Prisma schema for Social Media Manager
+// Database provider is configurable via DATABASE_URL
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum Platform {
+  TIKTOK
+  INSTAGRAM
+  FACEBOOK
+  TWITTER
+  YOUTUBE
+  OTHER
+}
+
+model Aktivator {
+  id          String   @id @default(cuid())
+  no          Int
+  namaAkun    String
+  platform    Platform
+  jenisKonten String
+  link        String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+model CyberTroops {
+  id             String   @id @default(cuid())
+  no             Int
+  namaAkun       String
+  platform       Platform
+  kategori       String   // e.g., "Positif" | "Negatif"
+  jenisIsu       String
+  jumlahKomentar Int
+  link           String?
+  keterangan     String?
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+}
+
+model TopKomentar {
+  id                 String   @id @default(cuid())
+  no                 Int
+  namaAkun           String
+  platform           Platform
+  jumlahTopKomentar  Int
+  link               String?
+  keterangan         String?
+  createdAt          DateTime @default(now())
+  updatedAt          DateTime @updatedAt
+}
