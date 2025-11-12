@@ -15,6 +15,8 @@ import { Plus, Eye, Edit, Trash2, Download } from 'lucide-react';
 import Link from 'next/link';
 import { SocialMediaReport } from '../types';
 import { useState } from 'react';
+import { useRouter } from 'next/navigation';
+import { apiFetch } from '@/lib/api';
 import {
   AlertDialog,
   AlertDialogAction,
@@ -30,19 +32,38 @@ interface ReportListingProps {
 }
 
 export function ReportListing({ reports }: ReportListingProps) {
+  const router = useRouter();
   const [selectedReport, setSelectedReport] = useState<string | null>(null);
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
+  const [isDeleting, setIsDeleting] = useState(false);
 
   const handleDelete = (reportId: string) => {
     setSelectedReport(reportId);
     setShowDeleteDialog(true);
   };
 
-  const confirmDelete = () => {
-    // TODO: Call delete API
-    console.log('Delete report:', selectedReport);
-    setShowDeleteDialog(false);
-    setSelectedReport(null);
+  const confirmDelete = async () => {
+    if (!selectedReport) return;
+
+    try {
+      setIsDeleting(true);
+      const res = await apiFetch(
+        `/api/social-media-manager/reports/${selectedReport}`,
+        { method: 'DELETE' }
+      );
+
+      if (res.ok) {
+        setShowDeleteDialog(false);
+        setSelectedReport(null);
+        router.refresh();
+      } else {
+        console.error('Failed to delete report');
+      }
+    } catch (error) {
+      console.error('Error deleting report:', error);
+    } finally {
+      setIsDeleting(false);
+    }
   };
 
   return (
@@ -156,9 +177,13 @@ export function ReportListing({ reports }: ReportListingProps) {
             </AlertDialogDescription>
           </AlertDialogHeader>
           <div className='flex gap-4'>
-            <AlertDialogCancel>Batal</AlertDialogCancel>
-            <AlertDialogAction onClick={confirmDelete} className='bg-red-600'>
-              Hapus
+            <AlertDialogCancel disabled={isDeleting}>Batal</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={confirmDelete}
+              disabled={isDeleting}
+              className='bg-red-600'
+            >
+              {isDeleting ? 'Menghapus...' : 'Hapus'}
             </AlertDialogAction>
           </div>
         </AlertDialogContent>

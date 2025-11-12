@@ -1,15 +1,21 @@
 import PageContainer from '@/components/layout/page-container';
 import ReportForm from '@/features/social-media-manager/components/report-form';
-import { mockReports } from '@/features/social-media-manager/utils/mock-reports';
+import { prisma } from '@/lib/prisma';
 
 interface EditReportPageProps {
   params: Promise<{ id: string }>;
 }
 
 export default async function EditReportPage({ params }: EditReportPageProps) {
-  // TODO: Fetch data from API
   const { id } = await params;
-  const report = mockReports.find((item) => item.id === id);
+  const report = await prisma.socialMediaReport.findUnique({
+    where: { id },
+    include: {
+      aktivator: true,
+      cyberTroops: true,
+      topKomentar: true
+    }
+  });
 
   if (!report) {
     return (
@@ -22,6 +28,12 @@ export default async function EditReportPage({ params }: EditReportPageProps) {
       </PageContainer>
     );
   }
+
+  // Transform data to match SocialMediaReport interface
+  const transformedReport = {
+    ...report,
+    lapsus: report.lapsusData ? JSON.parse(report.lapsusData) : null
+  };
 
   return (
     <PageContainer>
@@ -39,7 +51,7 @@ export default async function EditReportPage({ params }: EditReportPageProps) {
 
         <ReportForm
           pageTitle={`Edit Laporan ${report.reportNo}`}
-          initialData={report}
+          initialData={transformedReport}
         />
       </div>
     </PageContainer>

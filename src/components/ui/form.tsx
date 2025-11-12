@@ -28,9 +28,15 @@ const Form = ({
   form: UseFormReturn<any, any, undefined>;
   className?: string;
 }) => {
+  const handleFormSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    console.log('Form onSubmit triggered');
+    await onSubmit(e);
+  };
+
   return (
     <FormProvider {...form}>
-      <form onSubmit={onSubmit} className={className}>
+      <form onSubmit={handleFormSubmit} className={className}>
         {children}
       </form>
     </FormProvider>

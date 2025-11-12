@@ -13,6 +13,16 @@ const ACCEPTED_FILE_TYPES = [
   'image/webp'
 ];
 
+// Uploaded File Schema (for files that have been uploaded to server)
+export const uploadedFileSchema = z.object({
+  id: z.string(),
+  fileName: z.string(),
+  fileUrl: z.string(),
+  fileType: z.string(),
+  fileSize: z.number(),
+  uploadedAt: z.union([z.date(), z.string()])
+});
+
 // Social Media Aktivator Schema
 export const socialMediaAktivatorSchema = z.object({
   namaAkun: z
@@ -85,19 +95,13 @@ export const laporanKhususSchema = z.object({
     .min(0, { message: 'Jumlah postingan tidak boleh negatif' }),
   keterangan: z.string().optional(),
   documentFiles: z
-    .any()
+    .array(
+      z.union([
+        uploadedFileSchema,
+        z.any() // Allow File objects (Web API)
+      ])
+    )
     .refine((files) => !files || files.length <= 10, 'Maksimal 10 file')
-    .refine(
-      (files) =>
-        !files || files.every((file: File) => file.size <= MAX_FILE_SIZE),
-      'Ukuran file maksimal 10MB'
-    )
-    .refine(
-      (files) =>
-        !files ||
-        files.every((file: File) => ACCEPTED_FILE_TYPES.includes(file.type)),
-      'Tipe file tidak didukung. Gunakan PDF, Word, Excel, atau gambar'
-    )
     .optional()
 });
 

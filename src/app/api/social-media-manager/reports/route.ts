@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { mockReports } from '@/features/social-media-manager/utils/mock-reports';
+import { prisma } from '@/lib/prisma';
 
 // GET - Fetch all reports
 export async function GET(request: NextRequest) {
@@ -9,25 +9,36 @@ export async function GET(request: NextRequest) {
     const limit = parseInt(searchParams.get('limit') || '10');
     const search = searchParams.get('search') || '';
 
-    // Filter data based on search
-    let filteredData = mockReports;
-    if (search) {
-      filteredData = mockReports.filter(
-        (item) =>
-          item.reportNo.toLowerCase().includes(search.toLowerCase()) ||
-          item.tanggal.toLocaleDateString().includes(search)
-      );
-    }
+    // Build where clause for search
+    const where = search
+      ? {
+          OR: [
+            { reportNo: { contains: search } },
+            { tanggal: { contains: search } }
+          ]
+        }
+      : {};
 
-    // Pagination
-    const startIndex = (page - 1) * limit;
-    const endIndex = startIndex + limit;
-    const paginatedData = filteredData.slice(startIndex, endIndex);
+    // Get total count
+    const total = await prisma.socialMediaReport.count({ where });
+
+    // Fetch paginated data
+    const reports = await prisma.socialMediaReport.findMany({
+      where,
+      include: {
+        aktivator: true,
+        cyberTroops: true,
+        topKomentar: true
+      },
+      skip: (page - 1) * limit,
+      take: limit,
+      orderBy: { createdAt: 'desc' }
+    });
 
     return NextResponse.json({
       success: true,
-      data: paginatedData,
-      total: filteredData.length,
+      data: reports,
+      total,
       page,
       limit
     });
@@ -44,20 +55,65 @@ export async function GET(request: NextRequest) {
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
+    const { reportNo, tanggal, aktivator, cyberTroops, topKomentar, lapsus } =
+      body;
 
-    // Generate report number
-    const lastReportNo =
-      mockReports[mockReports.length - 1]?.reportNo || '#087';
-    const lastNumber = parseInt(lastReportNo.replace('#', ''));
-    const newReportNo = `#${String(lastNumber + 1).padStart(3, '0')}`;
-
-    const newReport = {
-      id: Date.now().toString(),
-      reportNo: newReportNo,
-      ...body,
-      createdAt: new Date(),
-      updatedAt: new Date()
-    };
+    // Create report with related data
+    const newReport = await prisma.socialMediaReport.create({
+      data: {
+        reportNo,
+        tanggal: new Date(tanggal),
+        lapsusData: lapsus ? JSON.stringify(lapsus) : null,
+        aktivator: aktivator
+          ? {
+              createMany: {
+                data: aktivator.map((item: any) => ({
+                  no: item.no || 1,
+                  namaAkun: item.namaAkun,
+                  platform: item.platform,
+                  jenisKonten: item.jenisKonten,
+                  link: item.link || null
+                }))
+              }
+            }
+          : undefined,
+        cyberTroops: cyberTroops
+          ? {
+              createMany: {
+                data: cyberTroops.map((item: any) => ({
+                  no: item.no || 1,
+                  namaAkun: item.namaAkun,
+                  platform: item.platform,
+                  kategori: item.kategori,
+                  jenisIsu: item.jenisIsu,
+                  jumlahKomentar: item.jumlahKomentar || 0,
+                  link: item.link || null,
+                  keterangan: item.keterangan || null
+                }))
+              }
+            }
+          : undefined,
+        topKomentar: topKomentar
+          ? {
+              createMany: {
+                data: topKomentar.map((item: any) => ({
+                  no: item.no || 1,
+                  namaAkun: item.namaAkun,
+                  platform: item.platform,
+                  jumlahTopKomentar: item.jumlahTopKomentar || 0,
+                  link: item.link || null,
+                  keterangan: item.keterangan || null
+                }))
+              }
+            }
+          : undefined
+      },
+      include: {
+        aktivator: true,
+        cyberTroops: true,
+        topKomentar: true
+      }
+    });
 
     return NextResponse.json(
       { success: true, data: newReport },

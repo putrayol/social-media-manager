@@ -10,7 +10,11 @@ import {
   FormMessage
 } from '@/components/ui/form';
 import { BaseFormFieldProps, FileUploadConfig } from '@/types/base-form';
-import { FileUploader, FileUploaderProps } from '@/components/file-uploader';
+import {
+  FileUploader,
+  FileUploaderProps,
+  UploadedFile
+} from '@/components/file-uploader';
 
 interface FormFileUploadProps<
   TFieldValues extends FieldValues = FieldValues,
@@ -42,6 +46,14 @@ function FormFileUpload<
     ...restConfig
   } = config || {};
 
+  // Build accept object from acceptedTypes
+  const acceptObject = acceptedTypes
+    ? acceptedTypes.reduce(
+        (acc, type) => ({ ...acc, [type]: [] }),
+        {} as Record<string, string[]>
+      )
+    : { '*/*': [] }; // Allow all file types if not specified
+
   return (
     <FormField
       control={control}
@@ -61,10 +73,7 @@ function FormFileUpload<
               onValueChange={field.onChange}
               onUpload={onUpload}
               progresses={progresses}
-              accept={acceptedTypes?.reduce(
-                (acc, type) => ({ ...acc, [type]: [] }),
-                {}
-              )}
+              accept={acceptObject}
               maxSize={maxSize}
               maxFiles={maxFiles}
               multiple={multiple}
@@ -81,4 +90,4 @@ function FormFileUpload<
   );
 }
 
-export { FormFileUpload, type FileUploadConfig };
+export { FormFileUpload, type FileUploadConfig, type UploadedFile };

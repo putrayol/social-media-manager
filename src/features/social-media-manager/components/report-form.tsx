@@ -20,6 +20,7 @@ import CyberTroopsForm from './cyber-troops-form';
 import TopKomentarForm from './top-komentar-form';
 import { Modal } from '@/components/ui/modal';
 import { apiFetch } from '@/lib/api';
+import { toast } from 'sonner';
 import {
   CommandDialog,
   CommandInput,
@@ -280,12 +281,82 @@ export default function ReportForm({
   }
 
   async function handleSubmit(values: FormData) {
+    console.log('handleSubmit called with values:', values);
     try {
-      // TODO: Submit to API
-      console.log('Form values:', values);
+      let processedValues = { ...values };
+
+      // Handle file uploads if there are files
+      if (
+        values.lapsus?.documentFiles &&
+        values.lapsus.documentFiles.length > 0
+      ) {
+        const filesToUpload = values.lapsus.documentFiles.filter(
+          (file) => file instanceof File
+        );
+
+        // Get existing files (already uploaded)
+        const existingFiles = values.lapsus.documentFiles.filter(
+          (file) => !(file instanceof File)
+        );
+
+        let uploadedFiles = [];
+
+        // Upload new files if any
+        if (filesToUpload.length > 0) {
+          const formData = new FormData();
+          filesToUpload.forEach((file) => {
+            formData.append('files', file as File);
+          });
+
+          const uploadRes = await fetch('/api/upload', {
+            method: 'POST',
+            body: formData
+          });
+
+          if (!uploadRes.ok) {
+            const error = await uploadRes.json();
+            console.error('Error uploading files:', error);
+            toast.error(error.error || 'Gagal upload file');
+            return;
+          }
+
+          const uploadData = await uploadRes.json();
+          uploadedFiles = uploadData.data || [];
+          toast.success(`${uploadedFiles.length} file berhasil di-upload`);
+        }
+
+        // Combine all files (existing + newly uploaded)
+        processedValues.lapsus = {
+          ...values.lapsus,
+          documentFiles: [...existingFiles, ...uploadedFiles]
+        };
+      }
+
+      const endpoint = initialData
+        ? `/api/social-media-manager/reports/${initialData.id}`
+        : '/api/social-media-manager/reports';
+
+      const method = initialData ? 'PUT' : 'POST';
+
+      const res = await apiFetch(endpoint, {
+        method,
+        body: JSON.stringify(processedValues)
+      });
+
+      if (!res.ok) {
+        const error = await res.json();
+        console.error('Error submitting form:', error);
+        toast.error(error.error || 'Gagal menyimpan laporan');
+        return;
+      }
+
+      toast.success(
+        initialData ? 'Laporan berhasil diperbarui' : 'Laporan berhasil dibuat'
+      );
       router.push('/dashboard/social-media-manager/reports');
     } catch (error) {
       console.error('Error submitting form:', error);
+      toast.error('Terjadi kesalahan saat menyimpan laporan');
     }
   }
 
@@ -386,69 +457,18 @@ export default function ReportForm({
                 </div>
               ))}
             </div>
-            <div className='text-muted-foreground mb-2 text-sm'>
-              Data dari database. Total: {aktivatorItems.length}
-            </div>
-            <div className='space-y-2'>
-              {loadingLists.aktivator ? (
-                <p className='text-muted-foreground text-sm'>Memuat data...</p>
-              ) : aktivatorItems.length === 0 ? (
-                <p className='text-muted-foreground text-sm'>Belum ada data.</p>
-              ) : (
-                aktivatorItems.map((item) => (
-                  <div
-                    key={item.id}
-                    className='flex items-center justify-between rounded border px-3 py-2'
-                  >
-                    <div className='text-sm'>
-                      <span className='font-semibold'>{item.namaAkun}</span> •{' '}
-                      {item.platform}
-                      <div className='text-muted-foreground'>
-                        Konten: {item.jenisKonten}
-                      </div>
-                    </div>
-                    <div className='flex gap-2'>
-                      <Button
-                        size='sm'
-                        variant='secondary'
-                        onClick={() => addAktivatorFromItem(item)}
-                      >
-                        Pilih
-                      </Button>
-                      <Button
-                        size='sm'
-                        variant='ghost'
-                        onClick={() => deleteAktivator(item.id)}
-                      >
-                        <Trash2 className='h-4 w-4 text-red-600' />
-                      </Button>
-                    </div>
-                  </div>
-                ))
-              )}
-            </div>
-            <div className='grid grid-cols-1 gap-2 sm:grid-cols-2'>
-              <Button
-                type='button'
-                variant='outline'
-                className='w-full'
-                onClick={() => setShowAktivatorModal(true)}
-              >
-                <Plus className='mr-2 h-4 w-4' />
-                Tambah Aktivator
-              </Button>
-              <Button
-                type='button'
-                variant='default'
-                className='w-full'
-                onClick={() => {
-                  setShowSearchAktivator(true);
-                  setAktivatorQuery('');
-                }}
-              >
-                Cari & Pilih dari Database
-              </Button>
-            </div>
+            <Button
+              type='button'
+              variant='default'
+              className='w-full'
+              onClick={() => {
+                setShowSearchAktivator(true);
+                setAktivatorQuery('');
+              }}
+            >
+              <Plus className='mr-2 h-4 w-4' />
+              Add
+            </Button>
           </CardContent>
         </Card>
 
@@ -485,69 +505,18 @@ export default function ReportForm({
                 </div>
               ))}
             </div>
-            <div className='text-muted-foreground mb-2 text-sm'>
-              Data dari database. Total: {cyberItems.length}
-            </div>
-            <div className='space-y-2'>
-              {loadingLists.cyber ? (
-                <p className='text-muted-foreground text-sm'>Memuat data...</p>
-              ) : cyberItems.length === 0 ? (
-                <p className='text-muted-foreground text-sm'>Belum ada data.</p>
-              ) : (
-                cyberItems.map((item) => (
-                  <div
-                    key={item.id}
-                    className='flex items-center justify-between rounded border px-3 py-2'
-                  >
-                    <div className='text-sm'>
-                      <span className='font-semibold'>{item.namaAkun}</span> •{' '}
-                      {item.platform}
-                      <div className='text-muted-foreground'>
-                        Kategori: {item.kategori} • Isu: {item.jenisIsu}
-                      </div>
-                    </div>
-                    <div className='flex gap-2'>
-                      <Button
-                        size='sm'
-                        variant='secondary'
-                        onClick={() => addCyberFromItem(item)}
-                      >
-                        Pilih
-                      </Button>
-                      <Button
-                        size='sm'
-                        variant='ghost'
-                        onClick={() => deleteCyber(item.id)}
-                      >
-                        <Trash2 className='h-4 w-4 text-red-600' />
-                      </Button>
-                    </div>
-                  </div>
-                ))
-              )}
-            </div>
-            <div className='grid grid-cols-1 gap-2 sm:grid-cols-2'>
-              <Button
-                type='button'
-                variant='outline'
-                className='w-full'
-                onClick={() => setShowCyberModal(true)}
-              >
-                <Plus className='mr-2 h-4 w-4' />
-                Tambah Cyber Troops
-              </Button>
-              <Button
-                type='button'
-                variant='default'
-                className='w-full'
-                onClick={() => {
-                  setShowSearchCyber(true);
-                  setCyberQuery('');
-                }}
-              >
-                Cari & Pilih dari Database
-              </Button>
-            </div>
+            <Button
+              type='button'
+              variant='default'
+              className='w-full'
+              onClick={() => {
+                setShowSearchCyber(true);
+                setCyberQuery('');
+              }}
+            >
+              <Plus className='mr-2 h-4 w-4' />
+              Add
+            </Button>
           </CardContent>
         </Card>
 
@@ -584,69 +553,18 @@ export default function ReportForm({
                 </div>
               ))}
             </div>
-            <div className='text-muted-foreground mb-2 text-sm'>
-              Data dari database. Total: {topItems.length}
-            </div>
-            <div className='space-y-2'>
-              {loadingLists.top ? (
-                <p className='text-muted-foreground text-sm'>Memuat data...</p>
-              ) : topItems.length === 0 ? (
-                <p className='text-muted-foreground text-sm'>Belum ada data.</p>
-              ) : (
-                topItems.map((item) => (
-                  <div
-                    key={item.id}
-                    className='flex items-center justify-between rounded border px-3 py-2'
-                  >
-                    <div className='text-sm'>
-                      <span className='font-semibold'>{item.namaAkun}</span> •{' '}
-                      {item.platform}
-                      <div className='text-muted-foreground'>
-                        Top Komentar: {item.jumlahTopKomentar}
-                      </div>
-                    </div>
-                    <div className='flex gap-2'>
-                      <Button
-                        size='sm'
-                        variant='secondary'
-                        onClick={() => addTopFromItem(item)}
-                      >
-                        Pilih
-                      </Button>
-                      <Button
-                        size='sm'
-                        variant='ghost'
-                        onClick={() => deleteTop(item.id)}
-                      >
-                        <Trash2 className='h-4 w-4 text-red-600' />
-                      </Button>
-                    </div>
-                  </div>
-                ))
-              )}
-            </div>
-            <div className='grid grid-cols-1 gap-2 sm:grid-cols-2'>
-              <Button
-                type='button'
-                variant='outline'
-                className='w-full'
-                onClick={() => setShowTopModal(true)}
-              >
-                <Plus className='mr-2 h-4 w-4' />
-                Tambah Top Komentar
-              </Button>
-              <Button
-                type='button'
-                variant='default'
-                className='w-full'
-                onClick={() => {
-                  setShowSearchTop(true);
-                  setTopQuery('');
-                }}
-              >
-                Cari & Pilih dari Database
-              </Button>
-            </div>
+            <Button
+              type='button'
+              variant='default'
+              className='w-full'
+              onClick={() => {
+                setShowSearchTop(true);
+                setTopQuery('');
+              }}
+            >
+              <Plus className='mr-2 h-4 w-4' />
+              Add
+            </Button>
           </CardContent>
         </Card>
 
@@ -691,7 +609,23 @@ export default function ReportForm({
               name='lapsus.documentFiles'
               label='Upload Dokumen'
               description='Upload file pendukung (PDF, Word, Excel, atau gambar). Maksimal 10 file, 10MB per file'
-              config={{ maxSize: 10 * 1024 * 1024, maxFiles: 10 }}
+              config={{
+                maxSize: 10 * 1024 * 1024,
+                maxFiles: 10,
+                multiple: true,
+                acceptedTypes: [
+                  'application/pdf',
+                  'application/msword',
+                  'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+                  'application/vnd.ms-excel',
+                  'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+                  'image/jpeg',
+                  'image/jpg',
+                  'image/png',
+                  'image/webp',
+                  'image/gif'
+                ]
+              }}
             />
           </CardContent>
         </Card>

@@ -1,10 +1,23 @@
 import PageContainer from '@/components/layout/page-container';
 import { ReportListing } from '@/features/social-media-manager/components/report-listing';
-import { mockReports } from '@/features/social-media-manager/utils/mock-reports';
+import { prisma } from '@/lib/prisma';
 
 export default async function ReportsPage() {
-  // TODO: Fetch data from API
-  const reports = mockReports;
+  // Fetch data from database
+  const reports = await prisma.socialMediaReport.findMany({
+    include: {
+      aktivator: true,
+      cyberTroops: true,
+      topKomentar: true
+    },
+    orderBy: { createdAt: 'desc' }
+  });
+
+  // Transform data to match SocialMediaReport interface
+  const transformedReports = reports.map((report) => ({
+    ...report,
+    lapsus: report.lapsusData ? JSON.parse(report.lapsusData) : null
+  }));
 
   return (
     <PageContainer>
@@ -20,7 +33,7 @@ export default async function ReportsPage() {
           </div>
         </div>
 
-        <ReportListing reports={reports} />
+        <ReportListing reports={transformedReports} />
       </div>
     </PageContainer>
   );

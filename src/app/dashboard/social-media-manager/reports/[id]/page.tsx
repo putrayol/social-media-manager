@@ -12,16 +12,22 @@ import {
 } from '@/components/ui/table';
 import { Download, Printer, Edit } from 'lucide-react';
 import Link from 'next/link';
-import { mockReports } from '@/features/social-media-manager/utils/mock-reports';
+import { prisma } from '@/lib/prisma';
 
 interface ViewReportPageProps {
   params: Promise<{ id: string }>;
 }
 
 export default async function ViewReportPage({ params }: ViewReportPageProps) {
-  // TODO: Fetch data from API
   const { id } = await params;
-  const report = mockReports.find((item) => item.id === id);
+  const report = await prisma.socialMediaReport.findUnique({
+    where: { id },
+    include: {
+      aktivator: true,
+      cyberTroops: true,
+      topKomentar: true
+    }
+  });
 
   if (!report) {
     return (
@@ -233,7 +239,7 @@ export default async function ViewReportPage({ params }: ViewReportPageProps) {
         </Card>
 
         {/* Section D: Lapsus */}
-        {report.lapsus && (
+        {report.lapsusData && (
           <Card>
             <CardHeader>
               <CardTitle>D. Laporan Khusus (LAPSUS)</CardTitle>
@@ -241,25 +247,29 @@ export default async function ViewReportPage({ params }: ViewReportPageProps) {
             <CardContent className='space-y-4'>
               <div>
                 <p className='mb-2 font-semibold'>Keterangan:</p>
-                <p className='text-sm'>{report.lapsus.keterangan}</p>
+                <p className='text-sm'>
+                  {JSON.parse(report.lapsusData).keterangan}
+                </p>
               </div>
-              {report.lapsus.documentFiles &&
-                report.lapsus.documentFiles.length > 0 && (
+              {JSON.parse(report.lapsusData).documentFiles &&
+                JSON.parse(report.lapsusData).documentFiles.length > 0 && (
                   <div>
                     <p className='mb-2 font-semibold'>Dokumen Pendukung:</p>
                     <ul className='space-y-2'>
-                      {report.lapsus.documentFiles.map((file) => (
-                        <li key={file.id} className='text-sm'>
-                          <a
-                            href={file.fileUrl}
-                            target='_blank'
-                            rel='noopener noreferrer'
-                            className='text-blue-600 hover:underline'
-                          >
-                            {file.fileName}
-                          </a>
-                        </li>
-                      ))}
+                      {JSON.parse(report.lapsusData).documentFiles.map(
+                        (file: any) => (
+                          <li key={file.id} className='text-sm'>
+                            <a
+                              href={file.fileUrl}
+                              target='_blank'
+                              rel='noopener noreferrer'
+                              className='text-blue-600 hover:underline'
+                            >
+                              {file.fileName}
+                            </a>
+                          </li>
+                        )
+                      )}
                     </ul>
                   </div>
                 )}

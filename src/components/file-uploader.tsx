@@ -15,23 +15,32 @@ import { ScrollArea } from '@/components/ui/scroll-area';
 import { useControllableState } from '@/hooks/use-controllable-state';
 import { cn, formatBytes } from '@/lib/utils';
 
+export interface UploadedFile {
+  id: string;
+  fileName: string;
+  fileUrl: string;
+  fileType: string;
+  fileSize: number;
+  uploadedAt: Date | string;
+}
+
 export interface FileUploaderProps
   extends React.HTMLAttributes<HTMLDivElement> {
   /**
    * Value of the uploader.
-   * @type File[]
+   * @type (File | UploadedFile)[]
    * @default undefined
    * @example value={files}
    */
-  value?: File[];
+  value?: (File | UploadedFile)[];
 
   /**
    * Function to be called when the value changes.
-   * @type React.Dispatch<React.SetStateAction<File[]>>
+   * @type React.Dispatch<React.SetStateAction<(File | UploadedFile)[]>>
    * @default undefined
    * @example onValueChange={(files) => setFiles(files)}
    */
-  onValueChange?: React.Dispatch<React.SetStateAction<File[]>>;
+  onValueChange?: React.Dispatch<React.SetStateAction<(File | UploadedFile)[]>>;
 
   /**
    * Function to be called when files are uploaded.
@@ -99,7 +108,7 @@ export function FileUploader(props: FileUploaderProps) {
     onValueChange,
     onUpload,
     progresses,
-    accept = { 'image/*': [] },
+    accept,
     maxSize = 1024 * 1024 * 2,
     maxFiles = 1,
     multiple = false,
@@ -107,6 +116,9 @@ export function FileUploader(props: FileUploaderProps) {
     className,
     ...dropzoneProps
   } = props;
+
+  // Default accept to all files if not specified
+  const acceptConfig = accept || { '*/*': [] };
 
   const [files, setFiles] = useControllableState({
     prop: valueProp,
@@ -189,7 +201,7 @@ export function FileUploader(props: FileUploaderProps) {
     <div className='relative flex flex-col gap-6 overflow-hidden'>
       <Dropzone
         onDrop={onDrop}
-        accept={accept}
+        accept={acceptConfig}
         maxSize={maxSize}
         maxFiles={maxFiles}
         multiple={maxFiles > 1 || multiple}
@@ -253,7 +265,9 @@ export function FileUploader(props: FileUploaderProps) {
                 key={index}
                 file={file}
                 onRemove={() => onRemove(index)}
-                progress={progresses?.[file.name]}
+                progress={
+                  progresses?.[isFileObject(file) ? file.name : file.fileName]
+                }
               />
             ))}
           </div>
@@ -264,19 +278,24 @@ export function FileUploader(props: FileUploaderProps) {
 }
 
 interface FileCardProps {
-  file: File;
+  file: File | UploadedFile;
   onRemove: () => void;
   progress?: number;
 }
 
 function FileCard({ file, progress, onRemove }: FileCardProps) {
+  const isFile = isFileObject(file);
+  const fileName = isFile ? file.name : file.fileName;
+  const fileSize = isFile ? file.size : file.fileSize;
+  const isUploaded = !isFile;
+
   return (
     <div className='relative flex items-center space-x-4'>
       <div className='flex flex-1 space-x-4'>
-        {isFileWithPreview(file) ? (
+        {isFile && isFileWithPreview(file) ? (
           <Image
             src={file.preview}
-            alt={file.name}
+            alt={fileName}
             width={48}
             height={48}
             loading='lazy'
@@ -286,10 +305,11 @@ function FileCard({ file, progress, onRemove }: FileCardProps) {
         <div className='flex w-full flex-col gap-2'>
           <div className='space-y-px'>
             <p className='text-foreground/80 line-clamp-1 text-sm font-medium'>
-              {file.name}
+              {fileName}
             </p>
             <p className='text-muted-foreground text-xs'>
-              {formatBytes(file.size)}
+              {formatBytes(fileSize)}
+              {isUploaded && ' • Uploaded'}
             </p>
           </div>
           {progress ? <Progress value={progress} /> : null}
@@ -310,6 +330,10 @@ function FileCard({ file, progress, onRemove }: FileCardProps) {
       </div>
     </div>
   );
+}
+
+function isFileObject(file: File | UploadedFile): file is File {
+  return file instanceof File;
 }
 
 function isFileWithPreview(file: File): file is File & { preview: string } {

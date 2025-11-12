@@ -16,9 +16,9 @@ export async function GET(request: NextRequest) {
       andConditions.push({
         OR: [
           {
-            namaAkun: { contains: search, mode: Prisma.QueryMode.insensitive }
+            namaAkun: { contains: search }
           },
-          { jenisIsu: { contains: search, mode: Prisma.QueryMode.insensitive } }
+          { jenisIsu: { contains: search } }
         ]
       });
     }

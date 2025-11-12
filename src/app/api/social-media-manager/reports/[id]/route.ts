@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { mockReports } from '@/features/social-media-manager/utils/mock-reports';
+import { prisma } from '@/lib/prisma';
 
 // GET - Fetch single report
 export async function GET(
@@ -7,7 +7,14 @@ export async function GET(
   { params }: { params: { id: string } }
 ) {
   try {
-    const report = mockReports.find((item) => item.id === params.id);
+    const report = await prisma.socialMediaReport.findUnique({
+      where: { id: params.id },
+      include: {
+        aktivator: true,
+        cyberTroops: true,
+        topKomentar: true
+      }
+    });
 
     if (!report) {
       return NextResponse.json(
@@ -16,7 +23,13 @@ export async function GET(
       );
     }
 
-    return NextResponse.json({ success: true, data: report });
+    // Parse lapsusData if it exists
+    const reportWithParsedData = {
+      ...report,
+      lapsus: report.lapsusData ? JSON.parse(report.lapsusData) : null
+    };
+
+    return NextResponse.json({ success: true, data: reportWithParsedData });
   } catch (error) {
     console.error('Error fetching report:', error);
     return NextResponse.json(
@@ -33,20 +46,83 @@ export async function PUT(
 ) {
   try {
     const body = await request.json();
-    const index = mockReports.findIndex((item) => item.id === params.id);
+    const { reportNo, tanggal, aktivator, cyberTroops, topKomentar, lapsus } =
+      body;
 
-    if (index === -1) {
+    // Check if report exists
+    const existingReport = await prisma.socialMediaReport.findUnique({
+      where: { id: params.id }
+    });
+
+    if (!existingReport) {
       return NextResponse.json(
         { success: false, error: 'Report not found' },
         { status: 404 }
       );
     }
 
-    const updatedReport = {
-      ...mockReports[index],
-      ...body,
-      updatedAt: new Date()
-    };
+    // Delete existing related data
+    await prisma.aktivator.deleteMany({ where: { reportId: params.id } });
+    await prisma.cyberTroops.deleteMany({ where: { reportId: params.id } });
+    await prisma.topKomentar.deleteMany({ where: { reportId: params.id } });
+
+    // Update report with new data
+    const updatedReport = await prisma.socialMediaReport.update({
+      where: { id: params.id },
+      data: {
+        reportNo,
+        tanggal: new Date(tanggal),
+        lapsusData: lapsus ? JSON.stringify(lapsus) : null,
+        aktivator: aktivator
+          ? {
+              createMany: {
+                data: aktivator.map((item: any) => ({
+                  no: item.no || 1,
+                  namaAkun: item.namaAkun,
+                  platform: item.platform,
+                  jenisKonten: item.jenisKonten,
+                  link: item.link || null
+                }))
+              }
+            }
+          : undefined,
+        cyberTroops: cyberTroops
+          ? {
+              createMany: {
+                data: cyberTroops.map((item: any) => ({
+                  no: item.no || 1,
+                  namaAkun: item.namaAkun,
+                  platform: item.platform,
+                  kategori: item.kategori,
+                  jenisIsu: item.jenisIsu,
+                  jumlahKomentar: item.jumlahKomentar || 0,
+                  link: item.link || null,
+                  keterangan: item.keterangan || null
+                }))
+              }
+            }
+          : undefined,
+        topKomentar: topKomentar
+          ? {
+              createMany: {
+                data: topKomentar.map((item: any) => ({
+                  no: item.no || 1,
+                  namaAkun: item.namaAkun,
+                  platform: item.platform,
+                  jumlahTopKomentar: item.jumlahTopKomentar || 0,
+                  link: item.link || null,
+                  keterangan: item.keterangan || null
+                }))
+              }
+            }
+          : undefined
+      },
+      include: {
+        aktivator: true,
+        cyberTroops: true,
+        topKomentar: true
+      }
+    });
 
     return NextResponse.json({ success: true, data: updatedReport });
   } catch (error) {
@@ -64,16 +140,21 @@ export async function DELETE(
   { params }: { params: { id: string } }
 ) {
   try {
-    const index = mockReports.findIndex((item) => item.id === params.id);
+    const report = await prisma.socialMediaReport.findUnique({
+      where: { id: params.id }
+    });
 
-    if (index === -1) {
+    if (!report) {
       return NextResponse.json(
         { success: false, error: 'Report not found' },
         { status: 404 }
       );
     }
 
-    const deletedReport = mockReports[index];
+    // Delete report (cascade will delete related data)
+    const deletedReport = await prisma.socialMediaReport.delete({
+      where: { id: params.id }
+    });
 
     return NextResponse.json({ success: true, data: deletedReport });
   } catch (error) {

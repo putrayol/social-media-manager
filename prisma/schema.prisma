@@ -5,26 +5,19 @@ generator client {
 }
 
 datasource db {
-  provider = "postgresql"
+  provider = "sqlite"
   url      = env("DATABASE_URL")
-}
-
-enum Platform {
-  TIKTOK
-  INSTAGRAM
-  FACEBOOK
-  TWITTER
-  YOUTUBE
-  OTHER
 }
 
 model Aktivator {
   id          String   @id @default(cuid())
   no          Int
   namaAkun    String
-  platform    Platform
+  platform    String   // TIKTOK, INSTAGRAM, FACEBOOK, TWITTER, YOUTUBE, OTHER
   jenisKonten String
   link        String?
+  reportId    String?
+  report      SocialMediaReport? @relation(fields: [reportId], references: [id], onDelete: Cascade)
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
 }
@@ -33,12 +26,14 @@ model CyberTroops {
   id             String   @id @default(cuid())
   no             Int
   namaAkun       String
-  platform       Platform
+  platform       String   // TIKTOK, INSTAGRAM, FACEBOOK, TWITTER, YOUTUBE, OTHER
   kategori       String   // e.g., "Positif" | "Negatif"
   jenisIsu       String
   jumlahKomentar Int
   link           String?
   keterangan     String?
+  reportId       String?
+  report         SocialMediaReport? @relation(fields: [reportId], references: [id], onDelete: Cascade)
   createdAt      DateTime @default(now())
   updatedAt      DateTime @updatedAt
 }
@@ -47,10 +42,36 @@ model TopKomentar {
   id                 String   @id @default(cuid())
   no                 Int
   namaAkun           String
-  platform           Platform
+  platform           String   // TIKTOK, INSTAGRAM, FACEBOOK, TWITTER, YOUTUBE, OTHER
   jumlahTopKomentar  Int
   link               String?
   keterangan         String?
+  reportId           String?
+  report             SocialMediaReport? @relation(fields: [reportId], references: [id], onDelete: Cascade)
   createdAt          DateTime @default(now())
   updatedAt          DateTime @updatedAt
+}
+
+model SocialMediaReport {
+  id           String   @id @default(cuid())
+  reportNo     String   @unique
+  tanggal      DateTime
+  aktivator    Aktivator[]
+  cyberTroops  CyberTroops[]
+  topKomentar  TopKomentar[]
+  lapsusData   String?  // JSON string for lapsus data
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+}
+
+model LaporanKhusus {
+  id                String   @id @default(cuid())
+  reportId          String   @unique
+  tanggal           DateTime
+  jumlahKomentar    Int
+  jumlahPostingan   Int
+  keterangan        String?
+  documentFilesData String?  // JSON string for document files
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
 }

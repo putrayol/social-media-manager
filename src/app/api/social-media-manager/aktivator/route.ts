@@ -14,12 +14,11 @@ export async function GET(request: NextRequest) {
       ? {
           OR: [
             {
-              namaAkun: { contains: search, mode: Prisma.QueryMode.insensitive }
+              namaAkun: { contains: search }
             },
             {
               jenisKonten: {
-                contains: search,
-                mode: Prisma.QueryMode.insensitive
+                contains: search
               }
             }
           ]
