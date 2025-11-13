@@ -37,6 +37,10 @@ export default function SelectOrganizationPage() {
   }, [isLoaded, organization]);
 
   const handleSelectOrganization = async (orgId: string) => {
+    if (!setActive) {
+      console.error('setActive function not available');
+      return;
+    }
     setSelectedOrgId(orgId);
     setIsSelecting(true);
     try {

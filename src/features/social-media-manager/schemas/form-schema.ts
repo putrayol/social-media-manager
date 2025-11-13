@@ -25,6 +25,7 @@ export const uploadedFileSchema = z.object({
 
 // Social Media Aktivator Schema
 export const socialMediaAktivatorSchema = z.object({
+  id: z.union([z.string(), z.number()]).optional(), // ✅ Accept both string and number for ID
   namaAkun: z
     .string()
     .min(2, { message: 'Nama akun harus minimal 2 karakter' }),
@@ -47,6 +48,7 @@ export const socialMediaAktivatorSchema = z.object({
 
 // Cyber Troops Schema
 export const cyberTroopsSchema = z.object({
+  id: z.union([z.string(), z.number()]).optional(), // ✅ Accept both string and number for ID
   namaAkun: z
     .string()
     .min(2, { message: 'Nama akun harus minimal 2 karakter' }),
@@ -76,6 +78,7 @@ export const cyberTroopsSchema = z.object({
 
 // Top Komentar Postingan Schema
 export const topKomentarPostinganSchema = z.object({
+  id: z.union([z.string(), z.number()]).optional(), // ✅ Accept both string and number for ID
   namaAkun: z
     .string()
     .min(2, { message: 'Nama akun harus minimal 2 karakter' }),
@@ -129,14 +132,32 @@ export const laporanKhususSchema = z.object({
     .optional()
 });
 
+// ✅ Schema for report items that can be either:
+// 1. Existing items from DB (only ID)
+// 2. New items (full data without ID)
+const reportAktivatorSchema = z.union([
+  z.object({ id: z.union([z.string(), z.number()]) }), // Existing item - only ID
+  socialMediaAktivatorSchema // New item - full data
+]);
+
+const reportCyberTroopsSchema = z.union([
+  z.object({ id: z.union([z.string(), z.number()]) }), // Existing item - only ID
+  cyberTroopsSchema // New item - full data
+]);
+
+const reportTopKomentarSchema = z.union([
+  z.object({ id: z.union([z.string(), z.number()]) }), // Existing item - only ID
+  topKomentarPostinganSchema // New item - full data
+]);
+
 // Combined Report Schema
 export const socialMediaReportSchema = z.object({
   reportNo: z.string().min(1, { message: 'Nomor laporan harus diisi' }),
   namaLaporan: z.string().optional(),
   tanggal: z.date({ message: 'Tanggal harus valid' }),
-  aktivator: z.array(socialMediaAktivatorSchema).optional(),
-  cyberTroops: z.array(cyberTroopsSchema).optional(),
-  topKomentar: z.array(topKomentarPostinganSchema).optional(),
+  aktivator: z.array(reportAktivatorSchema).optional(),
+  cyberTroops: z.array(reportCyberTroopsSchema).optional(),
+  topKomentar: z.array(reportTopKomentarSchema).optional(),
   lapsus: laporanKhususSchema.optional()
 });
 

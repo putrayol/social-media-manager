@@ -1,32 +1,50 @@
+'use client';
+
 import PageContainer from '@/components/layout/page-container';
 import AktivatorForm from '@/features/social-media-manager/components/aktivator-form';
-import { headers } from 'next/headers';
+import { useParams } from 'next/navigation';
+import { useEffect, useState } from 'react';
+import { Loader2 } from 'lucide-react';
 
-interface EditAktivatorPageProps {
-  params: { id: string };
-}
+export default function EditAktivatorPage() {
+  const params = useParams();
+  const id = params?.id as string;
+  const [aktivator, setAktivator] = useState<any>(null);
+  const [loading, setLoading] = useState(true);
 
-export default async function EditAktivatorPage({
-  params
-}: EditAktivatorPageProps) {
-  const hdrs = await headers();
-  const host = hdrs.get('host') || 'localhost:3002';
-  const protocol = hdrs.get('x-forwarded-proto') || 'http';
-  const origin = `${protocol}://${host}`;
+  useEffect(() => {
+    if (!id) return;
 
-  let aktivator: any | null = null;
-  try {
-    const res = await fetch(
-      `${origin}/api/social-media-manager/aktivator/${params.id}`,
-      {
-        cache: 'no-store'
+    const fetchData = async () => {
+      try {
+        const res = await fetch(`/api/social-media-manager/aktivator/${id}`);
+        if (res.ok) {
+          const json = await res.json();
+          setAktivator(json?.data ?? null);
+        } else {
+          setAktivator(null);
+        }
+      } catch (error) {
+        console.error('Error fetching aktivator:', error);
+        setAktivator(null);
+      } finally {
+        setLoading(false);
       }
+    };
+
+    fetchData();
+  }, [id]);
+
+  if (loading) {
+    return (
+      <PageContainer>
+        <div className='flex flex-1 flex-col items-center justify-center space-y-4'>
+          <Loader2 className='text-primary h-8 w-8 animate-spin' />
+          <p className='text-muted-foreground'>Loading...</p>
+        </div>
+      </PageContainer>
     );
-    const json = await res.json().catch(() => null);
-    if (res.ok && json?.success) {
-      aktivator = json.data;
-    }
-  } catch {}
+  }
 
   if (!aktivator) {
     return (

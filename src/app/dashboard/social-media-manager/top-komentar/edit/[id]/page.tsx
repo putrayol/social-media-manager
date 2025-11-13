@@ -1,31 +1,49 @@
+'use client';
+
 import PageContainer from '@/components/layout/page-container';
 import TopKomentarForm from '@/features/social-media-manager/components/top-komentar-form';
-import { headers } from 'next/headers';
+import { useParams } from 'next/navigation';
+import { useEffect, useState } from 'react';
+import { Loader2 } from 'lucide-react';
 
-interface EditTopKomentarPageProps {
-  params: { id: string };
-}
+export default function EditTopKomentarPage() {
+  const params = useParams();
+  const id = params?.id as string;
+  const [topKomentar, setTopKomentar] = useState<any>(null);
+  const [loading, setLoading] = useState(true);
 
-export default async function EditTopKomentarPage({
-  params
-}: EditTopKomentarPageProps) {
-  // Fetch data from API (server component)
-  const resolvedParams = await Promise.resolve(params);
-  const hdrs = await headers();
-  const host = hdrs.get('host');
-  const protocol = hdrs.get('x-forwarded-proto') || 'http';
-  const baseUrl = `${protocol}://${host}`;
-  const url = `${baseUrl}/api/social-media-manager/top-komentar/${resolvedParams.id}`;
+  useEffect(() => {
+    if (!id) return;
 
-  let topKomentar: any = null;
-  try {
-    const res = await fetch(url, { cache: 'no-store' });
-    if (res.ok) {
-      const json = await res.json().catch(() => null);
-      topKomentar = json?.data ?? null;
-    }
-  } catch {
-    topKomentar = null;
+    const fetchData = async () => {
+      try {
+        const res = await fetch(`/api/social-media-manager/top-komentar/${id}`);
+        if (res.ok) {
+          const json = await res.json();
+          setTopKomentar(json?.data ?? null);
+        } else {
+          setTopKomentar(null);
+        }
+      } catch (error) {
+        console.error('Error fetching top komentar:', error);
+        setTopKomentar(null);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchData();
+  }, [id]);
+
+  if (loading) {
+    return (
+      <PageContainer>
+        <div className='flex flex-1 flex-col items-center justify-center space-y-4'>
+          <Loader2 className='text-primary h-8 w-8 animate-spin' />
+          <p className='text-muted-foreground'>Loading...</p>
+        </div>
+      </PageContainer>
+    );
   }
 
   if (!topKomentar) {

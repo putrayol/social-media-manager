@@ -4,17 +4,25 @@ import {
   requireOrganization,
   requireOrganizationAdmin
 } from '@/lib/organization-utils';
+import { revalidatePath } from 'next/cache';
 
 // GET - Fetch single top komentar
 export async function GET(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     const orgId = await requireOrganization();
-    const resolvedParams = await Promise.resolve(params);
+    const { id } = await params;
+    const numericId = parseInt(id, 10);
+    if (isNaN(numericId)) {
+      return NextResponse.json(
+        { success: false, error: 'Invalid ID format' },
+        { status: 400 }
+      );
+    }
     const topKomentar = await prisma.topKomentar.findUnique({
-      where: { id: resolvedParams.id }
+      where: { id: numericId }
     });
     if (!topKomentar || topKomentar.organizationId !== orgId) {
       return NextResponse.json(
@@ -47,19 +55,26 @@ export async function GET(
 // PUT - Update top komentar
 export async function PUT(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     // Check admin permission first
     await requireOrganizationAdmin();
 
     const orgId = await requireOrganization();
-    const resolvedParams = await Promise.resolve(params);
+    const { id } = await params;
+    const numericId = parseInt(id, 10);
+    if (isNaN(numericId)) {
+      return NextResponse.json(
+        { success: false, error: 'Invalid ID format' },
+        { status: 400 }
+      );
+    }
     const body = await request.json();
 
     // Verify ownership
     const existing = await prisma.topKomentar.findUnique({
-      where: { id: resolvedParams.id }
+      where: { id: numericId }
     });
 
     if (!existing || existing.organizationId !== orgId) {
@@ -70,7 +85,7 @@ export async function PUT(
     }
 
     const updated = await prisma.topKomentar.update({
-      where: { id: resolvedParams.id },
+      where: { id: numericId },
       data: {
         no: body.no !== undefined ? Number(body.no) : undefined,
         namaAkun: body.namaAkun,
@@ -88,6 +103,11 @@ export async function PUT(
           : undefined
       }
     });
+
+    // Revalidate the pages that display this data
+    revalidatePath('/dashboard/social-media-manager');
+    revalidatePath('/dashboard/social-media-manager/top-komentar');
+
     return NextResponse.json({ success: true, data: updated });
   } catch (error) {
     console.error('Error updating top komentar:', error);
@@ -110,18 +130,25 @@ export async function PUT(
 // DELETE - Delete top komentar
 export async function DELETE(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     // Check admin permission first
     await requireOrganizationAdmin();
 
     const orgId = await requireOrganization();
-    const resolvedParams = await Promise.resolve(params);
+    const { id } = await params;
+    const numericId = parseInt(id, 10);
+    if (isNaN(numericId)) {
+      return NextResponse.json(
+        { success: false, error: 'Invalid ID format' },
+        { status: 400 }
+      );
+    }
 
     // Verify ownership
     const existing = await prisma.topKomentar.findUnique({
-      where: { id: resolvedParams.id }
+      where: { id: numericId }
     });
 
     if (!existing || existing.organizationId !== orgId) {
@@ -132,8 +159,13 @@ export async function DELETE(
     }
 
     const deleted = await prisma.topKomentar.delete({
-      where: { id: resolvedParams.id }
+      where: { id: numericId }
     });
+
+    // Revalidate the pages that display this data
+    revalidatePath('/dashboard/social-media-manager');
+    revalidatePath('/dashboard/social-media-manager/top-komentar');
+
     return NextResponse.json({ success: true, data: deleted });
   } catch (error) {
     console.error('Error deleting top komentar:', error);

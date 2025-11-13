@@ -14,6 +14,7 @@ import { useRouter } from 'next/navigation';
 import { useState } from 'react';
 import { Row } from '@tanstack/react-table';
 import { SocialMediaAktivator } from '../../types';
+import { useCrudFeedback } from '@/lib/use-crud-feedback';
 
 interface AktivatorCellActionProps {
   row: Row<SocialMediaAktivator>;
@@ -21,28 +22,34 @@ interface AktivatorCellActionProps {
 
 export function AktivatorCellAction({ row }: AktivatorCellActionProps) {
   const router = useRouter();
+  const { run } = useCrudFeedback();
   const [open, setOpen] = useState(false);
   const [loading, setLoading] = useState(false);
 
   const onConfirm = async () => {
     try {
       setLoading(true);
-      const res = await fetch(
-        `/api/social-media-manager/aktivator/${row.original.id}`,
+      await run(
+        async () => {
+          const res = await fetch(
+            `/api/social-media-manager/aktivator/${row.original.id}`,
+            {
+              method: 'DELETE'
+            }
+          );
+          if (!res.ok) {
+            const err = await res.json().catch(() => null);
+            const msg = err?.error || 'Gagal menghapus data aktivator';
+            throw new Error(msg);
+          }
+          return res;
+        },
         {
-          method: 'DELETE'
+          success: 'Data aktivator berhasil dihapus',
+          error: 'Gagal menghapus data aktivator'
         }
       );
-      if (!res.ok) {
-        const err = await res.json().catch(() => null);
-        const msg = err?.error || 'Gagal menghapus data aktivator';
-        if (typeof window !== 'undefined') {
-          alert(msg);
-        }
-        throw new Error(msg);
-      }
       setOpen(false);
-      router.refresh();
     } catch (error) {
       console.error('Error deleting:', error);
     } finally {

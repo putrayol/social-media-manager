@@ -42,6 +42,10 @@ export function OrgSwitcher() {
     userMemberships?.data?.map((membership) => membership.organization) || [];
 
   const handleSelectOrganization = async (orgId: string) => {
+    if (!setActive) {
+      console.error('setActive function not available');
+      return;
+    }
     setSwitchingOrgId(orgId);
     try {
       await setActive({ organization: orgId });

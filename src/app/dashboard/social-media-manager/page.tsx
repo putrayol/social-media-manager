@@ -34,6 +34,51 @@ export default function SocialMediaManagerPage() {
   const [totalTopKomentar, setTotalTopKomentar] = useState(0);
   const [isLoading, setIsLoading] = useState(true);
 
+  // ✅ Fetch data function (extracted for reuse)
+  const fetchData = async (showLoading = true) => {
+    if (showLoading) setIsLoading(true);
+
+    try {
+      // Fetch Aktivator
+      const aktivatorRes = await fetch(
+        '/api/social-media-manager/aktivator?limit=1000'
+      );
+      if (aktivatorRes.ok) {
+        const json = await aktivatorRes.json();
+        const { list, total } = extractListAndTotal(json);
+        setAktivatorData(list);
+        setTotalAktivator(total);
+      }
+
+      // Fetch Cyber Troops
+      const cyberRes = await fetch(
+        '/api/social-media-manager/cyber-troops?limit=1000'
+      );
+      if (cyberRes.ok) {
+        const json = await cyberRes.json();
+        const { list, total } = extractListAndTotal(json);
+        setCyberTroopsData(list);
+        setTotalCyber(total);
+      }
+
+      // Fetch Top Komentar
+      const topKomentarRes = await fetch(
+        '/api/social-media-manager/top-komentar?limit=1000'
+      );
+      if (topKomentarRes.ok) {
+        const json = await topKomentarRes.json();
+        const { list, total } = extractListAndTotal(json);
+        setTopKomentarData(list);
+        setTotalTopKomentar(total);
+      }
+    } catch (error) {
+      console.error('[SocialMediaManagerPage] Error fetching data:', error);
+    } finally {
+      if (showLoading) setIsLoading(false);
+    }
+  };
+
+  // ✅ Initial fetch on mount
   useEffect(() => {
     if (!isLoaded) return;
 
@@ -48,51 +93,9 @@ export default function SocialMediaManagerPage() {
       organization.id
     );
 
-    async function fetchData() {
-      setIsLoading(true);
-
-      try {
-        // Fetch Aktivator
-        const aktivatorRes = await fetch(
-          '/api/social-media-manager/aktivator?limit=1000'
-        );
-        if (aktivatorRes.ok) {
-          const json = await aktivatorRes.json();
-          const { list, total } = extractListAndTotal(json);
-          setAktivatorData(list);
-          setTotalAktivator(total);
-        }
-
-        // Fetch Cyber Troops
-        const cyberRes = await fetch(
-          '/api/social-media-manager/cyber-troops?limit=1000'
-        );
-        if (cyberRes.ok) {
-          const json = await cyberRes.json();
-          const { list, total } = extractListAndTotal(json);
-          setCyberTroopsData(list);
-          setTotalCyber(total);
-        }
-
-        // Fetch Top Komentar
-        const topKomentarRes = await fetch(
-          '/api/social-media-manager/top-komentar?limit=1000'
-        );
-        if (topKomentarRes.ok) {
-          const json = await topKomentarRes.json();
-          const { list, total } = extractListAndTotal(json);
-          setTopKomentarData(list);
-          setTotalTopKomentar(total);
-        }
-      } catch (error) {
-        console.error('[SocialMediaManagerPage] Error fetching data:', error);
-      } finally {
-        setIsLoading(false);
-      }
-    }
-
-    fetchData();
-  }, [organization, isLoaded]);
+    fetchData(true);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [organization?.id, isLoaded]);
 
   if (!isLoaded || isLoading) {
     return (
@@ -132,6 +135,7 @@ export default function SocialMediaManagerPage() {
           totalAktivator={totalAktivator}
           totalCyberTroops={totalCyber}
           totalTopKomentar={totalTopKomentar}
+          onRefresh={() => fetchData(false)}
         />
       </div>
     </PageContainer>

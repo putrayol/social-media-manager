@@ -4,16 +4,25 @@ import {
   requireOrganization,
   requireOrganizationAdmin
 } from '@/lib/organization-utils';
+import { revalidatePath } from 'next/cache';
 
 // GET - Fetch single aktivator
 export async function GET(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     const orgId = await requireOrganization();
+    const { id } = await params;
+    const numericId = parseInt(id, 10);
+    if (isNaN(numericId)) {
+      return NextResponse.json(
+        { success: false, error: 'Invalid ID format' },
+        { status: 400 }
+      );
+    }
     const aktivator = await prisma.aktivator.findUnique({
-      where: { id: params.id }
+      where: { id: numericId }
     });
 
     if (!aktivator || aktivator.organizationId !== orgId) {
@@ -36,18 +45,26 @@ export async function GET(
 // PUT - Update aktivator
 export async function PUT(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     // Check admin permission first
     await requireOrganizationAdmin();
 
     const orgId = await requireOrganization();
+    const { id } = await params;
+    const numericId = parseInt(id, 10);
+    if (isNaN(numericId)) {
+      return NextResponse.json(
+        { success: false, error: 'Invalid ID format' },
+        { status: 400 }
+      );
+    }
     const body = await request.json();
 
     // Verify ownership
     const existing = await prisma.aktivator.findUnique({
-      where: { id: params.id }
+      where: { id: numericId }
     });
 
     if (!existing || existing.organizationId !== orgId) {
@@ -58,7 +75,7 @@ export async function PUT(
     }
 
     const updated = await prisma.aktivator.update({
-      where: { id: params.id },
+      where: { id: numericId },
       data: {
         no: body.no !== undefined ? Number(body.no) : undefined,
         namaAkun: body.namaAkun,
@@ -69,6 +86,10 @@ export async function PUT(
         link: body.link ?? undefined
       }
     });
+
+    // Revalidate the pages that display this data
+    revalidatePath('/dashboard/social-media-manager');
+    revalidatePath('/dashboard/social-media-manager/aktivator');
 
     return NextResponse.json({ success: true, data: updated });
   } catch (error) {
@@ -83,17 +104,25 @@ export async function PUT(
 // DELETE - Delete aktivator
 export async function DELETE(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     // Check admin permission first
     await requireOrganizationAdmin();
 
     const orgId = await requireOrganization();
+    const { id } = await params;
+    const numericId = parseInt(id, 10);
+    if (isNaN(numericId)) {
+      return NextResponse.json(
+        { success: false, error: 'Invalid ID format' },
+        { status: 400 }
+      );
+    }
 
     // Verify ownership
     const existing = await prisma.aktivator.findUnique({
-      where: { id: params.id }
+      where: { id: numericId }
     });
 
     if (!existing || existing.organizationId !== orgId) {
@@ -103,7 +132,12 @@ export async function DELETE(
       );
     }
 
-    const deleted = await prisma.aktivator.delete({ where: { id: params.id } });
+    const deleted = await prisma.aktivator.delete({ where: { id: numericId } });
+
+    // Revalidate the pages that display this data
+    revalidatePath('/dashboard/social-media-manager');
+    revalidatePath('/dashboard/social-media-manager/aktivator');
+
     return NextResponse.json({ success: true, data: deleted });
   } catch (error) {
     console.error('Error deleting aktivator:', error);

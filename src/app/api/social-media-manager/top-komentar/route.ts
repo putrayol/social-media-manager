@@ -33,7 +33,7 @@ export async function GET(request: NextRequest) {
         : {})
     };
 
-    const [total, data] = await Promise.all([
+    const [total, rawData] = await Promise.all([
       prisma.topKomentar.count({ where }),
       prisma.topKomentar.findMany({
         where,
@@ -42,6 +42,14 @@ export async function GET(request: NextRequest) {
         take: limit
       })
     ]);
+
+    // Parse documentFilesData for each item
+    const data = rawData.map((item) => ({
+      ...item,
+      documentFiles: item.documentFilesData
+        ? JSON.parse(item.documentFilesData)
+        : []
+    }));
 
     return NextResponse.json({ success: true, data, total, page, limit });
   } catch (error) {

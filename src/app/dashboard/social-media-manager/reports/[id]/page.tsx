@@ -148,7 +148,7 @@ export default function ViewReportPage({ params }: ViewReportPageProps) {
                       </TableRow>
                     </TableHeader>
                     <TableBody>
-                      {report.aktivator.map((item) => (
+                      {report.aktivator.map((item: any) => (
                         <TableRow key={item.id}>
                           <TableCell>{item.no}</TableCell>
                           <TableCell>{item.namaAkun}</TableCell>
@@ -198,7 +198,7 @@ export default function ViewReportPage({ params }: ViewReportPageProps) {
                       </TableRow>
                     </TableHeader>
                     <TableBody>
-                      {report.cyberTroops.map((item) => (
+                      {report.cyberTroops.map((item: any) => (
                         <TableRow key={item.id}>
                           <TableCell>{item.no}</TableCell>
                           <TableCell>{item.namaAkun}</TableCell>
@@ -237,7 +237,8 @@ export default function ViewReportPage({ params }: ViewReportPageProps) {
                         </TableCell>
                         <TableCell>
                           {report.cyberTroops.reduce(
-                            (sum, item) => sum + (item.jumlahKomentar || 0),
+                            (sum: number, item: any) =>
+                              sum + (item.jumlahKomentar || 0),
                             0
                           )}
                         </TableCell>
@@ -271,7 +272,7 @@ export default function ViewReportPage({ params }: ViewReportPageProps) {
                       </TableRow>
                     </TableHeader>
                     <TableBody>
-                      {report.topKomentar.map((item) => (
+                      {report.topKomentar.map((item: any) => (
                         <TableRow key={item.id}>
                           <TableCell>{item.no}</TableCell>
                           <TableCell>{item.namaAkun}</TableCell>
@@ -298,7 +299,8 @@ export default function ViewReportPage({ params }: ViewReportPageProps) {
                         </TableCell>
                         <TableCell>
                           {report.topKomentar.reduce(
-                            (sum, item) => sum + (item.jumlahTopKomentar || 0),
+                            (sum: number, item: any) =>
+                              sum + (item.jumlahTopKomentar || 0),
                             0
                           )}
                         </TableCell>

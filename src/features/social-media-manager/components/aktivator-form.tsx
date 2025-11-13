@@ -35,10 +35,7 @@ export default function AktivatorForm({
   });
 
   const router = useRouter();
-  const params =
-    typeof window !== 'undefined'
-      ? (useParams() as { id?: string })
-      : { id: undefined };
+  const params = useParams() as { id?: string };
   const isLoading = form.formState.isSubmitting;
 
   async function handleSubmit(values: FormData) {

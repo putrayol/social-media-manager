@@ -12,7 +12,7 @@ export type IssueCategory = 'Positif' | 'Negatif';
 
 // Social Media Aktivator (Report Giat Konten)
 export interface SocialMediaAktivator {
-  id: string;
+  id: number;
   no: number;
   namaAkun: string;
   platform: Platform;
@@ -24,7 +24,7 @@ export interface SocialMediaAktivator {
 
 // Cyber Troops (Report Giat Buzzer)
 export interface CyberTroops {
-  id: string;
+  id: number;
   no: number;
   namaAkun: string;
   platform: Platform;
@@ -39,7 +39,7 @@ export interface CyberTroops {
 
 // Report Giat Top Komentar Postingan
 export interface TopKomentarPostingan {
-  id: string;
+  id: number;
   no: number;
   namaAkun: string;
   platform: Platform;

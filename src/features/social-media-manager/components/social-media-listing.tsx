@@ -1,9 +1,8 @@
 'use client';
 
 import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Plus } from 'lucide-react';
+import { Plus, RotateCw } from 'lucide-react';
 import Link from 'next/link';
 import {
   SocialMediaAktivator,
@@ -13,6 +12,7 @@ import {
 import { AktivatorTable } from './tables/aktivator-table';
 import { CyberTroopsTable } from './tables/cyber-troops-table';
 import { TopKomentarTable } from './tables/top-komentar-table';
+import { useState } from 'react';
 
 interface SocialMediaListingProps {
   aktivatorData: SocialMediaAktivator[];
@@ -21,6 +21,7 @@ interface SocialMediaListingProps {
   totalAktivator: number;
   totalCyberTroops: number;
   totalTopKomentar: number;
+  onRefresh?: () => void;
 }
 
 export function SocialMediaListing({
@@ -29,87 +30,138 @@ export function SocialMediaListing({
   topKomentarData,
   totalAktivator,
   totalCyberTroops,
-  totalTopKomentar
+  totalTopKomentar,
+  onRefresh
 }: SocialMediaListingProps) {
+  const [isRefreshing, setIsRefreshing] = useState(false);
+
+  const handleRefresh = () => {
+    setIsRefreshing(true);
+    onRefresh?.();
+    // Reset after a short delay to show the animation
+    setTimeout(() => setIsRefreshing(false), 500);
+  };
+
   return (
-    <div className='space-y-6'>
+    <div className='flex flex-col gap-6'>
+      {/* ✅ Tabs with proper spacing */}
       <Tabs defaultValue='aktivator' className='w-full'>
-        <TabsList className='grid w-full grid-cols-3'>
+        {/* ✅ Tab List - Use default shadcn styling */}
+        <TabsList className='w-fit'>
           <TabsTrigger value='aktivator'>
-            Social Media Aktivator ({totalAktivator})
+            <span className='hidden sm:inline'>Social Media Aktivator</span>
+            <span className='sm:hidden'>Aktivator</span>
+            <span className='ml-1 text-xs'>({totalAktivator})</span>
           </TabsTrigger>
           <TabsTrigger value='cyber-troops'>
-            Cyber Troops ({totalCyberTroops})
+            <span className='hidden sm:inline'>Cyber Troops</span>
+            <span className='sm:hidden'>Cyber</span>
+            <span className='ml-1 text-xs'>({totalCyberTroops})</span>
           </TabsTrigger>
           <TabsTrigger value='top-komentar'>
-            Top Komentar ({totalTopKomentar})
+            <span className='hidden sm:inline'>Top Komentar</span>
+            <span className='sm:hidden'>Top</span>
+            <span className='ml-1 text-xs'>({totalTopKomentar})</span>
           </TabsTrigger>
         </TabsList>
 
-        <TabsContent value='aktivator' className='space-y-4'>
+        {/* ✅ Aktivator Tab */}
+        <TabsContent value='aktivator' className='mt-6 space-y-4'>
           <div className='flex items-center justify-between'>
             <h2 className='text-lg font-semibold'>
               Social Media Aktivator (Report Giat Konten)
             </h2>
-            <Link href='/dashboard/social-media-manager/aktivator/create'>
-              <Button>
-                <Plus className='mr-2 h-4 w-4' />
-                Tambah Data
+            {/* ✅ Button Group */}
+            <div className='bg-background flex gap-1 rounded-lg border p-1'>
+              <Button
+                variant='ghost'
+                size='sm'
+                onClick={handleRefresh}
+                disabled={isRefreshing}
+                className='gap-2'
+              >
+                <RotateCw
+                  className={`h-4 w-4 ${isRefreshing ? 'animate-spin' : ''}`}
+                />
+                Refresh
               </Button>
-            </Link>
+              <Link href='/dashboard/social-media-manager/aktivator/create'>
+                <Button variant='ghost' size='sm' className='gap-2'>
+                  <Plus className='h-4 w-4' />
+                  Tambah Data
+                </Button>
+              </Link>
+            </div>
           </div>
-          <Card>
-            <CardContent className='pt-6'>
-              <AktivatorTable
-                data={aktivatorData}
-                totalItems={totalAktivator}
-              />
-            </CardContent>
-          </Card>
+          <AktivatorTable data={aktivatorData} totalItems={totalAktivator} />
         </TabsContent>
 
-        <TabsContent value='cyber-troops' className='space-y-4'>
+        {/* ✅ Cyber Troops Tab */}
+        <TabsContent value='cyber-troops' className='mt-6 space-y-4'>
           <div className='flex items-center justify-between'>
             <h2 className='text-lg font-semibold'>
               Cyber Troops (Report Giat Buzzer)
             </h2>
-            <Link href='/dashboard/social-media-manager/cyber-troops/create'>
-              <Button>
-                <Plus className='mr-2 h-4 w-4' />
-                Tambah Data
+            {/* ✅ Button Group */}
+            <div className='bg-background flex gap-1 rounded-lg border p-1'>
+              <Button
+                variant='ghost'
+                size='sm'
+                onClick={handleRefresh}
+                disabled={isRefreshing}
+                className='gap-2'
+              >
+                <RotateCw
+                  className={`h-4 w-4 ${isRefreshing ? 'animate-spin' : ''}`}
+                />
+                Refresh
               </Button>
-            </Link>
+              <Link href='/dashboard/social-media-manager/cyber-troops/create'>
+                <Button variant='ghost' size='sm' className='gap-2'>
+                  <Plus className='h-4 w-4' />
+                  Tambah Data
+                </Button>
+              </Link>
+            </div>
           </div>
-          <Card>
-            <CardContent className='pt-6'>
-              <CyberTroopsTable
-                data={cyberTroopsData}
-                totalItems={totalCyberTroops}
-              />
-            </CardContent>
-          </Card>
+          <CyberTroopsTable
+            data={cyberTroopsData}
+            totalItems={totalCyberTroops}
+          />
         </TabsContent>
 
-        <TabsContent value='top-komentar' className='space-y-4'>
+        {/* ✅ Top Komentar Tab */}
+        <TabsContent value='top-komentar' className='mt-6 space-y-4'>
           <div className='flex items-center justify-between'>
             <h2 className='text-lg font-semibold'>
               Report Giat Top Komentar Postingan
             </h2>
-            <Link href='/dashboard/social-media-manager/top-komentar/create'>
-              <Button>
-                <Plus className='mr-2 h-4 w-4' />
-                Tambah Data
+            {/* ✅ Button Group */}
+            <div className='bg-background flex gap-1 rounded-lg border p-1'>
+              <Button
+                variant='ghost'
+                size='sm'
+                onClick={handleRefresh}
+                disabled={isRefreshing}
+                className='gap-2'
+              >
+                <RotateCw
+                  className={`h-4 w-4 ${isRefreshing ? 'animate-spin' : ''}`}
+                />
+                Refresh
               </Button>
-            </Link>
+              <Link href='/dashboard/social-media-manager/top-komentar/create'>
+                <Button variant='ghost' size='sm' className='gap-2'>
+                  <Plus className='h-4 w-4' />
+                  Tambah Data
+                </Button>
+              </Link>
+            </div>
           </div>
-          <Card>
-            <CardContent className='pt-6'>
-              <TopKomentarTable
-                data={topKomentarData}
-                totalItems={totalTopKomentar}
-              />
-            </CardContent>
-          </Card>
+          <TopKomentarTable
+            data={topKomentarData}
+            totalItems={totalTopKomentar}
+          />
         </TabsContent>
       </Tabs>
     </div>

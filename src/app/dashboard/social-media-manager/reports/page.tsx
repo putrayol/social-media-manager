@@ -10,6 +10,25 @@ export default function ReportsPage() {
   const [reports, setReports] = useState<any[]>([]);
   const [isLoading, setIsLoading] = useState(true);
 
+  // ✅ Fetch reports function (extracted for reuse)
+  const fetchReports = async (showLoading = true) => {
+    if (showLoading) setIsLoading(true);
+
+    try {
+      const res = await fetch('/api/social-media-manager/reports?limit=1000');
+      if (res.ok) {
+        const json = await res.json();
+        const reportsList = Array.isArray(json) ? json : json?.data || [];
+        setReports(reportsList);
+      }
+    } catch (error) {
+      console.error('[ReportsPage] Error fetching reports:', error);
+    } finally {
+      if (showLoading) setIsLoading(false);
+    }
+  };
+
+  // ✅ Initial fetch on mount
   useEffect(() => {
     if (!isLoaded) return;
 
@@ -24,24 +43,7 @@ export default function ReportsPage() {
       organization.id
     );
 
-    async function fetchReports() {
-      setIsLoading(true);
-
-      try {
-        const res = await fetch('/api/social-media-manager/reports?limit=1000');
-        if (res.ok) {
-          const json = await res.json();
-          const reportsList = Array.isArray(json) ? json : json?.data || [];
-          setReports(reportsList);
-        }
-      } catch (error) {
-        console.error('[ReportsPage] Error fetching reports:', error);
-      } finally {
-        setIsLoading(false);
-      }
-    }
-
-    fetchReports();
+    fetchReports(true);
   }, [organization, isLoaded]);
 
   if (!isLoaded || isLoading) {
@@ -75,7 +77,10 @@ export default function ReportsPage() {
           </div>
         </div>
 
-        <ReportListing reports={reports} />
+        <ReportListing
+          reports={reports}
+          onRefresh={() => fetchReports(false)}
+        />
       </div>
     </PageContainer>
   );

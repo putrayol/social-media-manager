@@ -10,7 +10,7 @@ datasource db {
 }
 
 model Aktivator {
-  id             String   @id @default(cuid())
+  id             Int      @id @default(autoincrement())
   no             Int
   namaAkun       String
   platform       String   // TIKTOK, INSTAGRAM, FACEBOOK, TWITTER, YOUTUBE, OTHER
@@ -26,7 +26,7 @@ model Aktivator {
 }
 
 model CyberTroops {
-  id             String   @id @default(cuid())
+  id             Int      @id @default(autoincrement())
   no             Int
   namaAkun       String
   platform       String   // TIKTOK, INSTAGRAM, FACEBOOK, TWITTER, YOUTUBE, OTHER
@@ -45,7 +45,7 @@ model CyberTroops {
 }
 
 model TopKomentar {
-  id                   String   @id @default(cuid())
+  id                   Int      @id @default(autoincrement())
   no                   Int
   namaAkun             String
   platform             String   // TIKTOK, INSTAGRAM, FACEBOOK, TWITTER, YOUTUBE, OTHER

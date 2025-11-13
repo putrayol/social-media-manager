@@ -102,6 +102,22 @@ export default function ReportForm({
             Object.entries(error).forEach(([index, itemError]) => {
               if (index !== 'message' && index !== 'type') {
                 console.log(`      Item [${index}]:`, itemError);
+                // Log detailed error for each item
+                if (itemError && typeof itemError === 'object') {
+                  Object.entries(itemError).forEach(
+                    ([fieldName, fieldError]: any) => {
+                      if (
+                        fieldError &&
+                        typeof fieldError === 'object' &&
+                        'message' in fieldError
+                      ) {
+                        console.log(
+                          `        - ${fieldName}: ${fieldError.message}`
+                        );
+                      }
+                    }
+                  );
+                }
               }
             });
           }
@@ -137,6 +153,13 @@ export default function ReportForm({
     top: false
   });
 
+  // State for used IDs
+  const [usedIds, setUsedIds] = useState({
+    aktivatorIds: [] as number[],
+    cyberTroopsIds: [] as number[],
+    topKomentarIds: [] as number[]
+  });
+
   // Modals visibility
   const [showAktivatorModal, setShowAktivatorModal] = useState(false);
   const [showCyberModal, setShowCyberModal] = useState(false);
@@ -156,6 +179,30 @@ export default function ReportForm({
   const [cyberSearchResults, setCyberSearchResults] = useState<any[]>([]);
   const [topQuery, setTopQuery] = useState('');
   const [topSearchResults, setTopSearchResults] = useState<any[]>([]);
+
+  // Fetch used IDs from other reports
+  async function fetchUsedIds() {
+    try {
+      const excludeReportId = initialData?.id
+        ? `?excludeReportId=${initialData.id}`
+        : '';
+      const res = await apiFetch(
+        `/api/social-media-manager/reports/used-ids${excludeReportId}`
+      );
+      const json = await res.json();
+      if (json?.success) {
+        setUsedIds(
+          json.data || {
+            aktivatorIds: [],
+            cyberTroopsIds: [],
+            topKomentarIds: []
+          }
+        );
+      }
+    } catch (e) {
+      console.error('Failed to load used IDs', e);
+    }
+  }
 
   // Fetch functions
   async function fetchAktivator() {
@@ -207,6 +254,7 @@ export default function ReportForm({
     fetchAktivator();
     fetchCyber();
     fetchTop();
+    fetchUsedIds();
   }, []);
 
   // Debounced search effects
@@ -218,13 +266,17 @@ export default function ReportForm({
           `/api/social-media-manager/aktivator?page=1&limit=10&search=${encodeURIComponent(aktivatorQuery)}`
         );
         const json = await res.json();
-        setAktivatorSearchResults(json?.data || []);
+        // Filter out items that are already used in other reports
+        const filtered = (json?.data || []).filter(
+          (item: any) => !usedIds.aktivatorIds.includes(item.id)
+        );
+        setAktivatorSearchResults(filtered);
       } catch (e) {
         console.error('Search aktivator failed', e);
       }
     }, 300);
     return () => clearTimeout(t);
-  }, [aktivatorQuery, showSearchAktivator]);
+  }, [aktivatorQuery, showSearchAktivator, usedIds.aktivatorIds]);
 
   useEffect(() => {
     if (!showSearchCyber) return;
@@ -234,13 +286,17 @@ export default function ReportForm({
           `/api/social-media-manager/cyber-troops?page=1&limit=10&search=${encodeURIComponent(cyberQuery)}`
         );
         const json = await res.json();
-        setCyberSearchResults(json?.data || []);
+        // Filter out items that are already used in other reports
+        const filtered = (json?.data || []).filter(
+          (item: any) => !usedIds.cyberTroopsIds.includes(item.id)
+        );
+        setCyberSearchResults(filtered);
       } catch (e) {
         console.error('Search cyber troops failed', e);
       }
     }, 300);
     return () => clearTimeout(t);
-  }, [cyberQuery, showSearchCyber]);
+  }, [cyberQuery, showSearchCyber, usedIds.cyberTroopsIds]);
 
   useEffect(() => {
     if (!showSearchTop) return;
@@ -250,29 +306,35 @@ export default function ReportForm({
           `/api/social-media-manager/top-komentar?page=1&limit=10&search=${encodeURIComponent(topQuery)}`
         );
         const json = await res.json();
-        setTopSearchResults(json?.data || []);
+        // Filter out items that are already used in other reports
+        const filtered = (json?.data || []).filter(
+          (item: any) => !usedIds.topKomentarIds.includes(item.id)
+        );
+        setTopSearchResults(filtered);
       } catch (e) {
         console.error('Search top komentar failed', e);
       }
     }, 300);
     return () => clearTimeout(t);
-  }, [topQuery, showSearchTop]);
+  }, [topQuery, showSearchTop, usedIds.topKomentarIds]);
 
   // Helpers: add/remove selected entries into form values
   function addAktivatorFromItem(item: any) {
     const current = form.getValues('aktivator') || [];
     const exists = current.some(
       (x) =>
-        x.namaAkun === item.namaAkun &&
-        x.platform === item.platform &&
-        x.jenisKonten === item.jenisKonten
+        x.id === item.id ||
+        (x.namaAkun === item.namaAkun &&
+          x.platform === item.platform &&
+          x.jenisKonten === item.jenisKonten)
     );
     if (exists) return;
     const mapped = {
+      id: item.id, // ✅ Include ID to link existing data
       namaAkun: item.namaAkun,
       platform: item.platform,
       jenisKonten: item.jenisKonten,
-      link: item.link || undefined
+      link: item.link || '' // ✅ Ensure link is always a string (empty string if not provided)
     };
     form.setValue('aktivator', [...current, mapped], { shouldValidate: true });
   }
@@ -290,19 +352,21 @@ export default function ReportForm({
     const current = form.getValues('cyberTroops') || [];
     const exists = current.some(
       (x) =>
-        x.namaAkun === item.namaAkun &&
-        x.platform === item.platform &&
-        x.jenisIsu === item.jenisIsu
+        x.id === item.id ||
+        (x.namaAkun === item.namaAkun &&
+          x.platform === item.platform &&
+          x.jenisIsu === item.jenisIsu)
     );
     if (exists) return;
     const mapped = {
+      id: item.id, // ✅ Include ID to link existing data
       namaAkun: item.namaAkun,
       platform: item.platform,
       kategori: item.kategori,
       jenisIsu: item.jenisIsu,
       jumlahKomentar: Number(item.jumlahKomentar ?? 0),
-      link: item.link || undefined,
-      keterangan: item.keterangan || undefined
+      link: item.link || '', // ✅ Ensure link is always a string (empty string if not provided)
+      keterangan: item.keterangan || null // ✅ Ensure keterangan is null if not provided
     };
     form.setValue('cyberTroops', [...current, mapped], {
       shouldValidate: true
@@ -322,17 +386,20 @@ export default function ReportForm({
     const current = form.getValues('topKomentar') || [];
     const exists = current.some(
       (x) =>
-        x.namaAkun === item.namaAkun &&
-        x.platform === item.platform &&
-        Number(x.jumlahTopKomentar) === Number(item.jumlahTopKomentar)
+        x.id === item.id ||
+        (x.namaAkun === item.namaAkun &&
+          x.platform === item.platform &&
+          Number(x.jumlahTopKomentar) === Number(item.jumlahTopKomentar))
     );
     if (exists) return;
     const mapped = {
+      id: item.id, // ✅ Include ID to link existing data
       namaAkun: item.namaAkun,
       platform: item.platform,
       jumlahTopKomentar: Number(item.jumlahTopKomentar ?? 0),
-      link: item.link || undefined,
-      keterangan: item.keterangan || undefined
+      link: item.link || '', // ✅ Ensure link is always a string (empty string if not provided)
+      keterangan: item.keterangan || null, // ✅ Ensure keterangan is null if not provided
+      documentFiles: item.documentFiles || [] // ✅ Add documentFiles array
     };
     form.setValue('topKomentar', [...current, mapped], {
       shouldValidate: true
@@ -361,17 +428,24 @@ export default function ReportForm({
     try {
       let processedValues = { ...values };
 
-      // Remove database-specific fields from arrays to prevent duplicate creation
-      // Keep only the fields needed for createMany
+      // ✅ IMPORTANT: Keep ID if item has it (existing item from DB)
+      // Only include full data if item doesn't have ID (new item)
       if (processedValues.aktivator && processedValues.aktivator.length > 0) {
         processedValues.aktivator = processedValues.aktivator.map(
-          (item: any, index: number) => ({
-            no: item.no || index + 1,
-            namaAkun: item.namaAkun,
-            platform: item.platform,
-            jenisKonten: item.jenisKonten,
-            link: item.link || null
-          })
+          (item: any, index: number) => {
+            // If item has ID, it's from database - only send ID
+            if (item.id) {
+              return { id: item.id };
+            }
+            // Otherwise, it's a new item - send full data
+            return {
+              no: item.no || index + 1,
+              namaAkun: item.namaAkun,
+              platform: item.platform,
+              jenisKonten: item.jenisKonten,
+              link: item.link || null
+            };
+          }
         );
       }
       if (
@@ -379,16 +453,23 @@ export default function ReportForm({
         processedValues.cyberTroops.length > 0
       ) {
         processedValues.cyberTroops = processedValues.cyberTroops.map(
-          (item: any, index: number) => ({
-            no: item.no || index + 1,
-            namaAkun: item.namaAkun,
-            platform: item.platform,
-            kategori: item.kategori,
-            jenisIsu: item.jenisIsu,
-            jumlahKomentar: item.jumlahKomentar || 0,
-            link: item.link || null,
-            keterangan: item.keterangan || null
-          })
+          (item: any, index: number) => {
+            // If item has ID, it's from database - only send ID
+            if (item.id) {
+              return { id: item.id };
+            }
+            // Otherwise, it's a new item - send full data
+            return {
+              no: item.no || index + 1,
+              namaAkun: item.namaAkun,
+              platform: item.platform,
+              kategori: item.kategori,
+              jenisIsu: item.jenisIsu,
+              jumlahKomentar: item.jumlahKomentar || 0,
+              link: item.link || null,
+              keterangan: item.keterangan || null
+            };
+          }
         );
       }
       if (
@@ -396,14 +477,21 @@ export default function ReportForm({
         processedValues.topKomentar.length > 0
       ) {
         processedValues.topKomentar = processedValues.topKomentar.map(
-          (item: any, index: number) => ({
-            no: item.no || index + 1,
-            namaAkun: item.namaAkun,
-            platform: item.platform,
-            jumlahTopKomentar: item.jumlahTopKomentar || 0,
-            link: item.link || null,
-            keterangan: item.keterangan || null
-          })
+          (item: any, index: number) => {
+            // If item has ID, it's from database - only send ID
+            if (item.id) {
+              return { id: item.id };
+            }
+            // Otherwise, it's a new item - send full data
+            return {
+              no: item.no || index + 1,
+              namaAkun: item.namaAkun,
+              platform: item.platform,
+              jumlahTopKomentar: item.jumlahTopKomentar || 0,
+              link: item.link || null,
+              keterangan: item.keterangan || null
+            };
+          }
         );
       }
 
@@ -486,6 +574,9 @@ export default function ReportForm({
 
       const res = await apiFetch(endpoint, {
         method,
+        headers: {
+          'Content-Type': 'application/json'
+        },
         body: JSON.stringify(dataToSend)
       });
 
@@ -494,14 +585,39 @@ export default function ReportForm({
       console.log('API Response text:', responseText);
 
       if (!res.ok) {
+        let errorMessage = 'Gagal menyimpan laporan';
+
         try {
           const error = JSON.parse(responseText);
           console.error('Error submitting form:', error);
-          toast.error(error.error || 'Gagal menyimpan laporan');
+
+          // Check for specific error messages
+          if (error.error) {
+            errorMessage = error.error;
+          }
+
+          // Check for Prisma unique constraint error
+          if (
+            responseText.includes(
+              'Unique constraint failed on the fields: (`reportNo`)'
+            )
+          ) {
+            errorMessage = `Nomor laporan "${values.reportNo}" sudah digunakan. Silakan gunakan nomor yang berbeda.`;
+          }
         } catch (e) {
           console.error('Error parsing response:', responseText);
-          toast.error('Gagal menyimpan laporan');
+
+          // Try to extract error from raw text
+          if (
+            responseText.includes(
+              'Unique constraint failed on the fields: (`reportNo`)'
+            )
+          ) {
+            errorMessage = `Nomor laporan "${values.reportNo}" sudah digunakan. Silakan gunakan nomor yang berbeda.`;
+          }
         }
+
+        toast.error(errorMessage);
         return;
       }
 

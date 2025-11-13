@@ -4,16 +4,25 @@ import {
   requireOrganization,
   requireOrganizationAdmin
 } from '@/lib/organization-utils';
+import { revalidatePath } from 'next/cache';
 
 // GET - Fetch single cyber troops
 export async function GET(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     const orgId = await requireOrganization();
+    const { id } = await params;
+    const numericId = parseInt(id, 10);
+    if (isNaN(numericId)) {
+      return NextResponse.json(
+        { success: false, error: 'Invalid ID format' },
+        { status: 400 }
+      );
+    }
     const cyberTroops = await prisma.cyberTroops.findUnique({
-      where: { id: params.id }
+      where: { id: numericId }
     });
     if (!cyberTroops || cyberTroops.organizationId !== orgId) {
       return NextResponse.json(
@@ -34,16 +43,24 @@ export async function GET(
 // PUT - Update cyber troops
 export async function PUT(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     await requireOrganizationAdmin();
     const orgId = await requireOrganization();
+    const { id } = await params;
+    const numericId = parseInt(id, 10);
+    if (isNaN(numericId)) {
+      return NextResponse.json(
+        { success: false, error: 'Invalid ID format' },
+        { status: 400 }
+      );
+    }
     const body = await request.json();
 
     // Verify ownership
     const existing = await prisma.cyberTroops.findUnique({
-      where: { id: params.id }
+      where: { id: numericId }
     });
 
     if (!existing || existing.organizationId !== orgId) {
@@ -54,7 +71,7 @@ export async function PUT(
     }
 
     const updated = await prisma.cyberTroops.update({
-      where: { id: params.id },
+      where: { id: numericId },
       data: {
         no: body.no !== undefined ? Number(body.no) : undefined,
         namaAkun: body.namaAkun,
@@ -71,6 +88,11 @@ export async function PUT(
         keterangan: body.keterangan ?? undefined
       }
     });
+
+    // Revalidate the pages that display this data
+    revalidatePath('/dashboard/social-media-manager');
+    revalidatePath('/dashboard/social-media-manager/cyber-troops');
+
     return NextResponse.json({ success: true, data: updated });
   } catch (error) {
     console.error('Error updating cyber troops:', error);
@@ -84,15 +106,23 @@ export async function PUT(
 // DELETE - Delete cyber troops
 export async function DELETE(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     await requireOrganizationAdmin();
     const orgId = await requireOrganization();
+    const { id } = await params;
+    const numericId = parseInt(id, 10);
+    if (isNaN(numericId)) {
+      return NextResponse.json(
+        { success: false, error: 'Invalid ID format' },
+        { status: 400 }
+      );
+    }
 
     // Verify ownership
     const existing = await prisma.cyberTroops.findUnique({
-      where: { id: params.id }
+      where: { id: numericId }
     });
 
     if (!existing || existing.organizationId !== orgId) {
@@ -103,8 +133,13 @@ export async function DELETE(
     }
 
     const deleted = await prisma.cyberTroops.delete({
-      where: { id: params.id }
+      where: { id: numericId }
     });
+
+    // Revalidate the pages that display this data
+    revalidatePath('/dashboard/social-media-manager');
+    revalidatePath('/dashboard/social-media-manager/cyber-troops');
+
     return NextResponse.json({ success: true, data: deleted });
   } catch (error) {
     console.error('Error deleting cyber troops:', error);

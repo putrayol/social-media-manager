@@ -12,6 +12,7 @@ import {
 import { Edit, MoreHorizontal, Trash } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { useState } from 'react';
+import { useCrudFeedback } from '@/lib/use-crud-feedback';
 import { Row } from '@tanstack/react-table';
 import { TopKomentarPostingan } from '../../types';
 
@@ -21,28 +22,34 @@ interface TopKomentarCellActionProps {
 
 export function TopKomentarCellAction({ row }: TopKomentarCellActionProps) {
   const router = useRouter();
+  const { run } = useCrudFeedback();
   const [open, setOpen] = useState(false);
   const [loading, setLoading] = useState(false);
 
   const onConfirm = async () => {
     try {
       setLoading(true);
-      const res = await fetch(
-        `/api/social-media-manager/top-komentar/${row.original.id}`,
+      await run(
+        async () => {
+          const res = await fetch(
+            `/api/social-media-manager/top-komentar/${row.original.id}`,
+            {
+              method: 'DELETE'
+            }
+          );
+          if (!res.ok) {
+            const err = await res.json().catch(() => null);
+            const msg = err?.error || 'Gagal menghapus data top komentar';
+            throw new Error(msg);
+          }
+          return res;
+        },
         {
-          method: 'DELETE'
+          success: 'Data top komentar berhasil dihapus',
+          error: 'Gagal menghapus data top komentar'
         }
       );
-      if (!res.ok) {
-        const err = await res.json().catch(() => null);
-        const msg = err?.error || 'Gagal menghapus data top komentar';
-        if (typeof window !== 'undefined') {
-          alert(msg);
-        }
-        throw new Error(msg);
-      }
       setOpen(false);
-      router.refresh();
     } catch (error) {
       console.error('Error deleting:', error);
     } finally {

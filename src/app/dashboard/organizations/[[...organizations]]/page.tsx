@@ -1,15 +1,15 @@
-import { UserProfile } from '@clerk/nextjs';
+import { OrganizationProfile } from '@clerk/nextjs';
 import { Metadata } from 'next';
 
 export const metadata: Metadata = {
-  title: 'Profile',
-  description: 'Manage your profile'
+  title: 'Organizations',
+  description: 'Manage your organizations'
 };
 
-export default function ProfilePage() {
+export default function OrganizationsPage() {
   return (
     <div className='flex h-full w-full p-4'>
-      <UserProfile
+      <OrganizationProfile
         appearance={{
           elements: {
             rootBox: 'w-full max-w-4xl',
