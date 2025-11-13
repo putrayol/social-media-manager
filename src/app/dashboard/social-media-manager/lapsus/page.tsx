@@ -1,14 +1,97 @@
+'use client';
+
 import PageContainer from '@/components/layout/page-container';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
 import { Download, Edit, FileText } from 'lucide-react';
 import Link from 'next/link';
-import { mockLapsus } from '@/features/social-media-manager/utils/mock-data';
+import { useEffect, useState } from 'react';
+import { useOrganization } from '@clerk/nextjs';
 
 export default function LapsusPage() {
-  // TODO: Fetch data from API
-  const lapsus = mockLapsus;
+  const { organization, isLoaded } = useOrganization();
+  const [lapsus, setLapsus] = useState<any>(null);
+  const [isLoading, setIsLoading] = useState(true);
+
+  useEffect(() => {
+    if (!isLoaded) return;
+
+    if (!organization) {
+      console.log('[LapsusPage] No organization loaded yet');
+      setIsLoading(false);
+      return;
+    }
+
+    console.log(
+      '[LapsusPage] Fetching lapsus for organization:',
+      organization.id
+    );
+
+    async function fetchLapsus() {
+      setIsLoading(true);
+
+      try {
+        const res = await fetch('/api/social-media-manager/lapsus');
+        if (res.ok) {
+          const json = await res.json();
+          setLapsus(json.data || json);
+        }
+      } catch (error) {
+        console.error('[LapsusPage] Error fetching lapsus:', error);
+      } finally {
+        setIsLoading(false);
+      }
+    }
+
+    fetchLapsus();
+  }, [organization, isLoaded]);
+
+  if (!isLoaded || isLoading) {
+    return (
+      <PageContainer>
+        <div className='flex flex-1 flex-col space-y-4'>
+          <div className='flex items-start justify-between'>
+            <div>
+              <h2 className='text-3xl font-bold tracking-tight'>
+                Laporan Khusus (LAPSUS)
+              </h2>
+              <p className='text-muted-foreground'>Loading...</p>
+            </div>
+          </div>
+        </div>
+      </PageContainer>
+    );
+  }
+
+  if (!lapsus) {
+    return (
+      <PageContainer>
+        <div className='flex flex-1 flex-col space-y-4'>
+          <div className='flex items-start justify-between'>
+            <div>
+              <h2 className='text-3xl font-bold tracking-tight'>
+                Laporan Khusus (LAPSUS)
+              </h2>
+              <p className='text-muted-foreground'>
+                Kelola laporan khusus dengan dokumen pendukung
+              </p>
+            </div>
+            <Link href='/dashboard/social-media-manager/lapsus/edit'>
+              <Button>
+                <Edit className='mr-2 h-4 w-4' />
+                Buat Laporan
+              </Button>
+            </Link>
+          </div>
+          <Card>
+            <CardContent className='py-10 text-center'>
+              <p className='text-muted-foreground'>Belum ada laporan khusus</p>
+            </CardContent>
+          </Card>
+        </div>
+      </PageContainer>
+    );
+  }
 
   return (
     <PageContainer>
@@ -42,7 +125,7 @@ export default function LapsusPage() {
                     Tanggal Laporan
                   </p>
                   <p className='text-lg font-semibold'>
-                    {lapsus.tanggal.toLocaleDateString('id-ID')}
+                    {new Date(lapsus.tanggal).toLocaleDateString('id-ID')}
                   </p>
                 </div>
                 <div>
@@ -50,7 +133,7 @@ export default function LapsusPage() {
                     Jumlah Komentar
                   </p>
                   <p className='text-lg font-semibold'>
-                    {lapsus.jumlahKomentar}
+                    {lapsus.jumlahKomentar || 0}
                   </p>
                 </div>
                 <div>
@@ -58,14 +141,14 @@ export default function LapsusPage() {
                     Jumlah Postingan
                   </p>
                   <p className='text-lg font-semibold'>
-                    {lapsus.jumlahPostingan}
+                    {lapsus.jumlahPostingan || 0}
                   </p>
                 </div>
               </div>
 
               <div>
                 <p className='text-muted-foreground text-sm'>Keterangan</p>
-                <p className='mt-2'>{lapsus.keterangan}</p>
+                <p className='mt-2'>{lapsus.keterangan || '-'}</p>
               </div>
             </CardContent>
           </Card>
@@ -77,7 +160,7 @@ export default function LapsusPage() {
             <CardContent>
               {lapsus.documentFiles && lapsus.documentFiles.length > 0 ? (
                 <div className='space-y-3'>
-                  {lapsus.documentFiles.map((file) => (
+                  {lapsus.documentFiles.map((file: any) => (
                     <div
                       key={file.id}
                       className='flex items-center justify-between rounded-lg border p-3'

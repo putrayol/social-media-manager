@@ -113,7 +113,7 @@ export function ReportListing({ reports }: ReportListingProps) {
                         {report.reportNo}
                       </TableCell>
                       <TableCell>
-                        {report.tanggal.toLocaleDateString('id-ID')}
+                        {new Date(report.tanggal).toLocaleDateString('id-ID')}
                       </TableCell>
                       <TableCell>
                         <Badge variant='outline'>

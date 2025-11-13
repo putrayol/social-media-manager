@@ -1,3 +1,5 @@
+'use client';
+
 import PageContainer from '@/components/layout/page-container';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -12,23 +14,75 @@ import {
 } from '@/components/ui/table';
 import { Edit } from 'lucide-react';
 import Link from 'next/link';
-import { prisma } from '@/lib/prisma';
 import ReportActions from '@/features/social-media-manager/components/report-actions';
+import { useEffect, useState } from 'react';
+import { useOrganization } from '@clerk/nextjs';
 
 interface ViewReportPageProps {
   params: Promise<{ id: string }>;
 }
 
-export default async function ViewReportPage({ params }: ViewReportPageProps) {
-  const { id } = await params;
-  const report = await prisma.socialMediaReport.findUnique({
-    where: { id },
-    include: {
-      aktivator: true,
-      cyberTroops: true,
-      topKomentar: true
+export default function ViewReportPage({ params }: ViewReportPageProps) {
+  const { organization, isLoaded } = useOrganization();
+  const [report, setReport] = useState<any>(null);
+  const [isLoading, setIsLoading] = useState(true);
+  const [reportId, setReportId] = useState<string>('');
+
+  useEffect(() => {
+    params.then(({ id }) => setReportId(id));
+  }, [params]);
+
+  useEffect(() => {
+    if (!isLoaded || !reportId) return;
+
+    if (!organization) {
+      console.log('[ViewReportPage] No organization loaded yet');
+      setIsLoading(false);
+      return;
     }
-  });
+
+    console.log(
+      '[ViewReportPage] Fetching report:',
+      reportId,
+      'for organization:',
+      organization.id
+    );
+
+    async function fetchReport() {
+      setIsLoading(true);
+
+      try {
+        const res = await fetch(
+          `/api/social-media-manager/reports/${reportId}`
+        );
+        if (res.ok) {
+          const json = await res.json();
+          setReport(json.data || json);
+        } else {
+          setReport(null);
+        }
+      } catch (error) {
+        console.error('[ViewReportPage] Error fetching report:', error);
+        setReport(null);
+      } finally {
+        setIsLoading(false);
+      }
+    }
+
+    fetchReport();
+  }, [organization, isLoaded, reportId]);
+
+  if (!isLoaded || isLoading) {
+    return (
+      <PageContainer>
+        <div className='flex flex-1 flex-col space-y-4'>
+          <div className='text-center'>
+            <h2 className='text-2xl font-bold'>Loading...</h2>
+          </div>
+        </div>
+      </PageContainer>
+    );
+  }
 
   if (!report) {
     return (
@@ -51,7 +105,7 @@ export default async function ViewReportPage({ params }: ViewReportPageProps) {
               {report.reportNo} - Laporan Media Sosial
             </h2>
             <p className='text-muted-foreground'>
-              {report.tanggal.toLocaleDateString('id-ID', {
+              {new Date(report.tanggal).toLocaleDateString('id-ID', {
                 weekday: 'long',
                 year: 'numeric',
                 month: 'long',

@@ -1,23 +1,31 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
+import {
+  requireOrganization,
+  requireOrganizationAdmin
+} from '@/lib/organization-utils';
 
 // GET - Fetch all reports
 export async function GET(request: NextRequest) {
   try {
+    const orgId = await requireOrganization();
     const searchParams = request.nextUrl.searchParams;
     const page = parseInt(searchParams.get('page') || '1');
     const limit = parseInt(searchParams.get('limit') || '10');
     const search = searchParams.get('search') || '';
 
     // Build where clause for search
-    const where = search
-      ? {
-          OR: [
-            { reportNo: { contains: search } },
-            { tanggal: { contains: search } }
-          ]
-        }
-      : {};
+    const where = {
+      organizationId: orgId,
+      ...(search
+        ? {
+            OR: [
+              { reportNo: { contains: search } },
+              { tanggal: { contains: search } }
+            ]
+          }
+        : {})
+    };
 
     // Get total count
     const total = await prisma.socialMediaReport.count({ where });
@@ -54,6 +62,8 @@ export async function GET(request: NextRequest) {
 // POST - Create new report
 export async function POST(request: NextRequest) {
   try {
+    await requireOrganizationAdmin();
+    const orgId = await requireOrganization();
     const body = await request.json();
     const {
       reportNo,
@@ -71,6 +81,7 @@ export async function POST(request: NextRequest) {
         reportNo,
         namaLaporan: namaLaporan || null,
         tanggal: new Date(tanggal),
+        organizationId: orgId,
         lapsusData: lapsus ? JSON.stringify(lapsus) : null,
         aktivator: aktivator
           ? {
@@ -80,7 +91,8 @@ export async function POST(request: NextRequest) {
                   namaAkun: item.namaAkun,
                   platform: item.platform,
                   jenisKonten: item.jenisKonten,
-                  link: item.link || null
+                  link: item.link || null,
+                  organizationId: orgId
                 }))
               }
             }
@@ -96,7 +108,8 @@ export async function POST(request: NextRequest) {
                   jenisIsu: item.jenisIsu,
                   jumlahKomentar: item.jumlahKomentar || 0,
                   link: item.link || null,
-                  keterangan: item.keterangan || null
+                  keterangan: item.keterangan || null,
+                  organizationId: orgId
                 }))
               }
             }
@@ -110,7 +123,8 @@ export async function POST(request: NextRequest) {
                   platform: item.platform,
                   jumlahTopKomentar: item.jumlahTopKomentar || 0,
                   link: item.link || null,
-                  keterangan: item.keterangan || null
+                  keterangan: item.keterangan || null,
+                  organizationId: orgId
                 }))
               }
             }

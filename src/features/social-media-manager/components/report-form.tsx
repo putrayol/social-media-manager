@@ -41,21 +41,29 @@ export default function ReportForm({
   initialData,
   pageTitle
 }: ReportFormProps) {
+  // Helper function to safely convert to Date
+  const toDate = (value: any): Date => {
+    if (!value) return new Date();
+    if (value instanceof Date) return value;
+    try {
+      return new Date(value);
+    } catch {
+      return new Date();
+    }
+  };
+
   const form = useForm<FormData>({
     resolver: zodResolver(socialMediaReportSchema),
     defaultValues: {
       reportNo: initialData?.reportNo || '',
       namaLaporan: initialData?.namaLaporan || '',
-      tanggal: initialData?.tanggal || new Date(),
+      tanggal: toDate(initialData?.tanggal),
       aktivator: initialData?.aktivator || [],
       cyberTroops: initialData?.cyberTroops || [],
       topKomentar: initialData?.topKomentar || [],
       lapsus: initialData?.lapsus
         ? {
-            tanggal:
-              initialData.lapsus.tanggal instanceof Date
-                ? initialData.lapsus.tanggal
-                : new Date(initialData.lapsus.tanggal),
+            tanggal: toDate(initialData.lapsus.tanggal),
             jumlahKomentar: initialData.lapsus.jumlahKomentar || 0,
             jumlahPostingan: initialData.lapsus.jumlahPostingan || 0,
             keterangan: initialData.lapsus.keterangan || '',
@@ -67,6 +75,54 @@ export default function ReportForm({
 
   const router = useRouter();
   const isLoading = form.formState.isSubmitting;
+  const [isSubmitting, setIsSubmitting] = useState(false);
+
+  // Debug form state
+  useEffect(() => {
+    const values = form.getValues();
+    const errors = form.formState.errors;
+    console.log('=== FORM DEBUG ===');
+    console.log('Form values:', values);
+    console.log('Form errors:', errors);
+
+    // Log detailed errors
+    if (Object.keys(errors).length > 0) {
+      console.log('🔴 VALIDATION ERRORS FOUND:');
+      Object.entries(errors).forEach(([key, error]) => {
+        console.log(`  - ${key}:`, error);
+        if (error && typeof error === 'object' && 'message' in error) {
+          console.log(`    Message: ${error.message}`);
+        }
+        // Check nested errors (for arrays)
+        if (Array.isArray(values[key as keyof typeof values])) {
+          console.log(
+            `    Array field with ${(values[key as keyof typeof values] as any[]).length} items`
+          );
+          if (error && typeof error === 'object') {
+            Object.entries(error).forEach(([index, itemError]) => {
+              if (index !== 'message' && index !== 'type') {
+                console.log(`      Item [${index}]:`, itemError);
+              }
+            });
+          }
+        }
+      });
+    } else {
+      console.log('✅ No validation errors');
+    }
+
+    console.log('Form isValid:', form.formState.isValid);
+    console.log('Form isDirty:', form.formState.isDirty);
+    console.log('Tanggal type:', typeof values.tanggal, values.tanggal);
+    if (values.lapsus?.tanggal) {
+      console.log(
+        'Lapsus tanggal type:',
+        typeof values.lapsus.tanggal,
+        values.lapsus.tanggal
+      );
+    }
+    console.log('==================');
+  }, [form.formState.errors, form.formState.isValid, form.formState.isDirty]);
   const [activeTab, setActiveTab] = useState<
     'info' | 'aktivator' | 'cyber' | 'top' | 'lapsus'
   >('info');
@@ -293,7 +349,15 @@ export default function ReportForm({
   }
 
   async function handleSubmit(values: FormData) {
+    // Prevent double submission
+    if (isSubmitting) {
+      console.log('Already submitting, ignoring duplicate call');
+      return;
+    }
+
     console.log('handleSubmit called with values:', values);
+    setIsSubmitting(true);
+
     try {
       let processedValues = { ...values };
 
@@ -444,10 +508,14 @@ export default function ReportForm({
       toast.success(
         initialData ? 'Laporan berhasil diperbarui' : 'Laporan berhasil dibuat'
       );
-      router.push('/dashboard/social-media-manager/reports');
+
+      // Use replace instead of push to prevent back navigation issues
+      router.replace('/dashboard/social-media-manager/reports');
     } catch (error) {
       console.error('Error submitting form:', error);
       toast.error('Terjadi kesalahan saat menyimpan laporan');
+    } finally {
+      setIsSubmitting(false);
     }
   }
 
@@ -729,8 +797,18 @@ export default function ReportForm({
 
         {/* Submit Button */}
         <div className='flex gap-4'>
-          <Button type='submit' disabled={isLoading} className='w-full'>
-            {isLoading ? 'Menyimpan...' : 'Simpan Laporan'}
+          <Button
+            type='submit'
+            disabled={isLoading || isSubmitting}
+            className='w-full'
+            onClick={() => {
+              console.log('Submit button clicked!');
+              console.log('isLoading:', isLoading);
+              console.log('isSubmitting:', isSubmitting);
+              console.log('Form errors:', form.formState.errors);
+            }}
+          >
+            {isLoading || isSubmitting ? 'Menyimpan...' : 'Simpan Laporan'}
           </Button>
           <Button
             type='button'

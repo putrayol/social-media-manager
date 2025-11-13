@@ -62,6 +62,7 @@ function FormTextarea<
                 style={{ resize }}
                 maxLength={maxLength}
                 {...field}
+                value={field.value ?? ''}
               />
               {showCharCount && maxLength && (
                 <div className='text-muted-foreground text-right text-sm'>

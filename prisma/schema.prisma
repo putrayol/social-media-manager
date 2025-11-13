@@ -10,16 +10,19 @@ datasource db {
 }
 
 model Aktivator {
-  id          String   @id @default(cuid())
-  no          Int
-  namaAkun    String
-  platform    String   // TIKTOK, INSTAGRAM, FACEBOOK, TWITTER, YOUTUBE, OTHER
-  jenisKonten String
-  link        String?
-  reportId    String?
-  report      SocialMediaReport? @relation(fields: [reportId], references: [id], onDelete: Cascade)
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+  id             String   @id @default(cuid())
+  no             Int
+  namaAkun       String
+  platform       String   // TIKTOK, INSTAGRAM, FACEBOOK, TWITTER, YOUTUBE, OTHER
+  jenisKonten    String
+  link           String?
+  organizationId String?  // Clerk organization ID
+  reportId       String?
+  report         SocialMediaReport? @relation(fields: [reportId], references: [id], onDelete: Cascade)
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  @@index([organizationId])
 }
 
 model CyberTroops {
@@ -32,10 +35,13 @@ model CyberTroops {
   jumlahKomentar Int
   link           String?
   keterangan     String?
+  organizationId String?  // Clerk organization ID
   reportId       String?
   report         SocialMediaReport? @relation(fields: [reportId], references: [id], onDelete: Cascade)
   createdAt      DateTime @default(now())
   updatedAt      DateTime @updatedAt
+
+  @@index([organizationId])
 }
 
 model TopKomentar {
@@ -47,23 +53,29 @@ model TopKomentar {
   link                 String?
   keterangan           String?
   documentFilesData    String?  // JSON string for document files
+  organizationId       String?  // Clerk organization ID
   reportId             String?
   report               SocialMediaReport? @relation(fields: [reportId], references: [id], onDelete: Cascade)
   createdAt            DateTime @default(now())
   updatedAt            DateTime @updatedAt
+
+  @@index([organizationId])
 }
 
 model SocialMediaReport {
-  id           String   @id @default(cuid())
-  reportNo     String   @unique
-  namaLaporan  String?  // Report name
-  tanggal      DateTime
-  aktivator    Aktivator[]
-  cyberTroops  CyberTroops[]
-  topKomentar  TopKomentar[]
-  lapsusData   String?  // JSON string for lapsus data
-  createdAt    DateTime @default(now())
-  updatedAt    DateTime @updatedAt
+  id             String   @id @default(cuid())
+  reportNo       String   @unique
+  namaLaporan    String?  // Report name
+  tanggal        DateTime
+  organizationId String?  // Clerk organization ID
+  aktivator      Aktivator[]
+  cyberTroops    CyberTroops[]
+  topKomentar    TopKomentar[]
+  lapsusData     String?  // JSON string for lapsus data
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  @@index([organizationId])
 }
 
 model LaporanKhusus {
@@ -74,6 +86,9 @@ model LaporanKhusus {
   jumlahPostingan   Int
   keterangan        String?
   documentFilesData String?  // JSON string for document files
+  organizationId    String?  // Clerk organization ID
   createdAt         DateTime @default(now())
   updatedAt         DateTime @updatedAt
+
+  @@index([organizationId])
 }

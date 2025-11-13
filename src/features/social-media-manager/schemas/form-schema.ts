@@ -37,7 +37,12 @@ export const socialMediaAktivatorSchema = z.object({
   jenisKonten: z
     .string()
     .min(3, { message: 'Jenis konten harus minimal 3 karakter' }),
-  link: z.string().url({ message: 'Link harus URL yang valid' }).optional()
+  link: z
+    .string()
+    .url({ message: 'Link harus URL yang valid' })
+    .or(z.literal(''))
+    .optional()
+    .nullable()
 });
 
 // Cyber Troops Schema
@@ -60,8 +65,13 @@ export const cyberTroopsSchema = z.object({
   jumlahKomentar: z.coerce
     .number()
     .min(0, { message: 'Jumlah komentar tidak boleh negatif' }),
-  link: z.string().url({ message: 'Link harus URL yang valid' }).optional(),
-  keterangan: z.string().optional()
+  link: z
+    .string()
+    .url({ message: 'Link harus URL yang valid' })
+    .or(z.literal(''))
+    .optional()
+    .nullable(),
+  keterangan: z.string().optional().nullable()
 });
 
 // Top Komentar Postingan Schema
@@ -80,8 +90,13 @@ export const topKomentarPostinganSchema = z.object({
   jumlahTopKomentar: z.coerce
     .number()
     .min(0, { message: 'Jumlah top komentar tidak boleh negatif' }),
-  link: z.string().url({ message: 'Link harus URL yang valid' }).optional(),
-  keterangan: z.string().optional(),
+  link: z
+    .string()
+    .url({ message: 'Link harus URL yang valid' })
+    .or(z.literal(''))
+    .optional()
+    .nullable(),
+  keterangan: z.string().optional().nullable(),
   documentFiles: z
     .array(
       z.union([
@@ -102,7 +117,7 @@ export const laporanKhususSchema = z.object({
   jumlahPostingan: z.coerce
     .number()
     .min(0, { message: 'Jumlah postingan tidak boleh negatif' }),
-  keterangan: z.string().optional(),
+  keterangan: z.string().optional().nullable(),
   documentFiles: z
     .array(
       z.union([

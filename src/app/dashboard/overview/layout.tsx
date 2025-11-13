@@ -15,12 +15,14 @@ export default function OverViewLayout({
   sales,
   pie_stats,
   bar_stats,
-  area_stats
+  area_stats,
+  org_info
 }: {
   sales: React.ReactNode;
   pie_stats: React.ReactNode;
   bar_stats: React.ReactNode;
   area_stats: React.ReactNode;
+  org_info: React.ReactNode;
 }) {
   return (
     <PageContainer>
@@ -130,6 +132,7 @@ export default function OverViewLayout({
           </div>
           <div className='col-span-4'>{area_stats}</div>
           <div className='col-span-4 md:col-span-3'>{pie_stats}</div>
+          <div className='col-span-4 md:col-span-7'>{org_info}</div>
         </div>
       </div>
     </PageContainer>

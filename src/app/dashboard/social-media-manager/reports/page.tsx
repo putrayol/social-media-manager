@@ -1,23 +1,65 @@
+'use client';
+
 import PageContainer from '@/components/layout/page-container';
 import { ReportListing } from '@/features/social-media-manager/components/report-listing';
-import { prisma } from '@/lib/prisma';
+import { useEffect, useState } from 'react';
+import { useOrganization } from '@clerk/nextjs';
 
-export default async function ReportsPage() {
-  // Fetch data from database
-  const reports = await prisma.socialMediaReport.findMany({
-    include: {
-      aktivator: true,
-      cyberTroops: true,
-      topKomentar: true
-    },
-    orderBy: { createdAt: 'desc' }
-  });
+export default function ReportsPage() {
+  const { organization, isLoaded } = useOrganization();
+  const [reports, setReports] = useState<any[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
 
-  // Transform data to match SocialMediaReport interface
-  const transformedReports = reports.map((report) => ({
-    ...report,
-    lapsus: report.lapsusData ? JSON.parse(report.lapsusData) : null
-  }));
+  useEffect(() => {
+    if (!isLoaded) return;
+
+    if (!organization) {
+      console.log('[ReportsPage] No organization loaded yet');
+      setIsLoading(false);
+      return;
+    }
+
+    console.log(
+      '[ReportsPage] Fetching reports for organization:',
+      organization.id
+    );
+
+    async function fetchReports() {
+      setIsLoading(true);
+
+      try {
+        const res = await fetch('/api/social-media-manager/reports?limit=1000');
+        if (res.ok) {
+          const json = await res.json();
+          const reportsList = Array.isArray(json) ? json : json?.data || [];
+          setReports(reportsList);
+        }
+      } catch (error) {
+        console.error('[ReportsPage] Error fetching reports:', error);
+      } finally {
+        setIsLoading(false);
+      }
+    }
+
+    fetchReports();
+  }, [organization, isLoaded]);
+
+  if (!isLoaded || isLoading) {
+    return (
+      <PageContainer>
+        <div className='flex flex-1 flex-col space-y-4'>
+          <div className='flex items-start justify-between'>
+            <div>
+              <h2 className='text-3xl font-bold tracking-tight'>
+                Laporan Media Sosial
+              </h2>
+              <p className='text-muted-foreground'>Loading...</p>
+            </div>
+          </div>
+        </div>
+      </PageContainer>
+    );
+  }
 
   return (
     <PageContainer>
@@ -33,7 +75,7 @@ export default async function ReportsPage() {
           </div>
         </div>
 
-        <ReportListing reports={transformedReports} />
+        <ReportListing reports={reports} />
       </div>
     </PageContainer>
   );

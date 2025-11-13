@@ -61,10 +61,11 @@ function FormInput<
               max={max}
               disabled={disabled}
               {...field}
+              value={field.value ?? ''}
               onChange={(e) => {
                 if (type === 'number') {
                   const value = e.target.value;
-                  field.onChange(value === '' ? undefined : parseFloat(value));
+                  field.onChange(value === '' ? '' : parseFloat(value));
                 } else {
                   field.onChange(e.target.value);
                 }

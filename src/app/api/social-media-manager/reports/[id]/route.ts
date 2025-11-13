@@ -1,14 +1,20 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
+import {
+  requireOrganization,
+  requireOrganizationAdmin
+} from '@/lib/organization-utils';
 
 // GET - Fetch single report
 export async function GET(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const { id } = await params;
+    const orgId = await requireOrganization();
     const report = await prisma.socialMediaReport.findUnique({
-      where: { id: params.id },
+      where: { id },
       include: {
         aktivator: true,
         cyberTroops: true,
@@ -16,7 +22,7 @@ export async function GET(
       }
     });
 
-    if (!report) {
+    if (!report || (report as any).organizationId !== orgId) {
       return NextResponse.json(
         { success: false, error: 'Report not found' },
         { status: 404 }
@@ -42,9 +48,12 @@ export async function GET(
 // PUT - Update report
 export async function PUT(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const { id } = await params;
+    await requireOrganizationAdmin();
+    const orgId = await requireOrganization();
     const body = await request.json();
     const {
       reportNo,
@@ -56,15 +65,15 @@ export async function PUT(
       lapsus
     } = body;
 
-    console.log('PUT request received for report:', params.id);
+    console.log('PUT request received for report:', id);
     console.log('Request body:', JSON.stringify(body, null, 2));
 
     // Check if report exists
     const existingReport = await prisma.socialMediaReport.findUnique({
-      where: { id: params.id }
+      where: { id }
     });
 
-    if (!existingReport) {
+    if (!existingReport || (existingReport as any).organizationId !== orgId) {
       return NextResponse.json(
         { success: false, error: 'Report not found' },
         { status: 404 }
@@ -72,15 +81,15 @@ export async function PUT(
     }
 
     // Delete existing related data first
-    console.log('Deleting existing data for report:', params.id);
+    console.log('Deleting existing data for report:', id);
     const deletedAktivator = await prisma.aktivator.deleteMany({
-      where: { reportId: params.id }
+      where: { reportId: id }
     });
     const deletedCyberTroops = await prisma.cyberTroops.deleteMany({
-      where: { reportId: params.id }
+      where: { reportId: id }
     });
     const deletedTopKomentar = await prisma.topKomentar.deleteMany({
-      where: { reportId: params.id }
+      where: { reportId: id }
     });
     console.log('Deleted:', {
       deletedAktivator,
@@ -90,8 +99,8 @@ export async function PUT(
 
     // Update report data
     console.log('Updating report data');
-    const updatedReport = await prisma.socialMediaReport.update({
-      where: { id: params.id },
+    await prisma.socialMediaReport.update({
+      where: { id },
       data: {
         reportNo,
         namaLaporan: namaLaporan || null,
@@ -105,12 +114,13 @@ export async function PUT(
     if (aktivator && aktivator.length > 0) {
       await prisma.aktivator.createMany({
         data: aktivator.map((item: any) => ({
-          reportId: params.id,
+          reportId: id,
           no: item.no || 1,
           namaAkun: item.namaAkun,
           platform: item.platform,
           jenisKonten: item.jenisKonten,
-          link: item.link || null
+          link: item.link || null,
+          organizationId: orgId
         }))
       });
     }
@@ -118,7 +128,7 @@ export async function PUT(
     if (cyberTroops && cyberTroops.length > 0) {
       await prisma.cyberTroops.createMany({
         data: cyberTroops.map((item: any) => ({
-          reportId: params.id,
+          reportId: id,
           no: item.no || 1,
           namaAkun: item.namaAkun,
           platform: item.platform,
@@ -126,7 +136,8 @@ export async function PUT(
           jenisIsu: item.jenisIsu,
           jumlahKomentar: item.jumlahKomentar || 0,
           link: item.link || null,
-          keterangan: item.keterangan || null
+          keterangan: item.keterangan || null,
+          organizationId: orgId
         }))
       });
     }
@@ -134,20 +145,21 @@ export async function PUT(
     if (topKomentar && topKomentar.length > 0) {
       await prisma.topKomentar.createMany({
         data: topKomentar.map((item: any) => ({
-          reportId: params.id,
+          reportId: id,
           no: item.no || 1,
           namaAkun: item.namaAkun,
           platform: item.platform,
           jumlahTopKomentar: item.jumlahTopKomentar || 0,
           link: item.link || null,
-          keterangan: item.keterangan || null
+          keterangan: item.keterangan || null,
+          organizationId: orgId
         }))
       });
     }
 
     // Fetch updated report with all relations
     const finalReport = await prisma.socialMediaReport.findUnique({
-      where: { id: params.id },
+      where: { id },
       include: {
         aktivator: true,
         cyberTroops: true,
@@ -169,15 +181,18 @@ export async function PUT(
 
 // DELETE - Delete report
 export async function DELETE(
-  request: NextRequest,
-  { params }: { params: { id: string } }
+  _request: NextRequest,
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const { id } = await params;
+    await requireOrganizationAdmin();
+    const orgId = await requireOrganization();
     const report = await prisma.socialMediaReport.findUnique({
-      where: { id: params.id }
+      where: { id }
     });
 
-    if (!report) {
+    if (!report || (report as any).organizationId !== orgId) {
       return NextResponse.json(
         { success: false, error: 'Report not found' },
         { status: 404 }
@@ -186,7 +201,7 @@ export async function DELETE(
 
     // Delete report (cascade will delete related data)
     const deletedReport = await prisma.socialMediaReport.delete({
-      where: { id: params.id }
+      where: { id }
     });
 
     return NextResponse.json({ success: true, data: deletedReport });

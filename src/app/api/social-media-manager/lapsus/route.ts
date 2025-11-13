@@ -1,12 +1,19 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { mockLapsus } from '@/features/social-media-manager/utils/mock-data';
+import { requireOrganization } from '@/lib/organization-utils';
 
 // GET - Fetch lapsus data
 export async function GET(request: NextRequest) {
   try {
+    const orgId = await requireOrganization();
+    // TODO: Fetch lapsus data from database filtered by organizationId
+    // For now, returning mock data with organization context
     return NextResponse.json({
       success: true,
-      data: mockLapsus
+      data: {
+        ...mockLapsus,
+        organizationId: orgId
+      }
     });
   } catch (error) {
     console.error('Error fetching lapsus:', error);
@@ -20,6 +27,7 @@ export async function GET(request: NextRequest) {
 // POST - Create or update lapsus
 export async function POST(request: NextRequest) {
   try {
+    const orgId = await requireOrganization();
     const body = await request.json();
 
     // Handle file uploads
@@ -39,6 +47,7 @@ export async function POST(request: NextRequest) {
     const updatedLapsus = {
       ...mockLapsus,
       ...body,
+      organizationId: orgId,
       documentFiles: [...(mockLapsus.documentFiles || []), ...documentFiles],
       updatedAt: new Date()
     };

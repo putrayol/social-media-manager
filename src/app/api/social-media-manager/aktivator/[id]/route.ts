@@ -1,5 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
+import {
+  requireOrganization,
+  requireOrganizationAdmin
+} from '@/lib/organization-utils';
 
 // GET - Fetch single aktivator
 export async function GET(
@@ -7,11 +11,12 @@ export async function GET(
   { params }: { params: { id: string } }
 ) {
   try {
+    const orgId = await requireOrganization();
     const aktivator = await prisma.aktivator.findUnique({
       where: { id: params.id }
     });
 
-    if (!aktivator) {
+    if (!aktivator || aktivator.organizationId !== orgId) {
       return NextResponse.json(
         { success: false, error: 'Data not found' },
         { status: 404 }
@@ -34,7 +39,23 @@ export async function PUT(
   { params }: { params: { id: string } }
 ) {
   try {
+    // Check admin permission first
+    await requireOrganizationAdmin();
+
+    const orgId = await requireOrganization();
     const body = await request.json();
+
+    // Verify ownership
+    const existing = await prisma.aktivator.findUnique({
+      where: { id: params.id }
+    });
+
+    if (!existing || existing.organizationId !== orgId) {
+      return NextResponse.json(
+        { success: false, error: 'Unauthorized' },
+        { status: 403 }
+      );
+    }
 
     const updated = await prisma.aktivator.update({
       where: { id: params.id },
@@ -65,6 +86,23 @@ export async function DELETE(
   { params }: { params: { id: string } }
 ) {
   try {
+    // Check admin permission first
+    await requireOrganizationAdmin();
+
+    const orgId = await requireOrganization();
+
+    // Verify ownership
+    const existing = await prisma.aktivator.findUnique({
+      where: { id: params.id }
+    });
+
+    if (!existing || existing.organizationId !== orgId) {
+      return NextResponse.json(
+        { success: false, error: 'Unauthorized' },
+        { status: 403 }
+      );
+    }
+
     const deleted = await prisma.aktivator.delete({ where: { id: params.id } });
     return NextResponse.json({ success: true, data: deleted });
   } catch (error) {
