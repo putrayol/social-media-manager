@@ -10,11 +10,12 @@ export default async function EditTopKomentarPage({
   params
 }: EditTopKomentarPageProps) {
   // Fetch data from API (server component)
+  const resolvedParams = await Promise.resolve(params);
   const hdrs = await headers();
   const host = hdrs.get('host');
   const protocol = hdrs.get('x-forwarded-proto') || 'http';
   const baseUrl = `${protocol}://${host}`;
-  const url = `${baseUrl}/api/social-media-manager/top-komentar/${params.id}`;
+  const url = `${baseUrl}/api/social-media-manager/top-komentar/${resolvedParams.id}`;
 
   let topKomentar: any = null;
   try {
@@ -60,7 +61,8 @@ export default async function EditTopKomentarPage({
             platform: topKomentar.platform,
             jumlahTopKomentar: topKomentar.jumlahTopKomentar,
             link: topKomentar.link ?? '',
-            keterangan: topKomentar.keterangan ?? ''
+            keterangan: topKomentar.keterangan ?? '',
+            documentFiles: topKomentar.documentFiles ?? []
           }}
         />
       </div>

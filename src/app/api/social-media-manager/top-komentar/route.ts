@@ -60,7 +60,10 @@ export async function POST(request: NextRequest) {
         platform: String(body.platform).toUpperCase() as any,
         jumlahTopKomentar: Number(body.jumlahTopKomentar),
         link: body.link ?? null,
-        keterangan: body.keterangan ?? null
+        keterangan: body.keterangan ?? null,
+        documentFilesData: body.documentFiles
+          ? JSON.stringify(body.documentFiles)
+          : null
       }
     });
 

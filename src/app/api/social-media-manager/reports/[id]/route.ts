@@ -46,8 +46,18 @@ export async function PUT(
 ) {
   try {
     const body = await request.json();
-    const { reportNo, tanggal, aktivator, cyberTroops, topKomentar, lapsus } =
-      body;
+    const {
+      reportNo,
+      namaLaporan,
+      tanggal,
+      aktivator,
+      cyberTroops,
+      topKomentar,
+      lapsus
+    } = body;
+
+    console.log('PUT request received for report:', params.id);
+    console.log('Request body:', JSON.stringify(body, null, 2));
 
     // Check if report exists
     const existingReport = await prisma.socialMediaReport.findUnique({
@@ -61,62 +71,83 @@ export async function PUT(
       );
     }
 
-    // Delete existing related data
-    await prisma.aktivator.deleteMany({ where: { reportId: params.id } });
-    await prisma.cyberTroops.deleteMany({ where: { reportId: params.id } });
-    await prisma.topKomentar.deleteMany({ where: { reportId: params.id } });
+    // Delete existing related data first
+    console.log('Deleting existing data for report:', params.id);
+    const deletedAktivator = await prisma.aktivator.deleteMany({
+      where: { reportId: params.id }
+    });
+    const deletedCyberTroops = await prisma.cyberTroops.deleteMany({
+      where: { reportId: params.id }
+    });
+    const deletedTopKomentar = await prisma.topKomentar.deleteMany({
+      where: { reportId: params.id }
+    });
+    console.log('Deleted:', {
+      deletedAktivator,
+      deletedCyberTroops,
+      deletedTopKomentar
+    });
 
-    // Update report with new data
+    // Update report data
+    console.log('Updating report data');
     const updatedReport = await prisma.socialMediaReport.update({
       where: { id: params.id },
       data: {
         reportNo,
+        namaLaporan: namaLaporan || null,
         tanggal: new Date(tanggal),
-        lapsusData: lapsus ? JSON.stringify(lapsus) : null,
-        aktivator: aktivator
-          ? {
-              createMany: {
-                data: aktivator.map((item: any) => ({
-                  no: item.no || 1,
-                  namaAkun: item.namaAkun,
-                  platform: item.platform,
-                  jenisKonten: item.jenisKonten,
-                  link: item.link || null
-                }))
-              }
-            }
-          : undefined,
-        cyberTroops: cyberTroops
-          ? {
-              createMany: {
-                data: cyberTroops.map((item: any) => ({
-                  no: item.no || 1,
-                  namaAkun: item.namaAkun,
-                  platform: item.platform,
-                  kategori: item.kategori,
-                  jenisIsu: item.jenisIsu,
-                  jumlahKomentar: item.jumlahKomentar || 0,
-                  link: item.link || null,
-                  keterangan: item.keterangan || null
-                }))
-              }
-            }
-          : undefined,
-        topKomentar: topKomentar
-          ? {
-              createMany: {
-                data: topKomentar.map((item: any) => ({
-                  no: item.no || 1,
-                  namaAkun: item.namaAkun,
-                  platform: item.platform,
-                  jumlahTopKomentar: item.jumlahTopKomentar || 0,
-                  link: item.link || null,
-                  keterangan: item.keterangan || null
-                }))
-              }
-            }
-          : undefined
-      },
+        lapsusData: lapsus ? JSON.stringify(lapsus) : null
+      }
+    });
+
+    // Create new related data
+    console.log('Creating new related data');
+    if (aktivator && aktivator.length > 0) {
+      await prisma.aktivator.createMany({
+        data: aktivator.map((item: any) => ({
+          reportId: params.id,
+          no: item.no || 1,
+          namaAkun: item.namaAkun,
+          platform: item.platform,
+          jenisKonten: item.jenisKonten,
+          link: item.link || null
+        }))
+      });
+    }
+
+    if (cyberTroops && cyberTroops.length > 0) {
+      await prisma.cyberTroops.createMany({
+        data: cyberTroops.map((item: any) => ({
+          reportId: params.id,
+          no: item.no || 1,
+          namaAkun: item.namaAkun,
+          platform: item.platform,
+          kategori: item.kategori,
+          jenisIsu: item.jenisIsu,
+          jumlahKomentar: item.jumlahKomentar || 0,
+          link: item.link || null,
+          keterangan: item.keterangan || null
+        }))
+      });
+    }
+
+    if (topKomentar && topKomentar.length > 0) {
+      await prisma.topKomentar.createMany({
+        data: topKomentar.map((item: any) => ({
+          reportId: params.id,
+          no: item.no || 1,
+          namaAkun: item.namaAkun,
+          platform: item.platform,
+          jumlahTopKomentar: item.jumlahTopKomentar || 0,
+          link: item.link || null,
+          keterangan: item.keterangan || null
+        }))
+      });
+    }
+
+    // Fetch updated report with all relations
+    const finalReport = await prisma.socialMediaReport.findUnique({
+      where: { id: params.id },
       include: {
         aktivator: true,
         cyberTroops: true,
@@ -124,11 +155,13 @@ export async function PUT(
       }
     });
 
-    return NextResponse.json({ success: true, data: updatedReport });
+    return NextResponse.json({ success: true, data: finalReport });
   } catch (error) {
     console.error('Error updating report:', error);
+    const errorMessage = error instanceof Error ? error.message : String(error);
+    console.error('Error details:', errorMessage);
     return NextResponse.json(
-      { success: false, error: 'Failed to update data' },
+      { success: false, error: errorMessage || 'Failed to update data' },
       { status: 500 }
     );
   }

@@ -10,9 +10,10 @@ import {
   TableHeader,
   TableRow
 } from '@/components/ui/table';
-import { Download, Printer, Edit } from 'lucide-react';
+import { Edit } from 'lucide-react';
 import Link from 'next/link';
 import { prisma } from '@/lib/prisma';
+import ReportActions from '@/features/social-media-manager/components/report-actions';
 
 interface ViewReportPageProps {
   params: Promise<{ id: string }>;
@@ -59,14 +60,7 @@ export default async function ViewReportPage({ params }: ViewReportPageProps) {
             </p>
           </div>
           <div className='flex gap-2'>
-            <Button variant='outline'>
-              <Printer className='mr-2 h-4 w-4' />
-              Print
-            </Button>
-            <Button variant='outline'>
-              <Download className='mr-2 h-4 w-4' />
-              Export PDF
-            </Button>
+            <ReportActions reportId={report.id} reportNo={report.reportNo} />
             <Link
               href={`/dashboard/social-media-manager/reports/${report.id}/edit`}
             >
@@ -78,204 +72,235 @@ export default async function ViewReportPage({ params }: ViewReportPageProps) {
           </div>
         </div>
 
-        {/* Section A: Aktivator */}
-        <Card>
-          <CardHeader>
-            <CardTitle>
-              A. Social Media Aktivator (Report Giat Konten)
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            {report.aktivator && report.aktivator.length > 0 ? (
-              <div className='overflow-x-auto'>
-                <Table>
-                  <TableHeader>
-                    <TableRow>
-                      <TableHead>NO</TableHead>
-                      <TableHead>NAMA AKUN</TableHead>
-                      <TableHead>PLATFORM</TableHead>
-                      <TableHead>JENIS KONTEN</TableHead>
-                      <TableHead>LINK</TableHead>
-                    </TableRow>
-                  </TableHeader>
-                  <TableBody>
-                    {report.aktivator.map((item) => (
-                      <TableRow key={item.id}>
-                        <TableCell>{item.no}</TableCell>
-                        <TableCell>{item.namaAkun}</TableCell>
-                        <TableCell>
-                          <Badge variant='outline'>{item.platform}</Badge>
-                        </TableCell>
-                        <TableCell>{item.jenisKonten}</TableCell>
-                        <TableCell>
-                          <a
-                            href={item.link}
-                            target='_blank'
-                            rel='noopener noreferrer'
-                            className='text-blue-600 hover:underline'
-                          >
-                            LINK
-                          </a>
-                        </TableCell>
-                      </TableRow>
-                    ))}
-                  </TableBody>
-                </Table>
-              </div>
-            ) : (
-              <p className='text-muted-foreground'>Tidak ada data</p>
-            )}
-          </CardContent>
-        </Card>
-
-        {/* Section B: Cyber Troops */}
-        <Card>
-          <CardHeader>
-            <CardTitle>B. Cyber Troops (Report Giat Buzzer)</CardTitle>
-          </CardHeader>
-          <CardContent>
-            {report.cyberTroops && report.cyberTroops.length > 0 ? (
-              <div className='overflow-x-auto'>
-                <Table>
-                  <TableHeader>
-                    <TableRow>
-                      <TableHead>NO</TableHead>
-                      <TableHead>NAMA AKUN</TableHead>
-                      <TableHead>PLATFORM</TableHead>
-                      <TableHead>KATEGORI</TableHead>
-                      <TableHead>JENIS ISU</TableHead>
-                      <TableHead>JUMLAH KOMENTAR</TableHead>
-                      <TableHead>LINK</TableHead>
-                    </TableRow>
-                  </TableHeader>
-                  <TableBody>
-                    {report.cyberTroops.map((item) => (
-                      <TableRow key={item.id}>
-                        <TableCell>{item.no}</TableCell>
-                        <TableCell>{item.namaAkun}</TableCell>
-                        <TableCell>
-                          <Badge variant='outline'>{item.platform}</Badge>
-                        </TableCell>
-                        <TableCell>
-                          <Badge
-                            variant={
-                              item.kategori === 'Positif'
-                                ? 'default'
-                                : 'destructive'
-                            }
-                          >
-                            {item.kategori}
-                          </Badge>
-                        </TableCell>
-                        <TableCell>{item.jenisIsu}</TableCell>
-                        <TableCell>{item.jumlahKomentar}</TableCell>
-                        <TableCell>
-                          <a
-                            href={item.link}
-                            target='_blank'
-                            rel='noopener noreferrer'
-                            className='text-blue-600 hover:underline'
-                          >
-                            LINK
-                          </a>
-                        </TableCell>
-                      </TableRow>
-                    ))}
-                  </TableBody>
-                </Table>
-              </div>
-            ) : (
-              <p className='text-muted-foreground'>Tidak ada data</p>
-            )}
-          </CardContent>
-        </Card>
-
-        {/* Section C: Top Komentar */}
-        <Card>
-          <CardHeader>
-            <CardTitle>C. Report Giat Top Komentar Postingan</CardTitle>
-          </CardHeader>
-          <CardContent>
-            {report.topKomentar && report.topKomentar.length > 0 ? (
-              <div className='overflow-x-auto'>
-                <Table>
-                  <TableHeader>
-                    <TableRow>
-                      <TableHead>NO</TableHead>
-                      <TableHead>NAMA AKUN</TableHead>
-                      <TableHead>PLATFORM</TableHead>
-                      <TableHead>JUMLAH TOP KOMENTAR</TableHead>
-                      <TableHead>LINK</TableHead>
-                    </TableRow>
-                  </TableHeader>
-                  <TableBody>
-                    {report.topKomentar.map((item) => (
-                      <TableRow key={item.id}>
-                        <TableCell>{item.no}</TableCell>
-                        <TableCell>{item.namaAkun}</TableCell>
-                        <TableCell>
-                          <Badge variant='outline'>{item.platform}</Badge>
-                        </TableCell>
-                        <TableCell>{item.jumlahTopKomentar}</TableCell>
-                        <TableCell>
-                          <a
-                            href={item.link}
-                            target='_blank'
-                            rel='noopener noreferrer'
-                            className='text-blue-600 hover:underline'
-                          >
-                            LINK
-                          </a>
-                        </TableCell>
-                      </TableRow>
-                    ))}
-                  </TableBody>
-                </Table>
-              </div>
-            ) : (
-              <p className='text-muted-foreground'>Tidak ada data</p>
-            )}
-          </CardContent>
-        </Card>
-
-        {/* Section D: Lapsus */}
-        {report.lapsusData && (
+        <div id='report-content' className='space-y-4'>
+          {/* Section A: Aktivator */}
           <Card>
             <CardHeader>
-              <CardTitle>D. Laporan Khusus (LAPSUS)</CardTitle>
+              <CardTitle>
+                A. Social Media Aktivator (Report Giat Konten)
+              </CardTitle>
             </CardHeader>
-            <CardContent className='space-y-4'>
-              <div>
-                <p className='mb-2 font-semibold'>Keterangan:</p>
-                <p className='text-sm'>
-                  {JSON.parse(report.lapsusData).keterangan}
-                </p>
-              </div>
-              {JSON.parse(report.lapsusData).documentFiles &&
-                JSON.parse(report.lapsusData).documentFiles.length > 0 && (
-                  <div>
-                    <p className='mb-2 font-semibold'>Dokumen Pendukung:</p>
-                    <ul className='space-y-2'>
-                      {JSON.parse(report.lapsusData).documentFiles.map(
-                        (file: any) => (
-                          <li key={file.id} className='text-sm'>
+            <CardContent>
+              {report.aktivator && report.aktivator.length > 0 ? (
+                <div className='overflow-x-auto'>
+                  <Table>
+                    <TableHeader>
+                      <TableRow>
+                        <TableHead>NO</TableHead>
+                        <TableHead>NAMA AKUN</TableHead>
+                        <TableHead>PLATFORM</TableHead>
+                        <TableHead>JENIS KONTEN</TableHead>
+                        <TableHead>LINK</TableHead>
+                      </TableRow>
+                    </TableHeader>
+                    <TableBody>
+                      {report.aktivator.map((item) => (
+                        <TableRow key={item.id}>
+                          <TableCell>{item.no}</TableCell>
+                          <TableCell>{item.namaAkun}</TableCell>
+                          <TableCell>
+                            <Badge variant='outline'>{item.platform}</Badge>
+                          </TableCell>
+                          <TableCell>{item.jenisKonten}</TableCell>
+                          <TableCell>
                             <a
-                              href={file.fileUrl}
+                              href={item.link}
                               target='_blank'
                               rel='noopener noreferrer'
                               className='text-blue-600 hover:underline'
                             >
-                              {file.fileName}
+                              LINK
                             </a>
-                          </li>
-                        )
-                      )}
-                    </ul>
-                  </div>
-                )}
+                          </TableCell>
+                        </TableRow>
+                      ))}
+                    </TableBody>
+                  </Table>
+                </div>
+              ) : (
+                <p className='text-muted-foreground'>Tidak ada data</p>
+              )}
             </CardContent>
           </Card>
-        )}
+
+          {/* Section B: Cyber Troops */}
+          <Card>
+            <CardHeader>
+              <CardTitle>B. Cyber Troops (Report Giat Buzzer)</CardTitle>
+            </CardHeader>
+            <CardContent>
+              {report.cyberTroops && report.cyberTroops.length > 0 ? (
+                <div className='overflow-x-auto'>
+                  <Table>
+                    <TableHeader>
+                      <TableRow>
+                        <TableHead>NO</TableHead>
+                        <TableHead>NAMA AKUN</TableHead>
+                        <TableHead>PLATFORM</TableHead>
+                        <TableHead>KATEGORI</TableHead>
+                        <TableHead>JENIS ISU</TableHead>
+                        <TableHead>JUMLAH KOMENTAR</TableHead>
+                        <TableHead>LINK</TableHead>
+                      </TableRow>
+                    </TableHeader>
+                    <TableBody>
+                      {report.cyberTroops.map((item) => (
+                        <TableRow key={item.id}>
+                          <TableCell>{item.no}</TableCell>
+                          <TableCell>{item.namaAkun}</TableCell>
+                          <TableCell>
+                            <Badge variant='outline'>{item.platform}</Badge>
+                          </TableCell>
+                          <TableCell>
+                            <Badge
+                              variant={
+                                item.kategori === 'Positif'
+                                  ? 'default'
+                                  : 'destructive'
+                              }
+                            >
+                              {item.kategori}
+                            </Badge>
+                          </TableCell>
+                          <TableCell>{item.jenisIsu}</TableCell>
+                          <TableCell>{item.jumlahKomentar}</TableCell>
+                          <TableCell>
+                            <a
+                              href={item.link}
+                              target='_blank'
+                              rel='noopener noreferrer'
+                              className='text-blue-600 hover:underline'
+                            >
+                              LINK
+                            </a>
+                          </TableCell>
+                        </TableRow>
+                      ))}
+                      {/* Total Row */}
+                      <TableRow className='bg-muted font-semibold'>
+                        <TableCell colSpan={5} className='text-left'>
+                          TOTAL
+                        </TableCell>
+                        <TableCell>
+                          {report.cyberTroops.reduce(
+                            (sum, item) => sum + (item.jumlahKomentar || 0),
+                            0
+                          )}
+                        </TableCell>
+                        <TableCell></TableCell>
+                      </TableRow>
+                    </TableBody>
+                  </Table>
+                </div>
+              ) : (
+                <p className='text-muted-foreground'>Tidak ada data</p>
+              )}
+            </CardContent>
+          </Card>
+
+          {/* Section C: Top Komentar */}
+          <Card>
+            <CardHeader>
+              <CardTitle>C. Report Giat Top Komentar Postingan</CardTitle>
+            </CardHeader>
+            <CardContent>
+              {report.topKomentar && report.topKomentar.length > 0 ? (
+                <div className='overflow-x-auto'>
+                  <Table>
+                    <TableHeader>
+                      <TableRow>
+                        <TableHead>NO</TableHead>
+                        <TableHead>NAMA AKUN</TableHead>
+                        <TableHead>PLATFORM</TableHead>
+                        <TableHead>JUMLAH TOP KOMENTAR</TableHead>
+                        <TableHead>LINK</TableHead>
+                      </TableRow>
+                    </TableHeader>
+                    <TableBody>
+                      {report.topKomentar.map((item) => (
+                        <TableRow key={item.id}>
+                          <TableCell>{item.no}</TableCell>
+                          <TableCell>{item.namaAkun}</TableCell>
+                          <TableCell>
+                            <Badge variant='outline'>{item.platform}</Badge>
+                          </TableCell>
+                          <TableCell>{item.jumlahTopKomentar}</TableCell>
+                          <TableCell>
+                            <a
+                              href={item.link}
+                              target='_blank'
+                              rel='noopener noreferrer'
+                              className='text-blue-600 hover:underline'
+                            >
+                              LINK
+                            </a>
+                          </TableCell>
+                        </TableRow>
+                      ))}
+                      {/* Total Row */}
+                      <TableRow className='bg-muted font-semibold'>
+                        <TableCell colSpan={3} className='text-left'>
+                          TOTAL
+                        </TableCell>
+                        <TableCell>
+                          {report.topKomentar.reduce(
+                            (sum, item) => sum + (item.jumlahTopKomentar || 0),
+                            0
+                          )}
+                        </TableCell>
+                        <TableCell></TableCell>
+                      </TableRow>
+                    </TableBody>
+                  </Table>
+                </div>
+              ) : (
+                <p className='text-muted-foreground'>Tidak ada data</p>
+              )}
+            </CardContent>
+          </Card>
+
+          {/* Section D: Lapsus */}
+          {report.lapsusData && (
+            <Card>
+              <CardHeader>
+                <CardTitle>D. Laporan Khusus (LAPSUS)</CardTitle>
+              </CardHeader>
+              <CardContent className='space-y-4'>
+                <div>
+                  <p className='mb-2 font-semibold'>Keterangan:</p>
+                  <p className='text-sm'>
+                    {JSON.parse(report.lapsusData).keterangan}
+                  </p>
+                </div>
+                {JSON.parse(report.lapsusData).documentFiles &&
+                  JSON.parse(report.lapsusData).documentFiles.length > 0 && (
+                    <div>
+                      <p className='mb-2 font-semibold'>Dokumen Pendukung:</p>
+                      <ul className='space-y-2'>
+                        {JSON.parse(report.lapsusData).documentFiles.map(
+                          (file: any, index: number) => (
+                            <li
+                              key={file.id || file.fileName || index}
+                              className='text-sm'
+                            >
+                              <a
+                                href={file.fileUrl}
+                                target='_blank'
+                                rel='noopener noreferrer'
+                                className='text-blue-600 hover:underline'
+                              >
+                                {file.fileName}
+                              </a>
+                            </li>
+                          )
+                        )}
+                      </ul>
+                    </div>
+                  )}
+              </CardContent>
+            </Card>
+          )}
+        </div>
       </div>
     </PageContainer>
   );

@@ -7,8 +7,9 @@ export async function GET(
   { params }: { params: { id: string } }
 ) {
   try {
+    const resolvedParams = await Promise.resolve(params);
     const topKomentar = await prisma.topKomentar.findUnique({
-      where: { id: params.id }
+      where: { id: resolvedParams.id }
     });
     if (!topKomentar) {
       return NextResponse.json(
@@ -16,7 +17,19 @@ export async function GET(
         { status: 404 }
       );
     }
-    return NextResponse.json({ success: true, data: topKomentar });
+
+    // Parse documentFilesData if it exists
+    const topKomentarWithParsedData = {
+      ...topKomentar,
+      documentFiles: topKomentar.documentFilesData
+        ? JSON.parse(topKomentar.documentFilesData)
+        : null
+    };
+
+    return NextResponse.json({
+      success: true,
+      data: topKomentarWithParsedData
+    });
   } catch (error) {
     console.error('Error fetching top komentar:', error);
     return NextResponse.json(
@@ -32,9 +45,10 @@ export async function PUT(
   { params }: { params: { id: string } }
 ) {
   try {
+    const resolvedParams = await Promise.resolve(params);
     const body = await request.json();
     const updated = await prisma.topKomentar.update({
-      where: { id: params.id },
+      where: { id: resolvedParams.id },
       data: {
         no: body.no !== undefined ? Number(body.no) : undefined,
         namaAkun: body.namaAkun,
@@ -46,7 +60,10 @@ export async function PUT(
             ? Number(body.jumlahTopKomentar)
             : undefined,
         link: body.link ?? undefined,
-        keterangan: body.keterangan ?? undefined
+        keterangan: body.keterangan ?? undefined,
+        documentFilesData: body.documentFiles
+          ? JSON.stringify(body.documentFiles)
+          : undefined
       }
     });
     return NextResponse.json({ success: true, data: updated });
@@ -65,8 +82,9 @@ export async function DELETE(
   { params }: { params: { id: string } }
 ) {
   try {
+    const resolvedParams = await Promise.resolve(params);
     const deleted = await prisma.topKomentar.delete({
-      where: { id: params.id }
+      where: { id: resolvedParams.id }
     });
     return NextResponse.json({ success: true, data: deleted });
   } catch (error) {

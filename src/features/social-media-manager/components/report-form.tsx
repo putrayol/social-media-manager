@@ -45,11 +45,23 @@ export default function ReportForm({
     resolver: zodResolver(socialMediaReportSchema),
     defaultValues: {
       reportNo: initialData?.reportNo || '',
+      namaLaporan: initialData?.namaLaporan || '',
       tanggal: initialData?.tanggal || new Date(),
       aktivator: initialData?.aktivator || [],
       cyberTroops: initialData?.cyberTroops || [],
       topKomentar: initialData?.topKomentar || [],
       lapsus: initialData?.lapsus
+        ? {
+            tanggal:
+              initialData.lapsus.tanggal instanceof Date
+                ? initialData.lapsus.tanggal
+                : new Date(initialData.lapsus.tanggal),
+            jumlahKomentar: initialData.lapsus.jumlahKomentar || 0,
+            jumlahPostingan: initialData.lapsus.jumlahPostingan || 0,
+            keterangan: initialData.lapsus.keterangan || '',
+            documentFiles: initialData.lapsus.documentFiles || []
+          }
+        : undefined
     }
   });
 
@@ -285,6 +297,52 @@ export default function ReportForm({
     try {
       let processedValues = { ...values };
 
+      // Remove database-specific fields from arrays to prevent duplicate creation
+      // Keep only the fields needed for createMany
+      if (processedValues.aktivator && processedValues.aktivator.length > 0) {
+        processedValues.aktivator = processedValues.aktivator.map(
+          (item: any, index: number) => ({
+            no: item.no || index + 1,
+            namaAkun: item.namaAkun,
+            platform: item.platform,
+            jenisKonten: item.jenisKonten,
+            link: item.link || null
+          })
+        );
+      }
+      if (
+        processedValues.cyberTroops &&
+        processedValues.cyberTroops.length > 0
+      ) {
+        processedValues.cyberTroops = processedValues.cyberTroops.map(
+          (item: any, index: number) => ({
+            no: item.no || index + 1,
+            namaAkun: item.namaAkun,
+            platform: item.platform,
+            kategori: item.kategori,
+            jenisIsu: item.jenisIsu,
+            jumlahKomentar: item.jumlahKomentar || 0,
+            link: item.link || null,
+            keterangan: item.keterangan || null
+          })
+        );
+      }
+      if (
+        processedValues.topKomentar &&
+        processedValues.topKomentar.length > 0
+      ) {
+        processedValues.topKomentar = processedValues.topKomentar.map(
+          (item: any, index: number) => ({
+            no: item.no || index + 1,
+            namaAkun: item.namaAkun,
+            platform: item.platform,
+            jumlahTopKomentar: item.jumlahTopKomentar || 0,
+            link: item.link || null,
+            keterangan: item.keterangan || null
+          })
+        );
+      }
+
       // Handle file uploads if there are files
       if (
         values.lapsus?.documentFiles &&
@@ -332,21 +390,54 @@ export default function ReportForm({
         };
       }
 
+      // Convert Date objects to ISO strings for JSON serialization
+      const dataToSend = {
+        ...processedValues,
+        tanggal:
+          processedValues.tanggal instanceof Date
+            ? processedValues.tanggal.toISOString()
+            : processedValues.tanggal,
+        lapsus: processedValues.lapsus
+          ? {
+              ...processedValues.lapsus,
+              tanggal:
+                processedValues.lapsus.tanggal instanceof Date
+                  ? processedValues.lapsus.tanggal.toISOString()
+                  : processedValues.lapsus.tanggal
+            }
+          : undefined
+      };
+
       const endpoint = initialData
         ? `/api/social-media-manager/reports/${initialData.id}`
         : '/api/social-media-manager/reports';
 
       const method = initialData ? 'PUT' : 'POST';
 
-      const res = await apiFetch(endpoint, {
+      console.log('Sending data to API:', {
+        endpoint,
         method,
-        body: JSON.stringify(processedValues)
+        data: dataToSend
       });
 
+      const res = await apiFetch(endpoint, {
+        method,
+        body: JSON.stringify(dataToSend)
+      });
+
+      console.log('API Response status:', res.status);
+      const responseText = await res.text();
+      console.log('API Response text:', responseText);
+
       if (!res.ok) {
-        const error = await res.json();
-        console.error('Error submitting form:', error);
-        toast.error(error.error || 'Gagal menyimpan laporan');
+        try {
+          const error = JSON.parse(responseText);
+          console.error('Error submitting form:', error);
+          toast.error(error.error || 'Gagal menyimpan laporan');
+        } catch (e) {
+          console.error('Error parsing response:', responseText);
+          toast.error('Gagal menyimpan laporan');
+        }
         return;
       }
 
@@ -412,6 +503,12 @@ export default function ReportForm({
               name='reportNo'
               label='Nomor Laporan'
               placeholder='#088'
+            />
+            <FormInput
+              control={form.control}
+              name='namaLaporan'
+              label='Nama Laporan'
+              placeholder='Masukkan nama laporan'
             />
             <FormDatePicker
               control={form.control}

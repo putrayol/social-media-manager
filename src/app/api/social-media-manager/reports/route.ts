@@ -55,13 +55,21 @@ export async function GET(request: NextRequest) {
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
-    const { reportNo, tanggal, aktivator, cyberTroops, topKomentar, lapsus } =
-      body;
+    const {
+      reportNo,
+      namaLaporan,
+      tanggal,
+      aktivator,
+      cyberTroops,
+      topKomentar,
+      lapsus
+    } = body;
 
     // Create report with related data
     const newReport = await prisma.socialMediaReport.create({
       data: {
         reportNo,
+        namaLaporan: namaLaporan || null,
         tanggal: new Date(tanggal),
         lapsusData: lapsus ? JSON.stringify(lapsus) : null,
         aktivator: aktivator

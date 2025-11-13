@@ -81,7 +81,16 @@ export const topKomentarPostinganSchema = z.object({
     .number()
     .min(0, { message: 'Jumlah top komentar tidak boleh negatif' }),
   link: z.string().url({ message: 'Link harus URL yang valid' }).optional(),
-  keterangan: z.string().optional()
+  keterangan: z.string().optional(),
+  documentFiles: z
+    .array(
+      z.union([
+        uploadedFileSchema,
+        z.any() // Allow File objects (Web API)
+      ])
+    )
+    .refine((files) => !files || files.length <= 10, 'Maksimal 10 file')
+    .optional()
 });
 
 // Laporan Khusus Schema
@@ -108,6 +117,7 @@ export const laporanKhususSchema = z.object({
 // Combined Report Schema
 export const socialMediaReportSchema = z.object({
   reportNo: z.string().min(1, { message: 'Nomor laporan harus diisi' }),
+  namaLaporan: z.string().optional(),
   tanggal: z.date({ message: 'Tanggal harus valid' }),
   aktivator: z.array(socialMediaAktivatorSchema).optional(),
   cyberTroops: z.array(cyberTroopsSchema).optional(),
