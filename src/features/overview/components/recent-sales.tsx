@@ -1,3 +1,5 @@
+'use client';
+
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import {
   Card,
@@ -6,65 +8,93 @@ import {
   CardTitle,
   CardDescription
 } from '@/components/ui/card';
+import { useEffect, useState } from 'react';
 
-const salesData = [
-  {
-    name: 'Olivia Martin',
-    email: 'olivia.martin@email.com',
-    avatar: 'https://api.slingacademy.com/public/sample-users/1.png',
-    fallback: 'OM',
-    amount: '+$1,999.00'
-  },
-  {
-    name: 'Jackson Lee',
-    email: 'jackson.lee@email.com',
-    avatar: 'https://api.slingacademy.com/public/sample-users/2.png',
-    fallback: 'JL',
-    amount: '+$39.00'
-  },
-  {
-    name: 'Isabella Nguyen',
-    email: 'isabella.nguyen@email.com',
-    avatar: 'https://api.slingacademy.com/public/sample-users/3.png',
-    fallback: 'IN',
-    amount: '+$299.00'
-  },
-  {
-    name: 'William Kim',
-    email: 'will@email.com',
-    avatar: 'https://api.slingacademy.com/public/sample-users/4.png',
-    fallback: 'WK',
-    amount: '+$99.00'
-  },
-  {
-    name: 'Sofia Davis',
-    email: 'sofia.davis@email.com',
-    avatar: 'https://api.slingacademy.com/public/sample-users/5.png',
-    fallback: 'SD',
-    amount: '+$39.00'
-  }
-];
+interface RecentActivity {
+  id: number;
+  namaAkun: string;
+  platform: string;
+  jumlahKomentar?: number;
+  jumlahTopKomentar?: number;
+  createdAt: string;
+}
+
+const platformColors: Record<string, string> = {
+  TIKTOK: 'bg-black text-white',
+  INSTAGRAM: 'bg-pink-500 text-white',
+  FACEBOOK: 'bg-blue-600 text-white',
+  TWITTER: 'bg-sky-400 text-white',
+  YOUTUBE: 'bg-red-600 text-white',
+  OTHER: 'bg-gray-500 text-white'
+};
 
 export function RecentSales() {
+  const [activities, setActivities] = useState<RecentActivity[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        // Fetch cyber troops
+        const cyberResponse = await fetch(
+          '/api/social-media-manager/cyber-troops?limit=5'
+        );
+        const cyberResult = await cyberResponse.json();
+
+        if (cyberResult.success) {
+          const data = cyberResult.data.map((item: any) => ({
+            id: item.id,
+            namaAkun: item.namaAkun,
+            platform: item.platform,
+            jumlahKomentar: item.jumlahKomentar,
+            createdAt: item.createdAt
+          }));
+          setActivities(data);
+        }
+      } catch (error) {
+        console.error('Failed to fetch recent activities:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchData();
+  }, []);
+
+  if (loading) {
+    return null;
+  }
+
   return (
     <Card className='h-full'>
       <CardHeader>
-        <CardTitle>Recent Sales</CardTitle>
-        <CardDescription>You made 265 sales this month.</CardDescription>
+        <CardTitle>Recent Cyber Troops</CardTitle>
+        <CardDescription>
+          Latest {activities.length} cyber troops activities
+        </CardDescription>
       </CardHeader>
       <CardContent>
         <div className='space-y-8'>
-          {salesData.map((sale, index) => (
-            <div key={index} className='flex items-center'>
-              <Avatar className='h-9 w-9'>
-                <AvatarImage src={sale.avatar} alt='Avatar' />
-                <AvatarFallback>{sale.fallback}</AvatarFallback>
+          {activities.map((activity) => (
+            <div key={activity.id} className='flex items-center'>
+              <Avatar
+                className={`h-9 w-9 ${platformColors[activity.platform] || 'bg-gray-500'}`}
+              >
+                <AvatarFallback>
+                  {activity.platform.slice(0, 2).toUpperCase()}
+                </AvatarFallback>
               </Avatar>
               <div className='ml-4 space-y-1'>
-                <p className='text-sm leading-none font-medium'>{sale.name}</p>
-                <p className='text-muted-foreground text-sm'>{sale.email}</p>
+                <p className='text-sm leading-none font-medium'>
+                  {activity.namaAkun}
+                </p>
+                <p className='text-muted-foreground text-sm'>
+                  {activity.platform}
+                </p>
               </div>
-              <div className='ml-auto font-medium'>{sale.amount}</div>
+              <div className='ml-auto font-medium'>
+                {activity.jumlahKomentar} komentar
+              </div>
             </div>
           ))}
         </div>

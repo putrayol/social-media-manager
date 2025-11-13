@@ -19,54 +19,77 @@ import {
   ChartTooltipContent
 } from '@/components/ui/chart';
 
-const chartData = [
-  { browser: 'chrome', visitors: 275, fill: 'var(--primary)' },
-  { browser: 'safari', visitors: 200, fill: 'var(--primary-light)' },
-  { browser: 'firefox', visitors: 287, fill: 'var(--primary-lighter)' },
-  { browser: 'edge', visitors: 173, fill: 'var(--primary-dark)' },
-  { browser: 'other', visitors: 190, fill: 'var(--primary-darker)' }
-];
+interface CategoryData {
+  kategori: string;
+  _count: number;
+  fill: string;
+}
 
 const chartConfig = {
-  visitors: {
-    label: 'Visitors'
+  count: {
+    label: 'Count'
   },
-  chrome: {
-    label: 'Chrome',
-    color: 'var(--primary)'
+  Positif: {
+    label: 'Positif',
+    color: 'hsl(142, 76%, 36%)'
   },
-  safari: {
-    label: 'Safari',
-    color: 'var(--primary)'
-  },
-  firefox: {
-    label: 'Firefox',
-    color: 'var(--primary)'
-  },
-  edge: {
-    label: 'Edge',
-    color: 'var(--primary)'
-  },
-  other: {
-    label: 'Other',
-    color: 'var(--primary)'
+  Negatif: {
+    label: 'Negatif',
+    color: 'hsl(0, 84%, 60%)'
   }
 } satisfies ChartConfig;
 
 export function PieGraph() {
-  const totalVisitors = React.useMemo(() => {
-    return chartData.reduce((acc, curr) => acc + curr.visitors, 0);
+  const [chartData, setChartData] = React.useState<CategoryData[]>([]);
+  const [loading, setLoading] = React.useState(true);
+
+  React.useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const response = await fetch('/api/social-media-manager/stats');
+        const result = await response.json();
+        if (result.success && result.data.categoryDistribution) {
+          const colors = {
+            Positif: 'hsl(142, 76%, 36%)',
+            Negatif: 'hsl(0, 84%, 60%)'
+          };
+          const data = result.data.categoryDistribution.map(
+            (item: any, index: number) => ({
+              kategori: item.kategori,
+              _count: item._count,
+              fill:
+                colors[item.kategori as keyof typeof colors] || 'var(--primary)'
+            })
+          );
+          setChartData(data);
+        }
+      } catch (error) {
+        console.error('Failed to fetch chart data:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchData();
   }, []);
+
+  const totalCount = React.useMemo(() => {
+    return chartData.reduce((acc, curr) => acc + curr._count, 0);
+  }, [chartData]);
+
+  if (loading || chartData.length === 0) {
+    return null;
+  }
 
   return (
     <Card className='@container/card'>
       <CardHeader>
-        <CardTitle>Pie Chart - Donut with Text</CardTitle>
+        <CardTitle>Kategori Distribution</CardTitle>
         <CardDescription>
           <span className='hidden @[540px]/card:block'>
-            Total visitors by browser for the last 6 months
+            Cyber Troops by Category (Positif/Negatif)
           </span>
-          <span className='@[540px]/card:hidden'>Browser distribution</span>
+          <span className='@[540px]/card:hidden'>Category distribution</span>
         </CardDescription>
       </CardHeader>
       <CardContent className='px-2 pt-4 sm:px-6 sm:pt-6'>
@@ -76,29 +99,19 @@ export function PieGraph() {
         >
           <PieChart>
             <defs>
-              {['chrome', 'safari', 'firefox', 'edge', 'other'].map(
-                (browser, index) => (
-                  <linearGradient
-                    key={browser}
-                    id={`fill${browser}`}
-                    x1='0'
-                    y1='0'
-                    x2='0'
-                    y2='1'
-                  >
-                    <stop
-                      offset='0%'
-                      stopColor='var(--primary)'
-                      stopOpacity={1 - index * 0.15}
-                    />
-                    <stop
-                      offset='100%'
-                      stopColor='var(--primary)'
-                      stopOpacity={0.8 - index * 0.15}
-                    />
-                  </linearGradient>
-                )
-              )}
+              {chartData.map((item, index) => (
+                <linearGradient
+                  key={item.kategori}
+                  id={`fill${item.kategori}`}
+                  x1='0'
+                  y1='0'
+                  x2='0'
+                  y2='1'
+                >
+                  <stop offset='0%' stopColor={item.fill} stopOpacity={1} />
+                  <stop offset='100%' stopColor={item.fill} stopOpacity={0.8} />
+                </linearGradient>
+              ))}
             </defs>
             <ChartTooltip
               cursor={false}
@@ -107,10 +120,10 @@ export function PieGraph() {
             <Pie
               data={chartData.map((item) => ({
                 ...item,
-                fill: `url(#fill${item.browser})`
+                fill: `url(#fill${item.kategori})`
               }))}
-              dataKey='visitors'
-              nameKey='browser'
+              dataKey='_count'
+              nameKey='kategori'
               innerRadius={60}
               strokeWidth={2}
               stroke='var(--background)'
@@ -130,14 +143,14 @@ export function PieGraph() {
                           y={viewBox.cy}
                           className='fill-foreground text-3xl font-bold'
                         >
-                          {totalVisitors.toLocaleString()}
+                          {totalCount.toLocaleString()}
                         </tspan>
                         <tspan
                           x={viewBox.cx}
                           y={(viewBox.cy || 0) + 24}
                           className='fill-muted-foreground text-sm'
                         >
-                          Total Visitors
+                          Total Cyber Troops
                         </tspan>
                       </text>
                     );
@@ -150,12 +163,12 @@ export function PieGraph() {
       </CardContent>
       <CardFooter className='flex-col gap-2 text-sm'>
         <div className='flex items-center gap-2 leading-none font-medium'>
-          Chrome leads with{' '}
-          {((chartData[0].visitors / totalVisitors) * 100).toFixed(1)}%{' '}
+          {chartData[0]?.kategori} leads with{' '}
+          {((chartData[0]?._count / totalCount) * 100).toFixed(1)}%{' '}
           <IconTrendingUp className='h-4 w-4' />
         </div>
         <div className='text-muted-foreground leading-none'>
-          Based on data from January - June 2024
+          Cyber Troops category distribution
         </div>
       </CardFooter>
     </Card>
