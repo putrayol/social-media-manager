@@ -190,13 +190,15 @@ export const requestSchema = z.object({
 
 // Laporan Khusus Schema
 export const laporanKhususSchema = z.object({
-  tanggal: z.date({ message: 'Tanggal harus valid' }),
+  tanggal: z.date({ message: 'Tanggal harus valid' }).optional(),
   jumlahKomentar: z.coerce
     .number()
-    .min(0, { message: 'Jumlah komentar tidak boleh negatif' }),
+    .min(0, { message: 'Jumlah komentar tidak boleh negatif' })
+    .optional(),
   jumlahPostingan: z.coerce
     .number()
-    .min(0, { message: 'Jumlah postingan tidak boleh negatif' }),
+    .min(0, { message: 'Jumlah postingan tidak boleh negatif' })
+    .optional(),
   keterangan: z.string().optional().nullable(),
   documentFiles: z
     .array(

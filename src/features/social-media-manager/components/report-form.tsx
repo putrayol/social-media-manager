@@ -29,6 +29,22 @@ import {
   CommandGroup,
   CommandItem
 } from '@/components/ui/command';
+import { Input } from '@/components/ui/input';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue
+} from '@/components/ui/select';
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow
+} from '@/components/ui/table';
 
 type FormData = z.infer<typeof socialMediaReportSchema>;
 
@@ -415,6 +431,74 @@ export default function ReportForm({
     );
   }
 
+  // Helpers for manual row editing in tables
+  function updateAktivatorField(index: number, field: string, value: any) {
+    const current = form.getValues('aktivator') || [];
+    const next = [...current];
+    next[index] = { ...next[index], [field]: value };
+    form.setValue('aktivator', next, { shouldValidate: true });
+  }
+
+  function addAktivatorRow() {
+    const current = form.getValues('aktivator') || [];
+    const next = [
+      ...current,
+      {
+        namaAkun: '',
+        platform: '',
+        jenisKonten: '',
+        link: ''
+      }
+    ];
+    form.setValue('aktivator', next, { shouldValidate: true });
+  }
+
+  function updateCyberField(index: number, field: string, value: any) {
+    const current = form.getValues('cyberTroops') || [];
+    const next = [...current];
+    next[index] = { ...next[index], [field]: value };
+    form.setValue('cyberTroops', next, { shouldValidate: true });
+  }
+
+  function addCyberRow() {
+    const current = form.getValues('cyberTroops') || [];
+    const next = [
+      ...current,
+      {
+        namaAkun: '',
+        platform: '',
+        kategori: '',
+        jenisIsu: '',
+        jumlahKomentar: 0,
+        link: '',
+        keterangan: ''
+      }
+    ];
+    form.setValue('cyberTroops', next, { shouldValidate: true });
+  }
+
+  function updateTopField(index: number, field: string, value: any) {
+    const current = form.getValues('topKomentar') || [];
+    const next = [...current];
+    next[index] = { ...next[index], [field]: value };
+    form.setValue('topKomentar', next, { shouldValidate: true });
+  }
+
+  function addTopRow() {
+    const current = form.getValues('topKomentar') || [];
+    const next = [
+      ...current,
+      {
+        namaAkun: '',
+        platform: '',
+        jumlahTopKomentar: 0,
+        link: '',
+        keterangan: ''
+      }
+    ];
+    form.setValue('topKomentar', next, { shouldValidate: true });
+  }
+
   async function handleSubmit(values: FormData) {
     // Prevent double submission
     if (isSubmitting) {
@@ -669,6 +753,19 @@ export default function ReportForm({
     }
   }
 
+  const aktivatorRows = form.watch('aktivator') || [];
+  const cyberRows = form.watch('cyberTroops') || [];
+  const topRows = form.watch('topKomentar') || [];
+
+  const cyberTotal = cyberRows.reduce(
+    (sum: number, row: any) => sum + Number(row?.jumlahKomentar || 0),
+    0
+  );
+  const topTotal = topRows.reduce(
+    (sum: number, row: any) => sum + Number(row?.jumlahTopKomentar || 0),
+    0
+  );
+
   return (
     <div className='space-y-6'>
       <Form
@@ -711,44 +808,168 @@ export default function ReportForm({
             </CardTitle>
           </CardHeader>
           <CardContent className='space-y-4'>
-            {/* Selected for report */}
-            <div className='space-y-2'>
+            <div className='flex items-center justify-between'>
               <div className='text-sm font-medium'>
-                Dipilih untuk laporan: {form.watch('aktivator')?.length || 0}
+                Dipilih untuk laporan: {aktivatorRows.length}
               </div>
-              {(form.watch('aktivator') || []).map((item, idx) => (
-                <div
-                  key={idx}
-                  className='flex items-center justify-between rounded border px-3 py-2'
-                >
-                  <div className='text-sm'>
-                    <span className='font-semibold'>{item.namaAkun}</span> •{' '}
-                    {item.platform}
-                    <div className='text-muted-foreground'>
-                      Konten: {item.jenisKonten}
-                    </div>
-                  </div>
-                  <Button
-                    size='sm'
-                    variant='ghost'
-                    onClick={() => removeAktivatorAt(idx)}
-                  >
-                    <Trash2 className='h-4 w-4 text-red-600' />
-                  </Button>
-                </div>
-              ))}
+              <Button
+                type='button'
+                size='sm'
+                variant='outline'
+                onClick={() => {
+                  setShowSearchAktivator(true);
+                  setAktivatorQuery('');
+                }}
+              >
+                <Plus className='mr-2 h-4 w-4' />
+                Tambah dari data Aktivator
+              </Button>
             </div>
-            <Button
-              type='button'
-              variant='default'
-              className='w-full'
-              onClick={() => {
-                setShowSearchAktivator(true);
-                setAktivatorQuery('');
-              }}
-            >
-              <Plus className='mr-2 h-4 w-4' />
-              Add
+
+            <div className='bg-background overflow-x-auto rounded-md border'>
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead className='w-10'>NO</TableHead>
+                    <TableHead>NAMA AKUN</TableHead>
+                    <TableHead>PLATFORM</TableHead>
+                    <TableHead>JENIS / KATEGORI</TableHead>
+                    <TableHead>JENIS ISU</TableHead>
+                    <TableHead>JUMLAH</TableHead>
+                    <TableHead>LINK</TableHead>
+                    <TableHead className='w-[60px] text-center'>AKSI</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {aktivatorRows.length === 0 && (
+                    <TableRow>
+                      <TableCell
+                        colSpan={8}
+                        className='text-muted-foreground text-center text-sm'
+                      >
+                        Belum ada data aktivator
+                      </TableCell>
+                    </TableRow>
+                  )}
+                  {aktivatorRows.map((item: any, idx: number) => {
+                    const isExisting = !!item.id;
+                    return (
+                      <TableRow key={idx}>
+                        <TableCell>{item.no || idx + 1}</TableCell>
+                        <TableCell>
+                          {isExisting ? (
+                            <span>{item.namaAkun}</span>
+                          ) : (
+                            <Input
+                              value={item.namaAkun || ''}
+                              onChange={(e) =>
+                                updateAktivatorField(
+                                  idx,
+                                  'namaAkun',
+                                  e.target.value
+                                )
+                              }
+                              placeholder='Nama akun'
+                            />
+                          )}
+                        </TableCell>
+                        <TableCell>
+                          {isExisting ? (
+                            <span>{item.platform}</span>
+                          ) : (
+                            <Select
+                              value={item.platform || ''}
+                              onValueChange={(val) =>
+                                updateAktivatorField(idx, 'platform', val)
+                              }
+                            >
+                              <SelectTrigger className='w-full'>
+                                <SelectValue placeholder='Pilih platform' />
+                              </SelectTrigger>
+                              <SelectContent>
+                                <SelectItem value='TIKTOK'>TikTok</SelectItem>
+                                <SelectItem value='INSTAGRAM'>
+                                  Instagram
+                                </SelectItem>
+                                <SelectItem value='FACEBOOK'>
+                                  Facebook
+                                </SelectItem>
+                                <SelectItem value='TWITTER'>Twitter</SelectItem>
+                                <SelectItem value='YOUTUBE'>YouTube</SelectItem>
+                                <SelectItem value='OTHER'>Lainnya</SelectItem>
+                              </SelectContent>
+                            </Select>
+                          )}
+                        </TableCell>
+                        <TableCell>
+                          {isExisting ? (
+                            <span>{item.jenisKonten}</span>
+                          ) : (
+                            <Input
+                              value={item.jenisKonten || ''}
+                              onChange={(e) =>
+                                updateAktivatorField(
+                                  idx,
+                                  'jenisKonten',
+                                  e.target.value
+                                )
+                              }
+                              placeholder='Jenis / Kategori'
+                            />
+                          )}
+                        </TableCell>
+                        <TableCell>
+                          <span className='text-muted-foreground'>-</span>
+                        </TableCell>
+                        <TableCell>
+                          <span className='text-muted-foreground'>-</span>
+                        </TableCell>
+                        <TableCell>
+                          {isExisting ? (
+                            item.link ? (
+                              <a
+                                href={item.link}
+                                target='_blank'
+                                rel='noreferrer'
+                                className='text-primary underline'
+                              >
+                                Link
+                              </a>
+                            ) : (
+                              <span className='text-muted-foreground'>-</span>
+                            )
+                          ) : (
+                            <Input
+                              value={item.link || ''}
+                              onChange={(e) =>
+                                updateAktivatorField(
+                                  idx,
+                                  'link',
+                                  e.target.value
+                                )
+                              }
+                              placeholder='Link'
+                            />
+                          )}
+                        </TableCell>
+                        <TableCell className='text-center'>
+                          <Button
+                            size='icon'
+                            variant='ghost'
+                            onClick={() => removeAktivatorAt(idx)}
+                          >
+                            <Trash2 className='h-4 w-4 text-red-600' />
+                          </Button>
+                        </TableCell>
+                      </TableRow>
+                    );
+                  })}
+                </TableBody>
+              </Table>
+            </div>
+
+            <Button type='button' variant='outline' onClick={addAktivatorRow}>
+              + Tambah baris
             </Button>
           </CardContent>
         </Card>
@@ -759,44 +980,210 @@ export default function ReportForm({
             <CardTitle>B. Cyber Troops (Report Giat Buzzer)</CardTitle>
           </CardHeader>
           <CardContent className='space-y-4'>
-            {/* Selected for report */}
-            <div className='space-y-2'>
+            <div className='flex items-center justify-between'>
               <div className='text-sm font-medium'>
-                Dipilih untuk laporan: {form.watch('cyberTroops')?.length || 0}
+                Dipilih untuk laporan: {cyberRows.length}
               </div>
-              {(form.watch('cyberTroops') || []).map((item, idx) => (
-                <div
-                  key={idx}
-                  className='flex items-center justify-between rounded border px-3 py-2'
-                >
-                  <div className='text-sm'>
-                    <span className='font-semibold'>{item.namaAkun}</span> •{' '}
-                    {item.platform}
-                    <div className='text-muted-foreground'>
-                      Kategori: {item.kategori} • Isu: {item.jenisIsu}
-                    </div>
-                  </div>
-                  <Button
-                    size='sm'
-                    variant='ghost'
-                    onClick={() => removeCyberAt(idx)}
-                  >
-                    <Trash2 className='h-4 w-4 text-red-600' />
-                  </Button>
-                </div>
-              ))}
+              <Button
+                type='button'
+                size='sm'
+                variant='outline'
+                onClick={() => {
+                  setShowSearchCyber(true);
+                  setCyberQuery('');
+                }}
+              >
+                <Plus className='mr-2 h-4 w-4' />
+                Tambah dari data Cyber Troops
+              </Button>
             </div>
-            <Button
-              type='button'
-              variant='default'
-              className='w-full'
-              onClick={() => {
-                setShowSearchCyber(true);
-                setCyberQuery('');
-              }}
-            >
-              <Plus className='mr-2 h-4 w-4' />
-              Add
+
+            <div className='bg-background overflow-x-auto rounded-md border'>
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead className='w-10'>NO</TableHead>
+                    <TableHead>NAMA AKUN</TableHead>
+                    <TableHead>PLATFORM</TableHead>
+                    <TableHead>JENIS / KATEGORI</TableHead>
+                    <TableHead>JENIS ISU</TableHead>
+                    <TableHead>JUMLAH</TableHead>
+                    <TableHead>LINK</TableHead>
+                    <TableHead className='w-[60px] text-center'>AKSI</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {cyberRows.length === 0 && (
+                    <TableRow>
+                      <TableCell
+                        colSpan={8}
+                        className='text-muted-foreground text-center text-sm'
+                      >
+                        Belum ada data cyber troops
+                      </TableCell>
+                    </TableRow>
+                  )}
+                  {cyberRows.map((item: any, idx: number) => {
+                    const isExisting = !!item.id;
+                    return (
+                      <TableRow key={idx}>
+                        <TableCell>{item.no || idx + 1}</TableCell>
+                        <TableCell>
+                          {isExisting ? (
+                            <span>{item.namaAkun}</span>
+                          ) : (
+                            <Input
+                              value={item.namaAkun || ''}
+                              onChange={(e) =>
+                                updateCyberField(
+                                  idx,
+                                  'namaAkun',
+                                  e.target.value
+                                )
+                              }
+                              placeholder='Nama akun'
+                            />
+                          )}
+                        </TableCell>
+                        <TableCell>
+                          {isExisting ? (
+                            <span>{item.platform}</span>
+                          ) : (
+                            <Select
+                              value={item.platform || ''}
+                              onValueChange={(val) =>
+                                updateCyberField(idx, 'platform', val)
+                              }
+                            >
+                              <SelectTrigger className='w-full'>
+                                <SelectValue placeholder='Pilih platform' />
+                              </SelectTrigger>
+                              <SelectContent>
+                                <SelectItem value='TIKTOK'>TikTok</SelectItem>
+                                <SelectItem value='INSTAGRAM'>
+                                  Instagram
+                                </SelectItem>
+                                <SelectItem value='FACEBOOK'>
+                                  Facebook
+                                </SelectItem>
+                                <SelectItem value='TWITTER'>Twitter</SelectItem>
+                                <SelectItem value='YOUTUBE'>YouTube</SelectItem>
+                                <SelectItem value='OTHER'>Lainnya</SelectItem>
+                              </SelectContent>
+                            </Select>
+                          )}
+                        </TableCell>
+                        <TableCell>
+                          {isExisting ? (
+                            <span>{item.kategori}</span>
+                          ) : (
+                            <Select
+                              value={item.kategori || ''}
+                              onValueChange={(val) =>
+                                updateCyberField(idx, 'kategori', val)
+                              }
+                            >
+                              <SelectTrigger className='w-full'>
+                                <SelectValue placeholder='Pilih kategori' />
+                              </SelectTrigger>
+                              <SelectContent>
+                                <SelectItem value='Positif'>Positif</SelectItem>
+                                <SelectItem value='Negatif'>Negatif</SelectItem>
+                              </SelectContent>
+                            </Select>
+                          )}
+                        </TableCell>
+                        <TableCell>
+                          {isExisting ? (
+                            <span>{item.jenisIsu}</span>
+                          ) : (
+                            <Input
+                              value={item.jenisIsu || ''}
+                              onChange={(e) =>
+                                updateCyberField(
+                                  idx,
+                                  'jenisIsu',
+                                  e.target.value
+                                )
+                              }
+                              placeholder='Jenis isu'
+                            />
+                          )}
+                        </TableCell>
+                        <TableCell>
+                          {isExisting ? (
+                            <span>{item.jumlahKomentar}</span>
+                          ) : (
+                            <Input
+                              type='number'
+                              value={item.jumlahKomentar ?? 0}
+                              onChange={(e) =>
+                                updateCyberField(
+                                  idx,
+                                  'jumlahKomentar',
+                                  Number(e.target.value || 0)
+                                )
+                              }
+                              placeholder='0'
+                            />
+                          )}
+                        </TableCell>
+                        <TableCell>
+                          {isExisting ? (
+                            item.link ? (
+                              <a
+                                href={item.link}
+                                target='_blank'
+                                rel='noreferrer'
+                                className='text-primary underline'
+                              >
+                                Link
+                              </a>
+                            ) : (
+                              <span className='text-muted-foreground'>-</span>
+                            )
+                          ) : (
+                            <Input
+                              value={item.link || ''}
+                              onChange={(e) =>
+                                updateCyberField(idx, 'link', e.target.value)
+                              }
+                              placeholder='Link'
+                            />
+                          )}
+                        </TableCell>
+                        <TableCell className='text-center'>
+                          <Button
+                            size='icon'
+                            variant='ghost'
+                            onClick={() => removeCyberAt(idx)}
+                          >
+                            <Trash2 className='h-4 w-4 text-red-600' />
+                          </Button>
+                        </TableCell>
+                      </TableRow>
+                    );
+                  })}
+                  {cyberRows.length > 0 && (
+                    <TableRow>
+                      <TableCell
+                        colSpan={5}
+                        className='text-right font-semibold'
+                      >
+                        Total
+                      </TableCell>
+                      <TableCell className='font-semibold'>
+                        {cyberTotal}
+                      </TableCell>
+                      <TableCell colSpan={2} />
+                    </TableRow>
+                  )}
+                </TableBody>
+              </Table>
+            </div>
+
+            <Button type='button' variant='outline' onClick={addCyberRow}>
+              + Tambah baris
             </Button>
           </CardContent>
         </Card>
@@ -807,44 +1194,175 @@ export default function ReportForm({
             <CardTitle>C. Report Giat Top Komentar Postingan</CardTitle>
           </CardHeader>
           <CardContent className='space-y-4'>
-            {/* Selected for report */}
-            <div className='space-y-2'>
+            <div className='flex items-center justify-between'>
               <div className='text-sm font-medium'>
-                Dipilih untuk laporan: {form.watch('topKomentar')?.length || 0}
+                Dipilih untuk laporan: {topRows.length}
               </div>
-              {(form.watch('topKomentar') || []).map((item, idx) => (
-                <div
-                  key={idx}
-                  className='flex items-center justify-between rounded border px-3 py-2'
-                >
-                  <div className='text-sm'>
-                    <span className='font-semibold'>{item.namaAkun}</span> •{' '}
-                    {item.platform}
-                    <div className='text-muted-foreground'>
-                      Top Komentar: {item.jumlahTopKomentar}
-                    </div>
-                  </div>
-                  <Button
-                    size='sm'
-                    variant='ghost'
-                    onClick={() => removeTopAt(idx)}
-                  >
-                    <Trash2 className='h-4 w-4 text-red-600' />
-                  </Button>
-                </div>
-              ))}
+              <Button
+                type='button'
+                size='sm'
+                variant='outline'
+                onClick={() => {
+                  setShowSearchTop(true);
+                  setTopQuery('');
+                }}
+              >
+                <Plus className='mr-2 h-4 w-4' />
+                Tambah dari data Top Komentar
+              </Button>
             </div>
-            <Button
-              type='button'
-              variant='default'
-              className='w-full'
-              onClick={() => {
-                setShowSearchTop(true);
-                setTopQuery('');
-              }}
-            >
-              <Plus className='mr-2 h-4 w-4' />
-              Add
+
+            <div className='bg-background overflow-x-auto rounded-md border'>
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead className='w-10'>NO</TableHead>
+                    <TableHead>NAMA AKUN</TableHead>
+                    <TableHead>PLATFORM</TableHead>
+                    <TableHead>JENIS / KATEGORI</TableHead>
+                    <TableHead>JENIS ISU</TableHead>
+                    <TableHead>JUMLAH</TableHead>
+                    <TableHead>LINK</TableHead>
+                    <TableHead className='w-[60px] text-center'>AKSI</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {topRows.length === 0 && (
+                    <TableRow>
+                      <TableCell
+                        colSpan={8}
+                        className='text-muted-foreground text-center text-sm'
+                      >
+                        Belum ada data top komentar
+                      </TableCell>
+                    </TableRow>
+                  )}
+                  {topRows.map((item: any, idx: number) => {
+                    const isExisting = !!item.id;
+                    return (
+                      <TableRow key={idx}>
+                        <TableCell>{item.no || idx + 1}</TableCell>
+                        <TableCell>
+                          {isExisting ? (
+                            <span>{item.namaAkun}</span>
+                          ) : (
+                            <Input
+                              value={item.namaAkun || ''}
+                              onChange={(e) =>
+                                updateTopField(idx, 'namaAkun', e.target.value)
+                              }
+                              placeholder='Nama akun'
+                            />
+                          )}
+                        </TableCell>
+                        <TableCell>
+                          {isExisting ? (
+                            <span>{item.platform}</span>
+                          ) : (
+                            <Select
+                              value={item.platform || ''}
+                              onValueChange={(val) =>
+                                updateTopField(idx, 'platform', val)
+                              }
+                            >
+                              <SelectTrigger className='w-full'>
+                                <SelectValue placeholder='Pilih platform' />
+                              </SelectTrigger>
+                              <SelectContent>
+                                <SelectItem value='TIKTOK'>TikTok</SelectItem>
+                                <SelectItem value='INSTAGRAM'>
+                                  Instagram
+                                </SelectItem>
+                                <SelectItem value='FACEBOOK'>
+                                  Facebook
+                                </SelectItem>
+                                <SelectItem value='TWITTER'>Twitter</SelectItem>
+                                <SelectItem value='YOUTUBE'>YouTube</SelectItem>
+                                <SelectItem value='OTHER'>Lainnya</SelectItem>
+                              </SelectContent>
+                            </Select>
+                          )}
+                        </TableCell>
+                        <TableCell>
+                          <span className='text-muted-foreground'>-</span>
+                        </TableCell>
+                        <TableCell>
+                          <span className='text-muted-foreground'>-</span>
+                        </TableCell>
+                        <TableCell>
+                          {isExisting ? (
+                            <span>{item.jumlahTopKomentar}</span>
+                          ) : (
+                            <Input
+                              type='number'
+                              value={item.jumlahTopKomentar ?? 0}
+                              onChange={(e) =>
+                                updateTopField(
+                                  idx,
+                                  'jumlahTopKomentar',
+                                  Number(e.target.value || 0)
+                                )
+                              }
+                              placeholder='0'
+                            />
+                          )}
+                        </TableCell>
+                        <TableCell>
+                          {isExisting ? (
+                            item.link ? (
+                              <a
+                                href={item.link}
+                                target='_blank'
+                                rel='noreferrer'
+                                className='text-primary underline'
+                              >
+                                Link
+                              </a>
+                            ) : (
+                              <span className='text-muted-foreground'>-</span>
+                            )
+                          ) : (
+                            <Input
+                              value={item.link || ''}
+                              onChange={(e) =>
+                                updateTopField(idx, 'link', e.target.value)
+                              }
+                              placeholder='Link'
+                            />
+                          )}
+                        </TableCell>
+                        <TableCell className='text-center'>
+                          <Button
+                            size='icon'
+                            variant='ghost'
+                            onClick={() => removeTopAt(idx)}
+                          >
+                            <Trash2 className='h-4 w-4 text-red-600' />
+                          </Button>
+                        </TableCell>
+                      </TableRow>
+                    );
+                  })}
+                  {topRows.length > 0 && (
+                    <TableRow>
+                      <TableCell
+                        colSpan={5}
+                        className='text-right font-semibold'
+                      >
+                        Total
+                      </TableCell>
+                      <TableCell className='font-semibold'>
+                        {topTotal}
+                      </TableCell>
+                      <TableCell colSpan={2} />
+                    </TableRow>
+                  )}
+                </TableBody>
+              </Table>
+            </div>
+
+            <Button type='button' variant='outline' onClick={addTopRow}>
+              + Tambah baris
             </Button>
           </CardContent>
         </Card>
@@ -855,28 +1373,6 @@ export default function ReportForm({
             <CardTitle>D. Laporan Khusus (LAPSUS)</CardTitle>
           </CardHeader>
           <CardContent className='space-y-4'>
-            <FormDatePicker
-              control={form.control}
-              name='lapsus.tanggal'
-              label='Tanggal Laporan'
-              required
-            />
-            <div className='grid grid-cols-1 gap-6 md:grid-cols-2'>
-              <FormInput
-                control={form.control}
-                name='lapsus.jumlahKomentar'
-                label='Jumlah Komentar'
-                type='number'
-                required
-              />
-              <FormInput
-                control={form.control}
-                name='lapsus.jumlahPostingan'
-                label='Jumlah Postingan'
-                type='number'
-                required
-              />
-            </div>
             <FormTextarea
               control={form.control}
               name='lapsus.keterangan'
