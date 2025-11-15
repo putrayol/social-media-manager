@@ -127,15 +127,15 @@ export default function ViewReportPage({ params }: ViewReportPageProps) {
         </div>
 
         <div id='report-content' className='space-y-4'>
-          {/* Section A: Aktivator */}
+          {/* Sections AC: Aktivitas Media Sosial */}
           <Card>
             <CardHeader>
-              <CardTitle>
-                A. Social Media Aktivator (Report Giat Konten)
-              </CardTitle>
+              <CardTitle>Laporan Aktivitas Media Sosial</CardTitle>
             </CardHeader>
             <CardContent>
-              {report.aktivator && report.aktivator.length > 0 ? (
+              {(report.aktivator && report.aktivator.length > 0) ||
+              (report.cyberTroops && report.cyberTroops.length > 0) ||
+              (report.topKomentar && report.topKomentar.length > 0) ? (
                 <div className='overflow-x-auto'>
                   <Table>
                     <TableHeader>
@@ -143,169 +143,153 @@ export default function ViewReportPage({ params }: ViewReportPageProps) {
                         <TableHead>NO</TableHead>
                         <TableHead>NAMA AKUN</TableHead>
                         <TableHead>PLATFORM</TableHead>
-                        <TableHead>JENIS KONTEN</TableHead>
-                        <TableHead>LINK</TableHead>
-                      </TableRow>
-                    </TableHeader>
-                    <TableBody>
-                      {report.aktivator.map((item: any) => (
-                        <TableRow key={item.id}>
-                          <TableCell>{item.no}</TableCell>
-                          <TableCell>{item.namaAkun}</TableCell>
-                          <TableCell>
-                            <Badge variant='outline'>{item.platform}</Badge>
-                          </TableCell>
-                          <TableCell>{item.jenisKonten}</TableCell>
-                          <TableCell>
-                            <a
-                              href={item.link}
-                              target='_blank'
-                              rel='noopener noreferrer'
-                              className='text-blue-600 hover:underline'
-                            >
-                              LINK
-                            </a>
-                          </TableCell>
-                        </TableRow>
-                      ))}
-                    </TableBody>
-                  </Table>
-                </div>
-              ) : (
-                <p className='text-muted-foreground'>Tidak ada data</p>
-              )}
-            </CardContent>
-          </Card>
-
-          {/* Section B: Cyber Troops */}
-          <Card>
-            <CardHeader>
-              <CardTitle>B. Cyber Troops (Report Giat Buzzer)</CardTitle>
-            </CardHeader>
-            <CardContent>
-              {report.cyberTroops && report.cyberTroops.length > 0 ? (
-                <div className='overflow-x-auto'>
-                  <Table>
-                    <TableHeader>
-                      <TableRow>
-                        <TableHead>NO</TableHead>
-                        <TableHead>NAMA AKUN</TableHead>
-                        <TableHead>PLATFORM</TableHead>
-                        <TableHead>KATEGORI</TableHead>
+                        <TableHead>JENIS / KATEGORI</TableHead>
                         <TableHead>JENIS ISU</TableHead>
-                        <TableHead>JUMLAH KOMENTAR</TableHead>
+                        <TableHead>JUMLAH</TableHead>
                         <TableHead>LINK</TableHead>
                       </TableRow>
                     </TableHeader>
                     <TableBody>
-                      {report.cyberTroops.map((item: any) => (
-                        <TableRow key={item.id}>
-                          <TableCell>{item.no}</TableCell>
-                          <TableCell>{item.namaAkun}</TableCell>
-                          <TableCell>
-                            <Badge variant='outline'>{item.platform}</Badge>
-                          </TableCell>
-                          <TableCell>
-                            <Badge
-                              variant={
-                                item.kategori === 'Positif'
-                                  ? 'default'
-                                  : 'destructive'
-                              }
+                      {report.aktivator && report.aktivator.length > 0 && (
+                        <>
+                          <TableRow>
+                            <TableCell
+                              colSpan={7}
+                              className='bg-muted font-semibold'
                             >
-                              {item.kategori}
-                            </Badge>
-                          </TableCell>
-                          <TableCell>{item.jenisIsu}</TableCell>
-                          <TableCell>{item.jumlahKomentar}</TableCell>
-                          <TableCell>
-                            <a
-                              href={item.link}
-                              target='_blank'
-                              rel='noopener noreferrer'
-                              className='text-blue-600 hover:underline'
-                            >
-                              LINK
-                            </a>
-                          </TableCell>
-                        </TableRow>
-                      ))}
-                      {/* Total Row */}
-                      <TableRow className='bg-muted font-semibold'>
-                        <TableCell colSpan={5} className='text-left'>
-                          TOTAL
-                        </TableCell>
-                        <TableCell>
-                          {report.cyberTroops.reduce(
-                            (sum: number, item: any) =>
-                              sum + (item.jumlahKomentar || 0),
-                            0
-                          )}
-                        </TableCell>
-                        <TableCell></TableCell>
-                      </TableRow>
-                    </TableBody>
-                  </Table>
-                </div>
-              ) : (
-                <p className='text-muted-foreground'>Tidak ada data</p>
-              )}
-            </CardContent>
-          </Card>
+                              A. Social Media Aktivator (Report Giat Konten)
+                            </TableCell>
+                          </TableRow>
+                          {report.aktivator.map((item: any) => (
+                            <TableRow key={`aktivator-${item.id}`}>
+                              <TableCell>{item.no}</TableCell>
+                              <TableCell>{item.namaAkun}</TableCell>
+                              <TableCell>
+                                <Badge variant='outline'>{item.platform}</Badge>
+                              </TableCell>
+                              <TableCell>{item.jenisKonten}</TableCell>
+                              <TableCell></TableCell>
+                              <TableCell></TableCell>
+                              <TableCell>
+                                <a
+                                  href={item.link}
+                                  target='_blank'
+                                  rel='noopener noreferrer'
+                                  className='text-blue-600 hover:underline'
+                                >
+                                  LINK
+                                </a>
+                              </TableCell>
+                            </TableRow>
+                          ))}
+                        </>
+                      )}
 
-          {/* Section C: Top Komentar */}
-          <Card>
-            <CardHeader>
-              <CardTitle>C. Report Giat Top Komentar Postingan</CardTitle>
-            </CardHeader>
-            <CardContent>
-              {report.topKomentar && report.topKomentar.length > 0 ? (
-                <div className='overflow-x-auto'>
-                  <Table>
-                    <TableHeader>
-                      <TableRow>
-                        <TableHead>NO</TableHead>
-                        <TableHead>NAMA AKUN</TableHead>
-                        <TableHead>PLATFORM</TableHead>
-                        <TableHead>JUMLAH TOP KOMENTAR</TableHead>
-                        <TableHead>LINK</TableHead>
-                      </TableRow>
-                    </TableHeader>
-                    <TableBody>
-                      {report.topKomentar.map((item: any) => (
-                        <TableRow key={item.id}>
-                          <TableCell>{item.no}</TableCell>
-                          <TableCell>{item.namaAkun}</TableCell>
-                          <TableCell>
-                            <Badge variant='outline'>{item.platform}</Badge>
-                          </TableCell>
-                          <TableCell>{item.jumlahTopKomentar}</TableCell>
-                          <TableCell>
-                            <a
-                              href={item.link}
-                              target='_blank'
-                              rel='noopener noreferrer'
-                              className='text-blue-600 hover:underline'
+                      {report.cyberTroops && report.cyberTroops.length > 0 && (
+                        <>
+                          <TableRow>
+                            <TableCell
+                              colSpan={7}
+                              className='bg-muted font-semibold'
                             >
-                              LINK
-                            </a>
-                          </TableCell>
-                        </TableRow>
-                      ))}
-                      {/* Total Row */}
-                      <TableRow className='bg-muted font-semibold'>
-                        <TableCell colSpan={3} className='text-left'>
-                          TOTAL
-                        </TableCell>
-                        <TableCell>
-                          {report.topKomentar.reduce(
-                            (sum: number, item: any) =>
-                              sum + (item.jumlahTopKomentar || 0),
-                            0
-                          )}
-                        </TableCell>
-                        <TableCell></TableCell>
-                      </TableRow>
+                              B. Cyber Troops (Report Giat Buzzer)
+                            </TableCell>
+                          </TableRow>
+                          {report.cyberTroops.map((item: any) => (
+                            <TableRow key={`cyber-${item.id}`}>
+                              <TableCell>{item.no}</TableCell>
+                              <TableCell>{item.namaAkun}</TableCell>
+                              <TableCell>
+                                <Badge variant='outline'>{item.platform}</Badge>
+                              </TableCell>
+                              <TableCell>
+                                <Badge
+                                  variant={
+                                    item.kategori === 'Positif'
+                                      ? 'default'
+                                      : 'destructive'
+                                  }
+                                >
+                                  {item.kategori}
+                                </Badge>
+                              </TableCell>
+                              <TableCell>{item.jenisIsu}</TableCell>
+                              <TableCell>{item.jumlahKomentar}</TableCell>
+                              <TableCell>
+                                <a
+                                  href={item.link}
+                                  target='_blank'
+                                  rel='noopener noreferrer'
+                                  className='text-blue-600 hover:underline'
+                                >
+                                  LINK
+                                </a>
+                              </TableCell>
+                            </TableRow>
+                          ))}
+                          <TableRow className='bg-muted font-semibold'>
+                            <TableCell colSpan={5} className='text-left'>
+                              TOTAL
+                            </TableCell>
+                            <TableCell>
+                              {report.cyberTroops.reduce(
+                                (sum: number, item: any) =>
+                                  sum + (item.jumlahKomentar || 0),
+                                0
+                              )}
+                            </TableCell>
+                            <TableCell></TableCell>
+                          </TableRow>
+                        </>
+                      )}
+
+                      {report.topKomentar && report.topKomentar.length > 0 && (
+                        <>
+                          <TableRow>
+                            <TableCell
+                              colSpan={7}
+                              className='bg-muted font-semibold'
+                            >
+                              C. Report Giat Top Komentar Postingan
+                            </TableCell>
+                          </TableRow>
+                          {report.topKomentar.map((item: any) => (
+                            <TableRow key={`topkomentar-${item.id}`}>
+                              <TableCell>{item.no}</TableCell>
+                              <TableCell>{item.namaAkun}</TableCell>
+                              <TableCell>
+                                <Badge variant='outline'>{item.platform}</Badge>
+                              </TableCell>
+                              <TableCell></TableCell>
+                              <TableCell></TableCell>
+                              <TableCell>{item.jumlahTopKomentar}</TableCell>
+                              <TableCell>
+                                <a
+                                  href={item.link}
+                                  target='_blank'
+                                  rel='noopener noreferrer'
+                                  className='text-blue-600 hover:underline'
+                                >
+                                  LINK
+                                </a>
+                              </TableCell>
+                            </TableRow>
+                          ))}
+                          <TableRow className='bg-muted font-semibold'>
+                            <TableCell colSpan={5} className='text-left'>
+                              TOTAL
+                            </TableCell>
+                            <TableCell>
+                              {report.topKomentar.reduce(
+                                (sum: number, item: any) =>
+                                  sum + (item.jumlahTopKomentar || 0),
+                                0
+                              )}
+                            </TableCell>
+                            <TableCell></TableCell>
+                          </TableRow>
+                        </>
+                      )}
                     </TableBody>
                   </Table>
                 </div>
