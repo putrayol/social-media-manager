@@ -96,7 +96,10 @@ export function SocialMediaListing({
                 />
                 Refresh
               </Button>
-              <Link href='/dashboard/social-media-manager/aktivator/create'>
+              <Link
+                href='/dashboard/social-media-manager/aktivator/create'
+                prefetch={false}
+              >
                 <Button variant='ghost' size='sm' className='gap-2'>
                   <Plus className='h-4 w-4' />
                   Tambah Data
@@ -127,7 +130,10 @@ export function SocialMediaListing({
                 />
                 Refresh
               </Button>
-              <Link href='/dashboard/social-media-manager/cyber-troops/create'>
+              <Link
+                href='/dashboard/social-media-manager/cyber-troops/create'
+                prefetch={false}
+              >
                 <Button variant='ghost' size='sm' className='gap-2'>
                   <Plus className='h-4 w-4' />
                   Tambah Data
@@ -161,7 +167,10 @@ export function SocialMediaListing({
                 />
                 Refresh
               </Button>
-              <Link href='/dashboard/social-media-manager/top-komentar/create'>
+              <Link
+                href='/dashboard/social-media-manager/top-komentar/create'
+                prefetch={false}
+              >
                 <Button variant='ghost' size='sm' className='gap-2'>
                   <Plus className='h-4 w-4' />
                   Tambah Data
@@ -192,7 +201,10 @@ export function SocialMediaListing({
                 />
                 Refresh
               </Button>
-              <Link href='/dashboard/social-media-manager/request/create'>
+              <Link
+                href='/dashboard/social-media-manager/request/create'
+                prefetch={false}
+              >
                 <Button variant='ghost' size='sm' className='gap-2'>
                   <Plus className='h-4 w-4' />
                   Tambah Data

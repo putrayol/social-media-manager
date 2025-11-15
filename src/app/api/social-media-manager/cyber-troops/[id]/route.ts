@@ -84,6 +84,8 @@ export async function PUT(
           body.jumlahKomentar !== undefined
             ? Number(body.jumlahKomentar)
             : undefined,
+        jumlahLike:
+          body.jumlahLike !== undefined ? Number(body.jumlahLike) : undefined,
         link: body.link ?? undefined,
         keterangan: body.keterangan ?? undefined,
         requestId:

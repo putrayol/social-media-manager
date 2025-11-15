@@ -74,6 +74,7 @@ export async function POST(request: NextRequest) {
         kategori: String(body.kategori),
         jenisIsu: String(body.jenisIsu),
         jumlahKomentar: Number(body.jumlahKomentar),
+        jumlahLike: Number(body.jumlahLike ?? 0),
         link: body.link ?? null,
         keterangan: body.keterangan ?? null,
         requestId:

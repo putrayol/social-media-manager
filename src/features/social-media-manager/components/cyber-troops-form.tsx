@@ -39,6 +39,7 @@ export default function CyberTroopsForm({
       kategori: initialData?.kategori || 'Positif',
       jenisIsu: initialData?.jenisIsu || '',
       jumlahKomentar: initialData?.jumlahKomentar || 0,
+      jumlahLike: initialData?.jumlahLike || 0,
       link: initialData?.link || '',
       keterangan: initialData?.keterangan || '',
       requestId:
@@ -90,7 +91,13 @@ export default function CyberTroopsForm({
       } else if (!initialData) {
         const res = await fetch('/api/social-media-manager/cyber-troops', {
           method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
+          headers: {
+            'Content-Type': 'application/json',
+            ...(typeof window !== 'undefined' &&
+            (window as any).Clerk?.organization?.id
+              ? { 'X-Organization-ID': (window as any).Clerk.organization.id }
+              : {})
+          },
           body: JSON.stringify(processedValues)
         });
         if (!res.ok) {
@@ -107,7 +114,13 @@ export default function CyberTroopsForm({
           `/api/social-media-manager/cyber-troops/${id}`,
           {
             method: 'PUT',
-            headers: { 'Content-Type': 'application/json' },
+            headers: {
+              'Content-Type': 'application/json',
+              ...(typeof window !== 'undefined' &&
+              (window as any).Clerk?.organization?.id
+                ? { 'X-Organization-ID': (window as any).Clerk.organization.id }
+                : {})
+            },
             body: JSON.stringify(processedValues)
           }
         );
@@ -261,6 +274,14 @@ export default function CyberTroopsForm({
               placeholder='Masukkan jumlah komentar'
               type='number'
               required
+            />
+
+            <FormInput
+              control={form.control}
+              name='jumlahLike'
+              label='Jumlah Like'
+              placeholder='Masukkan jumlah like'
+              type='number'
             />
 
             <FormInput

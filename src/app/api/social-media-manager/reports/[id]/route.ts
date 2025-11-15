@@ -2,7 +2,8 @@ import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 import {
   requireOrganization,
-  requireOrganizationAdmin
+  requireOrganizationAdmin,
+  requireOrganizationFromRequest
 } from '@/lib/organization-utils';
 import { revalidatePath } from 'next/cache';
 
@@ -54,7 +55,7 @@ export async function PUT(
   try {
     const { id } = await params;
     await requireOrganizationAdmin();
-    const orgId = await requireOrganization();
+    const orgId = await requireOrganizationFromRequest(request);
     const body = await request.json();
     const {
       reportNo,
@@ -199,6 +200,7 @@ export async function PUT(
             kategori: item.kategori,
             jenisIsu: item.jenisIsu,
             jumlahKomentar: item.jumlahKomentar || 0,
+            jumlahLike: item.jumlahLike || 0,
             link: item.link || null,
             keterangan: item.keterangan || null,
             organizationId: orgId
@@ -214,6 +216,7 @@ export async function PUT(
             namaAkun: item.namaAkun,
             platform: item.platform,
             jumlahTopKomentar: item.jumlahTopKomentar || 0,
+            jumlahLike: item.jumlahLike || 0,
             link: item.link || null,
             keterangan: item.keterangan || null,
             organizationId: orgId

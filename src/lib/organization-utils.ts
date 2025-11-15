@@ -21,7 +21,16 @@ export async function getOrganizationIdFromAuth(): Promise<string | null> {
     resolved_org_id: orgId
   });
 
-  return orgId;
+  if (orgId) return orgId;
+
+  const envFallback = process.env.DEFAULT_ORGANIZATION_ID || null;
+  if (envFallback) return envFallback;
+
+  if (process.env.NODE_ENV !== 'production') {
+    return 'local-dev-org';
+  }
+
+  return null;
 }
 
 /**
@@ -80,6 +89,17 @@ export async function getOrganizationHeaders(): Promise<
     'X-Organization-ID': orgId,
     'Content-Type': 'application/json'
   };
+}
+
+/**
+ * Prefer organization from request header, fallback to auth session
+ */
+export async function requireOrganizationFromRequest(
+  req: Request
+): Promise<string> {
+  const headerOrg = req.headers.get('X-Organization-ID');
+  if (headerOrg) return headerOrg;
+  return requireOrganization();
 }
 
 /**

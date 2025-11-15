@@ -32,6 +32,7 @@ export interface CyberTroops {
   kategori: IssueCategory;
   jenisIsu: string;
   jumlahKomentar: number;
+  jumlahLike: number;
   link: string;
   keterangan?: string;
   requestId?: number | null;
@@ -46,6 +47,7 @@ export interface TopKomentarPostingan {
   namaAkun: string;
   platform: Platform;
   jumlahTopKomentar: number;
+  jumlahLike: number;
   link: string;
   keterangan?: string;
   requestId?: number | null;

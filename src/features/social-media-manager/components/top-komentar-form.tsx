@@ -38,6 +38,7 @@ export default function TopKomentarForm({
       namaAkun: initialData?.namaAkun || '',
       platform: initialData?.platform || 'TIKTOK',
       jumlahTopKomentar: initialData?.jumlahTopKomentar || 0,
+      jumlahLike: initialData?.jumlahLike || 0,
       link: initialData?.link || '',
       keterangan: initialData?.keterangan || '',
       documentFiles: initialData?.documentFiles || [],
@@ -142,7 +143,13 @@ export default function TopKomentarForm({
       } else if (!initialData) {
         const res = await fetch('/api/social-media-manager/top-komentar', {
           method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
+          headers: {
+            'Content-Type': 'application/json',
+            ...(typeof window !== 'undefined' &&
+            (window as any).Clerk?.organization?.id
+              ? { 'X-Organization-ID': (window as any).Clerk.organization.id }
+              : {})
+          },
           body: JSON.stringify(processedValues)
         });
         if (!res.ok) {
@@ -158,7 +165,13 @@ export default function TopKomentarForm({
           `/api/social-media-manager/top-komentar/${id}`,
           {
             method: 'PUT',
-            headers: { 'Content-Type': 'application/json' },
+            headers: {
+              'Content-Type': 'application/json',
+              ...(typeof window !== 'undefined' &&
+              (window as any).Clerk?.organization?.id
+                ? { 'X-Organization-ID': (window as any).Clerk.organization.id }
+                : {})
+            },
             body: JSON.stringify(processedValues)
           }
         );
@@ -296,6 +309,14 @@ export default function TopKomentarForm({
 
             <FormInput
               control={form.control}
+              name='jumlahLike'
+              label='Jumlah Like'
+              placeholder='Masukkan jumlah like'
+              type='number'
+            />
+
+            <FormInput
+              control={form.control}
               name='link'
               label='Link'
               placeholder='Masukkan URL link'
@@ -332,7 +353,36 @@ export default function TopKomentarForm({
                 'image/png',
                 'image/webp',
                 'image/gif'
-              ]
+              ],
+              onUpload: async (files) => {
+                try {
+                  const formData = new FormData();
+                  files.forEach((file) => formData.append('files', file));
+
+                  const res = await fetch('/api/upload', {
+                    method: 'POST',
+                    body: formData
+                  });
+
+                  const json = await res.json();
+                  if (!res.ok || !json?.success) {
+                    toast.error(json?.error || 'Gagal upload file');
+                    return;
+                  }
+
+                  const uploaded = json.data || [];
+                  const existing = (
+                    form.getValues('documentFiles') || []
+                  ).filter((f: any) => !(f instanceof File));
+                  form.setValue('documentFiles', [...existing, ...uploaded], {
+                    shouldValidate: true
+                  });
+                  toast.success(`${uploaded.length} file berhasil di-upload`);
+                } catch (err) {
+                  console.error('Auto-upload error:', err);
+                  toast.error('Terjadi kesalahan saat upload file');
+                }
+              }
             }}
           />
 

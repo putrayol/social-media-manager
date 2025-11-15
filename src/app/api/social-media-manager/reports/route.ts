@@ -170,6 +170,7 @@ export async function POST(request: NextRequest) {
             kategori: item.kategori,
             jenisIsu: item.jenisIsu,
             jumlahKomentar: item.jumlahKomentar || 0,
+            jumlahLike: item.jumlahLike || 0,
             link: item.link || null,
             keterangan: item.keterangan || null,
             organizationId: orgId
@@ -185,6 +186,7 @@ export async function POST(request: NextRequest) {
             namaAkun: item.namaAkun,
             platform: item.platform,
             jumlahTopKomentar: item.jumlahTopKomentar || 0,
+            jumlahLike: item.jumlahLike || 0,
             link: item.link || null,
             keterangan: item.keterangan || null,
             organizationId: orgId

@@ -135,7 +135,7 @@ export function RequestTable({ data, totalItems }: RequestTableProps) {
                     {isExpanded && (
                       <TableRow className='bg-muted/40'>
                         <TableCell colSpan={2}>
-                          <div className='grid grid-cols-2 gap-x-4 gap-y-2 text-xs'>
+                          <div className='grid w-full grid-cols-2 gap-x-4 gap-y-2 text-xs'>
                             <span className='text-muted-foreground font-medium'>
                               TikTok Post
                             </span>
@@ -148,10 +148,13 @@ export function RequestTable({ data, totalItems }: RequestTableProps) {
                               TikTok Like
                             </span>
                             <span>{item.tiktokLike}</span>
-                            <span className='text-muted-foreground font-medium'>
+                            <span className='text-foreground font-semibold'>
                               TikTok Total
                             </span>
-                            <span>{tiktokTotal}</span>
+                            <span className='text-foreground font-semibold'>
+                              {tiktokTotal}
+                            </span>
+                            <div className='col-span-2 my-2 w-full border-t' />
 
                             <span className='text-muted-foreground font-medium'>
                               Instagram Post
@@ -165,10 +168,13 @@ export function RequestTable({ data, totalItems }: RequestTableProps) {
                               Instagram Like
                             </span>
                             <span>{item.instagramLike}</span>
-                            <span className='text-muted-foreground font-medium'>
+                            <span className='text-foreground font-semibold'>
                               Instagram Total
                             </span>
-                            <span>{instagramTotal}</span>
+                            <span className='text-foreground font-semibold'>
+                              {instagramTotal}
+                            </span>
+                            <div className='col-span-2 my-2 w-full border-t' />
 
                             <span className='text-muted-foreground font-medium'>
                               Facebook Post
@@ -182,10 +188,13 @@ export function RequestTable({ data, totalItems }: RequestTableProps) {
                               Facebook Like
                             </span>
                             <span>{item.facebookLike}</span>
-                            <span className='text-muted-foreground font-medium'>
+                            <span className='text-foreground font-semibold'>
                               Facebook Total
                             </span>
-                            <span>{facebookTotal}</span>
+                            <span className='text-foreground font-semibold'>
+                              {facebookTotal}
+                            </span>
+                            <div className='col-span-2 my-2 w-full border-t' />
 
                             <span className='text-muted-foreground font-medium'>
                               Twitter Post
@@ -199,10 +208,13 @@ export function RequestTable({ data, totalItems }: RequestTableProps) {
                               Twitter Like
                             </span>
                             <span>{item.twitterLike}</span>
-                            <span className='text-muted-foreground font-medium'>
+                            <span className='text-foreground font-semibold'>
                               Twitter Total
                             </span>
-                            <span>{twitterTotal}</span>
+                            <span className='text-foreground font-semibold'>
+                              {twitterTotal}
+                            </span>
+                            <div className='col-span-2 my-2 w-full border-t' />
 
                             <span className='text-muted-foreground font-medium'>
                               YouTube Post
@@ -216,10 +228,13 @@ export function RequestTable({ data, totalItems }: RequestTableProps) {
                               YouTube Like
                             </span>
                             <span>{item.youtubeLike}</span>
-                            <span className='text-muted-foreground font-medium'>
+                            <span className='text-foreground font-semibold'>
                               YouTube Total
                             </span>
-                            <span>{youtubeTotal}</span>
+                            <span className='text-foreground font-semibold'>
+                              {youtubeTotal}
+                            </span>
+                            <div className='col-span-2 my-2 w-full border-t' />
 
                             <span className='text-muted-foreground font-medium'>
                               Lainnya Post
@@ -233,10 +248,13 @@ export function RequestTable({ data, totalItems }: RequestTableProps) {
                               Lainnya Like
                             </span>
                             <span>{item.otherLike}</span>
-                            <span className='text-muted-foreground font-medium'>
+                            <span className='text-foreground font-semibold'>
                               Lainnya Total
                             </span>
-                            <span>{otherTotal}</span>
+                            <span className='text-foreground font-semibold'>
+                              {otherTotal}
+                            </span>
+                            <div className='col-span-2 my-2 w-full border-t' />
 
                             <span className='text-muted-foreground font-medium'>
                               Bonus / Catatan

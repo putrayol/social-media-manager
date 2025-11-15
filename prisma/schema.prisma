@@ -35,6 +35,7 @@ model CyberTroops {
   kategori       String   // e.g., "Positif" | "Negatif"
   jenisIsu       String
   jumlahKomentar Int
+  jumlahLike     Int      @default(0)
   link           String?
   keterangan     String?
   organizationId String?  // Clerk organization ID
@@ -54,6 +55,7 @@ model TopKomentar {
   namaAkun             String
   platform             String   // TIKTOK, INSTAGRAM, FACEBOOK, TWITTER, YOUTUBE, OTHER
   jumlahTopKomentar    Int
+  jumlahLike           Int      @default(0)
   link                 String?
   keterangan           String?
   documentFilesData    String?  // JSON string for document files

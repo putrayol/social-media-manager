@@ -148,32 +148,38 @@ export function FileUploader(props: FileUploaderProps) {
 
       setFiles(updatedFiles);
 
+      // Update form value untuk mode form
+      if (onValueChange) {
+        onValueChange(updatedFiles);
+      }
+
+      // Notifikasi untuk mode form (ketika onValueChange ada)
+      if (onValueChange && newFiles.length > 0) {
+        const target =
+          newFiles.length > 1 ? `${newFiles.length} files` : `file`;
+        toast.success(`${target} selected successfully`);
+      }
+
       if (rejectedFiles.length > 0) {
         rejectedFiles.forEach(({ file }) => {
           toast.error(`File ${file.name} was rejected`);
         });
       }
 
-      if (
-        onUpload &&
-        updatedFiles.length > 0 &&
-        updatedFiles.length <= maxFiles
-      ) {
+      // Hanya panggil onUpload jika tidak dalam mode form (onValueChange tidak ada)
+      if (onUpload && newFiles.length > 0 && !onValueChange) {
         const target =
-          updatedFiles.length > 0 ? `${updatedFiles.length} files` : `file`;
+          newFiles.length > 1 ? `${newFiles.length} files` : `file`;
 
-        toast.promise(onUpload(updatedFiles), {
+        toast.promise(onUpload(newFiles), {
           loading: `Uploading ${target}...`,
-          success: () => {
-            setFiles([]);
-            return `${target} uploaded`;
-          },
+          success: () => `${target} uploaded`,
           error: `Failed to upload ${target}`
         });
       }
     },
 
-    [files, maxFiles, multiple, onUpload, setFiles]
+    [files, maxFiles, multiple, onUpload, setFiles, onValueChange]
   );
 
   function onRemove(index: number) {
@@ -207,6 +213,8 @@ export function FileUploader(props: FileUploaderProps) {
         maxFiles={maxFiles}
         multiple={maxFiles > 1 || multiple}
         disabled={isDisabled}
+        noKeyboard
+        preventDropOnDocument
       >
         {({ getRootProps, getInputProps, isDragActive }) => (
           <div

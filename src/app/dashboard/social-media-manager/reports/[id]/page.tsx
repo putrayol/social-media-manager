@@ -117,6 +117,7 @@ export default function ViewReportPage({ params }: ViewReportPageProps) {
             <ReportActions reportId={report.id} reportNo={report.reportNo} />
             <Link
               href={`/dashboard/social-media-manager/reports/${report.id}/edit`}
+              prefetch={false}
             >
               <Button>
                 <Edit className='mr-2 h-4 w-4' />
@@ -145,7 +146,8 @@ export default function ViewReportPage({ params }: ViewReportPageProps) {
                         <TableHead>PLATFORM</TableHead>
                         <TableHead>JENIS / KATEGORI</TableHead>
                         <TableHead>JENIS ISU</TableHead>
-                        <TableHead>JUMLAH</TableHead>
+                        <TableHead>Komentar</TableHead>
+                        <TableHead>Like</TableHead>
                         <TableHead>LINK</TableHead>
                       </TableRow>
                     </TableHeader>
@@ -154,7 +156,7 @@ export default function ViewReportPage({ params }: ViewReportPageProps) {
                         <>
                           <TableRow>
                             <TableCell
-                              colSpan={7}
+                              colSpan={8}
                               className='bg-muted font-semibold'
                             >
                               A. Social Media Aktivator (Report Giat Konten)
@@ -165,9 +167,12 @@ export default function ViewReportPage({ params }: ViewReportPageProps) {
                               <TableCell>{item.no}</TableCell>
                               <TableCell>{item.namaAkun}</TableCell>
                               <TableCell>
-                                <Badge variant='outline'>{item.platform}</Badge>
+                                <Badge variant='outline' className='capitalize'>
+                                  {String(item.platform).toLowerCase()}
+                                </Badge>
                               </TableCell>
                               <TableCell>{item.jenisKonten}</TableCell>
+                              <TableCell></TableCell>
                               <TableCell></TableCell>
                               <TableCell></TableCell>
                               <TableCell>
@@ -189,7 +194,7 @@ export default function ViewReportPage({ params }: ViewReportPageProps) {
                         <>
                           <TableRow>
                             <TableCell
-                              colSpan={7}
+                              colSpan={8}
                               className='bg-muted font-semibold'
                             >
                               B. Cyber Troops (Report Giat Buzzer)
@@ -200,7 +205,9 @@ export default function ViewReportPage({ params }: ViewReportPageProps) {
                               <TableCell>{item.no}</TableCell>
                               <TableCell>{item.namaAkun}</TableCell>
                               <TableCell>
-                                <Badge variant='outline'>{item.platform}</Badge>
+                                <Badge variant='outline' className='capitalize'>
+                                  {String(item.platform).toLowerCase()}
+                                </Badge>
                               </TableCell>
                               <TableCell>
                                 <Badge
@@ -215,6 +222,7 @@ export default function ViewReportPage({ params }: ViewReportPageProps) {
                               </TableCell>
                               <TableCell>{item.jenisIsu}</TableCell>
                               <TableCell>{item.jumlahKomentar}</TableCell>
+                              <TableCell>{item.jumlahLike ?? '-'}</TableCell>
                               <TableCell>
                                 <a
                                   href={item.link}
@@ -238,6 +246,13 @@ export default function ViewReportPage({ params }: ViewReportPageProps) {
                                 0
                               )}
                             </TableCell>
+                            <TableCell>
+                              {report.cyberTroops.reduce(
+                                (sum: number, item: any) =>
+                                  sum + (item.jumlahLike || 0),
+                                0
+                              )}
+                            </TableCell>
                             <TableCell></TableCell>
                           </TableRow>
                         </>
@@ -247,7 +262,7 @@ export default function ViewReportPage({ params }: ViewReportPageProps) {
                         <>
                           <TableRow>
                             <TableCell
-                              colSpan={7}
+                              colSpan={8}
                               className='bg-muted font-semibold'
                             >
                               C. Report Giat Top Komentar Postingan
@@ -258,11 +273,14 @@ export default function ViewReportPage({ params }: ViewReportPageProps) {
                               <TableCell>{item.no}</TableCell>
                               <TableCell>{item.namaAkun}</TableCell>
                               <TableCell>
-                                <Badge variant='outline'>{item.platform}</Badge>
+                                <Badge variant='outline' className='capitalize'>
+                                  {String(item.platform).toLowerCase()}
+                                </Badge>
                               </TableCell>
                               <TableCell></TableCell>
                               <TableCell></TableCell>
                               <TableCell>{item.jumlahTopKomentar}</TableCell>
+                              <TableCell>{item.jumlahLike ?? '-'}</TableCell>
                               <TableCell>
                                 <a
                                   href={item.link}
@@ -283,6 +301,13 @@ export default function ViewReportPage({ params }: ViewReportPageProps) {
                               {report.topKomentar.reduce(
                                 (sum: number, item: any) =>
                                   sum + (item.jumlahTopKomentar || 0),
+                                0
+                              )}
+                            </TableCell>
+                            <TableCell>
+                              {report.topKomentar.reduce(
+                                (sum: number, item: any) =>
+                                  sum + (item.jumlahLike || 0),
                                 0
                               )}
                             </TableCell>

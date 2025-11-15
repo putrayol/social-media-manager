@@ -46,6 +46,13 @@ export const topKomentarColumns: ColumnDef<TopKomentarPostingan>[] = [
     cell: ({ row }) => <div>{row.getValue('jumlahTopKomentar')}</div>
   },
   {
+    accessorKey: 'jumlahLike',
+    header: ({ column }) => (
+      <DataTableColumnHeader column={column} title='Jumlah Like' />
+    ),
+    cell: ({ row }) => <div>{row.getValue('jumlahLike')}</div>
+  },
+  {
     accessorKey: 'link',
     header: ({ column }) => (
       <DataTableColumnHeader column={column} title='Link' />

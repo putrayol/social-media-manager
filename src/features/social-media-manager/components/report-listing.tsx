@@ -162,6 +162,7 @@ export function ReportListing({ reports, onRefresh }: ReportListingProps) {
                       <div className='flex justify-end gap-2'>
                         <Link
                           href={`/dashboard/social-media-manager/reports/${report.id}`}
+                          prefetch={false}
                         >
                           <Button size='sm' variant='ghost'>
                             <Eye className='h-4 w-4' />
@@ -169,6 +170,7 @@ export function ReportListing({ reports, onRefresh }: ReportListingProps) {
                         </Link>
                         <Link
                           href={`/dashboard/social-media-manager/reports/${report.id}/edit`}
+                          prefetch={false}
                         >
                           <Button size='sm' variant='ghost'>
                             <Edit className='h-4 w-4' />

@@ -90,6 +90,7 @@ export async function POST(request: NextRequest) {
         namaAkun: String(body.namaAkun),
         platform: String(body.platform).toUpperCase() as any,
         jumlahTopKomentar: Number(body.jumlahTopKomentar),
+        jumlahLike: Number(body.jumlahLike ?? 0),
         link: body.link ?? null,
         keterangan: body.keterangan ?? null,
         documentFilesData: body.documentFiles

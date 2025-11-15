@@ -21,6 +21,7 @@ import TopKomentarForm from './top-komentar-form';
 import { Modal } from '@/components/ui/modal';
 import { apiFetch } from '@/lib/api';
 import { toast } from 'sonner';
+import { useOrganization } from '@clerk/nextjs';
 import {
   CommandDialog,
   CommandInput,
@@ -90,6 +91,7 @@ export default function ReportForm({
   });
 
   const router = useRouter();
+  const { organization } = useOrganization();
   const isLoading = form.formState.isSubmitting;
   const [isSubmitting, setIsSubmitting] = useState(false);
 
@@ -381,6 +383,7 @@ export default function ReportForm({
       kategori: item.kategori,
       jenisIsu: item.jenisIsu,
       jumlahKomentar: Number(item.jumlahKomentar ?? 0),
+      jumlahLike: Number(item.jumlahLike ?? 0),
       link: item.link || '', // ✅ Ensure link is always a string (empty string if not provided)
       keterangan: item.keterangan || null // ✅ Ensure keterangan is null if not provided
     };
@@ -413,6 +416,7 @@ export default function ReportForm({
       namaAkun: item.namaAkun,
       platform: item.platform,
       jumlahTopKomentar: Number(item.jumlahTopKomentar ?? 0),
+      jumlahLike: Number(item.jumlahLike ?? 0),
       link: item.link || '', // ✅ Ensure link is always a string (empty string if not provided)
       keterangan: item.keterangan || null, // ✅ Ensure keterangan is null if not provided
       documentFiles: item.documentFiles || [] // ✅ Add documentFiles array
@@ -470,6 +474,7 @@ export default function ReportForm({
         kategori: '',
         jenisIsu: '',
         jumlahKomentar: 0,
+        jumlahLike: 0,
         link: '',
         keterangan: ''
       }
@@ -492,6 +497,7 @@ export default function ReportForm({
         namaAkun: '',
         platform: '',
         jumlahTopKomentar: 0,
+        jumlahLike: 0,
         link: '',
         keterangan: ''
       }
@@ -550,6 +556,7 @@ export default function ReportForm({
               kategori: item.kategori,
               jenisIsu: item.jenisIsu,
               jumlahKomentar: item.jumlahKomentar || 0,
+              jumlahLike: item.jumlahLike || 0,
               link: item.link || null,
               keterangan: item.keterangan || null
             };
@@ -572,6 +579,7 @@ export default function ReportForm({
               namaAkun: item.namaAkun,
               platform: item.platform,
               jumlahTopKomentar: item.jumlahTopKomentar || 0,
+              jumlahLike: item.jumlahLike || 0,
               link: item.link || null,
               keterangan: item.keterangan || null
             };
@@ -659,7 +667,8 @@ export default function ReportForm({
       const res = await apiFetch(endpoint, {
         method,
         headers: {
-          'Content-Type': 'application/json'
+          'Content-Type': 'application/json',
+          ...(organization?.id ? { 'X-Organization-ID': organization.id } : {})
         },
         body: JSON.stringify(dataToSend)
       });
@@ -835,7 +844,8 @@ export default function ReportForm({
                     <TableHead>PLATFORM</TableHead>
                     <TableHead>JENIS / KATEGORI</TableHead>
                     <TableHead>JENIS ISU</TableHead>
-                    <TableHead>JUMLAH</TableHead>
+                    <TableHead>Komentar</TableHead>
+                    <TableHead>Like</TableHead>
                     <TableHead>LINK</TableHead>
                     <TableHead className='w-[60px] text-center'>AKSI</TableHead>
                   </TableRow>
@@ -917,6 +927,9 @@ export default function ReportForm({
                               placeholder='Jenis / Kategori'
                             />
                           )}
+                        </TableCell>
+                        <TableCell>
+                          <span className='text-muted-foreground'>-</span>
                         </TableCell>
                         <TableCell>
                           <span className='text-muted-foreground'>-</span>
@@ -1007,7 +1020,8 @@ export default function ReportForm({
                     <TableHead>PLATFORM</TableHead>
                     <TableHead>JENIS / KATEGORI</TableHead>
                     <TableHead>JENIS ISU</TableHead>
-                    <TableHead>JUMLAH</TableHead>
+                    <TableHead>Komentar</TableHead>
+                    <TableHead>Like</TableHead>
                     <TableHead>LINK</TableHead>
                     <TableHead className='w-[60px] text-center'>AKSI</TableHead>
                   </TableRow>
@@ -1130,6 +1144,24 @@ export default function ReportForm({
                         </TableCell>
                         <TableCell>
                           {isExisting ? (
+                            <span>{item.jumlahLike ?? '-'}</span>
+                          ) : (
+                            <Input
+                              type='number'
+                              value={item.jumlahLike ?? 0}
+                              onChange={(e) =>
+                                updateCyberField(
+                                  idx,
+                                  'jumlahLike',
+                                  Number(e.target.value || 0)
+                                )
+                              }
+                              placeholder='0'
+                            />
+                          )}
+                        </TableCell>
+                        <TableCell>
+                          {isExisting ? (
                             item.link ? (
                               <a
                                 href={item.link}
@@ -1174,6 +1206,13 @@ export default function ReportForm({
                       </TableCell>
                       <TableCell className='font-semibold'>
                         {cyberTotal}
+                      </TableCell>
+                      <TableCell className='font-semibold'>
+                        {cyberRows.reduce(
+                          (sum: number, row: any) =>
+                            sum + Number(row?.jumlahLike || 0),
+                          0
+                        )}
                       </TableCell>
                       <TableCell colSpan={2} />
                     </TableRow>
@@ -1221,7 +1260,8 @@ export default function ReportForm({
                     <TableHead>PLATFORM</TableHead>
                     <TableHead>JENIS / KATEGORI</TableHead>
                     <TableHead>JENIS ISU</TableHead>
-                    <TableHead>JUMLAH</TableHead>
+                    <TableHead>Komentar</TableHead>
+                    <TableHead>Like</TableHead>
                     <TableHead>LINK</TableHead>
                     <TableHead className='w-[60px] text-center'>AKSI</TableHead>
                   </TableRow>
@@ -1309,6 +1349,24 @@ export default function ReportForm({
                         </TableCell>
                         <TableCell>
                           {isExisting ? (
+                            <span>{item.jumlahLike ?? '-'}</span>
+                          ) : (
+                            <Input
+                              type='number'
+                              value={item.jumlahLike ?? 0}
+                              onChange={(e) =>
+                                updateTopField(
+                                  idx,
+                                  'jumlahLike',
+                                  Number(e.target.value || 0)
+                                )
+                              }
+                              placeholder='0'
+                            />
+                          )}
+                        </TableCell>
+                        <TableCell>
+                          {isExisting ? (
                             item.link ? (
                               <a
                                 href={item.link}
@@ -1353,6 +1411,13 @@ export default function ReportForm({
                       </TableCell>
                       <TableCell className='font-semibold'>
                         {topTotal}
+                      </TableCell>
+                      <TableCell className='font-semibold'>
+                        {topRows.reduce(
+                          (sum: number, row: any) =>
+                            sum + Number(row?.jumlahLike || 0),
+                          0
+                        )}
                       </TableCell>
                       <TableCell colSpan={2} />
                     </TableRow>

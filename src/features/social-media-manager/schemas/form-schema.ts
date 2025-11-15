@@ -68,6 +68,10 @@ export const cyberTroopsSchema = z.object({
   jumlahKomentar: z.coerce
     .number()
     .min(0, { message: 'Jumlah komentar tidak boleh negatif' }),
+  jumlahLike: z.coerce
+    .number()
+    .min(0, { message: 'Jumlah like tidak boleh negatif' })
+    .optional(),
   link: z
     .string()
     .url({ message: 'Link harus URL yang valid' })
@@ -95,6 +99,10 @@ export const topKomentarPostinganSchema = z.object({
   jumlahTopKomentar: z.coerce
     .number()
     .min(0, { message: 'Jumlah top komentar tidak boleh negatif' }),
+  jumlahLike: z.coerce
+    .number()
+    .min(0, { message: 'Jumlah like tidak boleh negatif' })
+    .optional(),
   link: z
     .string()
     .url({ message: 'Link harus URL yang valid' })
