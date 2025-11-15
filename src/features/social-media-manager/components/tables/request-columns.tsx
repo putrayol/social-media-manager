@@ -26,14 +26,29 @@ export const requestColumns: ColumnDef<RequestItem>[] = [
     }
   },
   {
-    accessorKey: 'tanggal',
+    accessorKey: 'tanggalMulai',
     header: ({ column }) => (
       <DataTableColumnHeader column={column} title='Tanggal' />
     ),
     cell: ({ row }) => {
-      const value = row.getValue('tanggal') as string;
-      const date = value ? new Date(value) : null;
-      return <div>{date ? date.toLocaleDateString('id-ID') : '-'}</div>;
+      const req = row.original as RequestItem;
+      const formatDate = (value?: string | null) => {
+        if (!value) return '';
+        const date = new Date(value);
+        return date.toLocaleDateString('id-ID');
+      };
+      const hasDate = req.tanggalMulai || req.tanggalBerakhir;
+      return (
+        <div>
+          {hasDate
+            ? `${formatDate(req.tanggalMulai)}${
+                req.tanggalBerakhir
+                  ? ` - ${formatDate(req.tanggalBerakhir)}`
+                  : ''
+              }`
+            : '-'}
+        </div>
+      );
     }
   },
   {

@@ -57,7 +57,8 @@ export interface TopKomentarPostingan {
 export interface RequestItem {
   id: number;
   no: number;
-  tanggal: string;
+  tanggalMulai?: string | null;
+  tanggalBerakhir?: string | null;
   namaPaket: string;
   tiktokPost: number;
   tiktokKomen: number;

@@ -82,7 +82,12 @@ export async function PUT(
       where: { id: numericId },
       data: {
         no: body.no !== undefined ? Number(body.no) : undefined,
-        tanggal: body.tanggal ? new Date(body.tanggal) : undefined,
+        tanggalMulai: body.tanggalMulai
+          ? new Date(body.tanggalMulai)
+          : undefined,
+        tanggalBerakhir: body.tanggalBerakhir
+          ? new Date(body.tanggalBerakhir)
+          : undefined,
         namaPaket: body.namaPaket ?? undefined,
         tiktokPost:
           body.tiktokPost !== undefined ? Number(body.tiktokPost) : undefined,

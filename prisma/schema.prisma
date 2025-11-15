@@ -69,35 +69,36 @@ model TopKomentar {
 }
 
 model Request {
-  id             Int      @id @default(autoincrement())
-  no             Int
-  tanggal        DateTime
-  namaPaket      String
-  tiktokPost     Int      @default(0)
-  tiktokKomen    Int      @default(0)
-  tiktokLike     Int      @default(0)
-  instagramPost  Int      @default(0)
-  instagramKomen Int      @default(0)
-  instagramLike  Int      @default(0)
-  facebookPost   Int      @default(0)
-  facebookKomen  Int      @default(0)
-  facebookLike   Int      @default(0)
-  twitterPost    Int      @default(0)
-  twitterKomen   Int      @default(0)
-  twitterLike    Int      @default(0)
-  youtubePost    Int      @default(0)
-  youtubeKomen   Int      @default(0)
-  youtubeLike    Int      @default(0)
-  otherPost      Int      @default(0)
-  otherKomen     Int      @default(0)
-  otherLike      Int      @default(0)
-  bonus          String?
-  organizationId String?  // Clerk organization ID
-  aktivator      Aktivator[]
-  cyberTroops    CyberTroops[]
-  topKomentar    TopKomentar[]
-  createdAt      DateTime @default(now())
-  updatedAt      DateTime @updatedAt
+  id              Int      @id @default(autoincrement())
+  no              Int
+  tanggalMulai    DateTime?
+  tanggalBerakhir DateTime?
+  namaPaket       String
+  tiktokPost      Int      @default(0)
+  tiktokKomen     Int      @default(0)
+  tiktokLike      Int      @default(0)
+  instagramPost   Int      @default(0)
+  instagramKomen  Int      @default(0)
+  instagramLike   Int      @default(0)
+  facebookPost    Int      @default(0)
+  facebookKomen   Int      @default(0)
+  facebookLike    Int      @default(0)
+  twitterPost     Int      @default(0)
+  twitterKomen    Int      @default(0)
+  twitterLike     Int      @default(0)
+  youtubePost     Int      @default(0)
+  youtubeKomen    Int      @default(0)
+  youtubeLike     Int      @default(0)
+  otherPost       Int      @default(0)
+  otherKomen      Int      @default(0)
+  otherLike       Int      @default(0)
+  bonus           String?
+  organizationId  String?  // Clerk organization ID
+  aktivator       Aktivator[]
+  cyberTroops     CyberTroops[]
+  topKomentar     TopKomentar[]
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
 
   @@index([organizationId])
 }

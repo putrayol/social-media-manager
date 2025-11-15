@@ -48,9 +48,10 @@ export function RequestTable({ data, totalItems }: RequestTableProps) {
   const rows = table.getRowModel().rows;
   const [expandedRows, setExpandedRows] = useState<Record<string, boolean>>({});
 
-  const formatDate = (value: string) => {
-    const date = value ? new Date(value) : null;
-    return date ? date.toLocaleDateString('id-ID') : '-';
+  const formatDate = (value?: string | null) => {
+    if (!value) return '';
+    const date = new Date(value);
+    return date.toLocaleDateString('id-ID');
   };
 
   return (
@@ -114,7 +115,13 @@ export function RequestTable({ data, totalItems }: RequestTableProps) {
                             {item.namaPaket}
                           </span>
                           <span className='text-muted-foreground text-xs'>
-                            {formatDate(item.tanggal)}
+                            {item.tanggalMulai || item.tanggalBerakhir
+                              ? `${formatDate(item.tanggalMulai)}${
+                                  item.tanggalBerakhir
+                                    ? ` - ${formatDate(item.tanggalBerakhir)}`
+                                    : ''
+                                }`
+                              : '-'}
                           </span>
                         </div>
                       </TableCell>

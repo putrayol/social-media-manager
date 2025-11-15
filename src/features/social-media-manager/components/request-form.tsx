@@ -27,7 +27,8 @@ export default function RequestForm({
   const form = useForm<FormData>({
     resolver: zodResolver(requestSchema),
     defaultValues: {
-      tanggal: initialData?.tanggal || '',
+      tanggalMulai: initialData?.tanggalMulai || '',
+      tanggalBerakhir: initialData?.tanggalBerakhir || '',
       namaPaket: initialData?.namaPaket || '',
       tiktokPost: initialData?.tiktokPost ?? 0,
       tiktokKomen: initialData?.tiktokKomen ?? 0,
@@ -130,7 +131,7 @@ export default function RequestForm({
           onSubmit={form.handleSubmit(handleSubmit)}
           className='space-y-4'
         >
-          <div className='grid grid-cols-1 gap-4 md:grid-cols-2'>
+          <div className='space-y-4'>
             <FormInput
               control={form.control}
               name='namaPaket'
@@ -140,9 +141,17 @@ export default function RequestForm({
             />
             <FormInput
               control={form.control}
-              name='tanggal'
-              label='Tanggal'
-              placeholder='Tanggal request'
+              name='tanggalMulai'
+              label='Tanggal Mulai'
+              placeholder='Tanggal mulai'
+              type='date'
+              required
+            />
+            <FormInput
+              control={form.control}
+              name='tanggalBerakhir'
+              label='Tanggal Berakhir'
+              placeholder='Tanggal berakhir'
               type='date'
               required
             />

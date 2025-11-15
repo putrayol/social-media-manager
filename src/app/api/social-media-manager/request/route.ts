@@ -80,7 +80,12 @@ export async function POST(request: NextRequest) {
     const created = await prisma.request.create({
       data: {
         no: nextNo,
-        tanggal: body.tanggal ? new Date(body.tanggal) : new Date(),
+        tanggalMulai: body.tanggalMulai
+          ? new Date(body.tanggalMulai)
+          : new Date(),
+        tanggalBerakhir: body.tanggalBerakhir
+          ? new Date(body.tanggalBerakhir)
+          : new Date(),
         namaPaket: String(body.namaPaket),
         tiktokPost: Number(body.tiktokPost) || 0,
         tiktokKomen: Number(body.tiktokKomen) || 0,
