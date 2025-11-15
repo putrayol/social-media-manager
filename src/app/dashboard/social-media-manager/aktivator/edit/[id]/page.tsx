@@ -78,7 +78,8 @@ export default function EditAktivatorPage() {
             namaAkun: aktivator.namaAkun,
             platform: aktivator.platform,
             jenisKonten: aktivator.jenisKonten,
-            link: aktivator.link ?? ''
+            link: aktivator.link ?? '',
+            requestId: aktivator.requestId ?? null
           }}
         />
       </div>

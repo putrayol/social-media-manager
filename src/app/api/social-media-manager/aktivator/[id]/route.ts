@@ -83,7 +83,13 @@ export async function PUT(
           ? (String(body.platform).toUpperCase() as any)
           : undefined,
         jenisKonten: body.jenisKonten,
-        link: body.link ?? undefined
+        link: body.link ?? undefined,
+        requestId:
+          body.requestId !== undefined
+            ? body.requestId !== null && body.requestId !== ''
+              ? Number(body.requestId)
+              : null
+            : undefined
       }
     });
 

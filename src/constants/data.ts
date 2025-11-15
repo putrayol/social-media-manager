@@ -92,6 +92,11 @@ export const navItems: NavItem[] = [
         url: '/dashboard/social-media-manager#top-komentar'
       },
       {
+        title: 'Request',
+        url: '/dashboard/social-media-manager/request'
+      },
+
+      {
         title: 'Laporan Khusus',
         url: '/dashboard/social-media-manager/lapsus'
       }

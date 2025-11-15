@@ -7,9 +7,12 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Form } from '@/components/ui/form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useParams, useRouter } from 'next/navigation';
+import { useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import * as z from 'zod';
 import { socialMediaAktivatorSchema } from '../schemas/form-schema';
+import { toast } from 'sonner';
+import type { RequestItem } from '../types';
 
 type FormData = z.infer<typeof socialMediaAktivatorSchema>;
 
@@ -24,13 +27,20 @@ export default function AktivatorForm({
   pageTitle,
   onSubmit
 }: AktivatorFormProps) {
+  const [requests, setRequests] = useState<RequestItem[]>([]);
+  const [loadingRequests, setLoadingRequests] = useState(false);
+
   const form = useForm<FormData>({
     resolver: zodResolver(socialMediaAktivatorSchema),
     defaultValues: {
       namaAkun: initialData?.namaAkun || '',
       platform: initialData?.platform || 'TIKTOK',
       jenisKonten: initialData?.jenisKonten || '',
-      link: initialData?.link || ''
+      link: initialData?.link || '',
+      requestId:
+        initialData?.requestId !== undefined && initialData?.requestId !== null
+          ? String(initialData.requestId)
+          : undefined
     }
   });
 
@@ -38,15 +48,46 @@ export default function AktivatorForm({
   const params = useParams() as { id?: string };
   const isLoading = form.formState.isSubmitting;
 
+  const selectedPlatform = form.watch('platform') || 'TIKTOK';
+
+  useEffect(() => {
+    const fetchRequests = async () => {
+      setLoadingRequests(true);
+      try {
+        const res = await fetch('/api/social-media-manager/request?limit=1000');
+        if (!res.ok) {
+          throw new Error('Failed to fetch Request data');
+        }
+        const json = await res.json();
+        setRequests(json?.data ?? []);
+      } catch (error) {
+        console.error('Error fetching Request list:', error);
+        toast.error('Gagal memuat data Request');
+      } finally {
+        setLoadingRequests(false);
+      }
+    };
+
+    fetchRequests();
+  }, []);
+
   async function handleSubmit(values: FormData) {
     try {
+      const processedValues: FormData = {
+        ...values,
+        requestId:
+          values.requestId != null && values.requestId !== ''
+            ? Number(values.requestId)
+            : undefined
+      };
+
       if (onSubmit) {
-        await onSubmit(values);
+        await onSubmit(processedValues);
       } else if (!initialData) {
         const res = await fetch('/api/social-media-manager/aktivator', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(values)
+          body: JSON.stringify(processedValues)
         });
         if (!res.ok) {
           const err = await res.json().catch(() => null);
@@ -61,7 +102,7 @@ export default function AktivatorForm({
         const res = await fetch(`/api/social-media-manager/aktivator/${id}`, {
           method: 'PUT',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(values)
+          body: JSON.stringify(processedValues)
         });
         if (!res.ok) {
           const err = await res.json().catch(() => null);
@@ -114,6 +155,76 @@ export default function AktivatorForm({
                 { label: 'YouTube', value: 'YOUTUBE' },
                 { label: 'Lainnya', value: 'OTHER' }
               ]}
+            />
+
+            <FormSelect
+              control={form.control}
+              name='requestId'
+              label='Request'
+              placeholder={
+                loadingRequests
+                  ? 'Memuat data Request...'
+                  : 'Pilih Request (opsional)'
+              }
+              options={requests.map((req) => {
+                let post = 0;
+                let komen = 0;
+                let like = 0;
+
+                switch (selectedPlatform) {
+                  case 'TIKTOK': {
+                    post = req.tiktokPost;
+                    komen = req.tiktokKomen;
+                    like = req.tiktokLike;
+                    break;
+                  }
+                  case 'INSTAGRAM': {
+                    post = req.instagramPost;
+                    komen = req.instagramKomen;
+                    like = req.instagramLike;
+                    break;
+                  }
+                  case 'FACEBOOK': {
+                    post = req.facebookPost;
+                    komen = req.facebookKomen;
+                    like = req.facebookLike;
+                    break;
+                  }
+                  case 'TWITTER': {
+                    post = req.twitterPost;
+                    komen = req.twitterKomen;
+                    like = req.twitterLike;
+                    break;
+                  }
+                  case 'YOUTUBE': {
+                    post = req.youtubePost;
+                    komen = req.youtubeKomen;
+                    like = req.youtubeLike;
+                    break;
+                  }
+                  case 'OTHER': {
+                    post = req.otherPost;
+                    komen = req.otherKomen;
+                    like = req.otherLike;
+                    break;
+                  }
+                  default:
+                    break;
+                }
+
+                const total = (post || 0) + (komen || 0) + (like || 0);
+
+                return {
+                  label: `#${req.no} - ${req.namaPaket} (${selectedPlatform.toLowerCase()} - Post: ${post}, Komen: ${komen}, Like: ${like}, Total: ${total})`,
+                  value: String(req.id)
+                };
+              })}
+              disabled={loadingRequests || requests.length === 0}
+              description={
+                !loadingRequests && requests.length === 0
+                  ? 'Belum ada data Request. Silakan tambah Request terlebih dahulu.'
+                  : undefined
+              }
             />
           </div>
 

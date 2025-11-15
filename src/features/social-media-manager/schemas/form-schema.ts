@@ -43,7 +43,8 @@ export const socialMediaAktivatorSchema = z.object({
     .url({ message: 'Link harus URL yang valid' })
     .or(z.literal(''))
     .optional()
-    .nullable()
+    .nullable(),
+  requestId: z.union([z.string(), z.number()]).optional().nullable()
 });
 
 // Cyber Troops Schema
@@ -73,7 +74,8 @@ export const cyberTroopsSchema = z.object({
     .or(z.literal(''))
     .optional()
     .nullable(),
-  keterangan: z.string().optional().nullable()
+  keterangan: z.string().optional().nullable(),
+  requestId: z.union([z.string(), z.number()]).optional().nullable()
 });
 
 // Top Komentar Postingan Schema
@@ -108,7 +110,82 @@ export const topKomentarPostinganSchema = z.object({
       ])
     )
     .refine((files) => !files || files.length <= 10, 'Maksimal 10 file')
-    .optional()
+    .optional(),
+  requestId: z.union([z.string(), z.number()]).optional().nullable()
+});
+
+// Request Schema
+const nonNegativeNumberOptional = (fieldMessage: string) =>
+  z.preprocess(
+    (val) => {
+      if (val === '' || val === null || val === undefined) return 0;
+      const num = typeof val === 'string' ? Number(val) : (val as number);
+      return Number.isNaN(num) ? 0 : num;
+    },
+    z.number().min(0, { message: fieldMessage })
+  );
+
+export const requestSchema = z.object({
+  id: z.union([z.string(), z.number()]).optional(),
+  tanggal: z.string().min(1, { message: 'Tanggal harus diisi' }),
+  namaPaket: z
+    .string()
+    .min(2, { message: 'Nama paket harus minimal 2 karakter' }),
+  tiktokPost: nonNegativeNumberOptional(
+    'Jumlah post TikTok tidak boleh negatif'
+  ),
+  tiktokKomen: nonNegativeNumberOptional(
+    'Jumlah komen TikTok tidak boleh negatif'
+  ),
+  tiktokLike: nonNegativeNumberOptional(
+    'Jumlah like TikTok tidak boleh negatif'
+  ),
+  instagramPost: nonNegativeNumberOptional(
+    'Jumlah post Instagram tidak boleh negatif'
+  ),
+  instagramKomen: nonNegativeNumberOptional(
+    'Jumlah komen Instagram tidak boleh negatif'
+  ),
+  instagramLike: nonNegativeNumberOptional(
+    'Jumlah like Instagram tidak boleh negatif'
+  ),
+  facebookPost: nonNegativeNumberOptional(
+    'Jumlah post Facebook tidak boleh negatif'
+  ),
+  facebookKomen: nonNegativeNumberOptional(
+    'Jumlah komen Facebook tidak boleh negatif'
+  ),
+  facebookLike: nonNegativeNumberOptional(
+    'Jumlah like Facebook tidak boleh negatif'
+  ),
+  twitterPost: nonNegativeNumberOptional(
+    'Jumlah post Twitter/X tidak boleh negatif'
+  ),
+  twitterKomen: nonNegativeNumberOptional(
+    'Jumlah komen Twitter/X tidak boleh negatif'
+  ),
+  twitterLike: nonNegativeNumberOptional(
+    'Jumlah like Twitter/X tidak boleh negatif'
+  ),
+  youtubePost: nonNegativeNumberOptional(
+    'Jumlah post YouTube tidak boleh negatif'
+  ),
+  youtubeKomen: nonNegativeNumberOptional(
+    'Jumlah komen YouTube tidak boleh negatif'
+  ),
+  youtubeLike: nonNegativeNumberOptional(
+    'Jumlah like YouTube tidak boleh negatif'
+  ),
+  otherPost: nonNegativeNumberOptional(
+    'Jumlah post Lainnya tidak boleh negatif'
+  ),
+  otherKomen: nonNegativeNumberOptional(
+    'Jumlah komen Lainnya tidak boleh negatif'
+  ),
+  otherLike: nonNegativeNumberOptional(
+    'Jumlah like Lainnya tidak boleh negatif'
+  ),
+  bonus: z.string().optional().nullable()
 });
 
 // Laporan Khusus Schema
@@ -168,5 +245,6 @@ export type CyberTroopsFormData = z.infer<typeof cyberTroopsSchema>;
 export type TopKomentarPostinganFormData = z.infer<
   typeof topKomentarPostinganSchema
 >;
+export type RequestFormData = z.infer<typeof requestSchema>;
 export type LaporanKhususFormData = z.infer<typeof laporanKhususSchema>;
 export type SocialMediaReportFormData = z.infer<typeof socialMediaReportSchema>;

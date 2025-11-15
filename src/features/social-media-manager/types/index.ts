@@ -18,6 +18,7 @@ export interface SocialMediaAktivator {
   platform: Platform;
   jenisKonten: string;
   link: string;
+  requestId?: number | null;
   createdAt: Date;
   updatedAt: Date;
 }
@@ -33,6 +34,7 @@ export interface CyberTroops {
   jumlahKomentar: number;
   link: string;
   keterangan?: string;
+  requestId?: number | null;
   createdAt: Date;
   updatedAt: Date;
 }
@@ -46,6 +48,36 @@ export interface TopKomentarPostingan {
   jumlahTopKomentar: number;
   link: string;
   keterangan?: string;
+  requestId?: number | null;
+  createdAt: Date;
+  updatedAt: Date;
+}
+
+// Request entity
+export interface RequestItem {
+  id: number;
+  no: number;
+  tanggal: string;
+  namaPaket: string;
+  tiktokPost: number;
+  tiktokKomen: number;
+  tiktokLike: number;
+  instagramPost: number;
+  instagramKomen: number;
+  instagramLike: number;
+  facebookPost: number;
+  facebookKomen: number;
+  facebookLike: number;
+  twitterPost: number;
+  twitterKomen: number;
+  twitterLike: number;
+  youtubePost: number;
+  youtubeKomen: number;
+  youtubeLike: number;
+  otherPost: number;
+  otherKomen: number;
+  otherLike: number;
+  bonus?: string | null;
   createdAt: Date;
   updatedAt: Date;
 }

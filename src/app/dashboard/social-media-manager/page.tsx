@@ -32,6 +32,8 @@ export default function SocialMediaManagerPage() {
   const [totalCyber, setTotalCyber] = useState(0);
   const [topKomentarData, setTopKomentarData] = useState<any[]>([]);
   const [totalTopKomentar, setTotalTopKomentar] = useState(0);
+  const [requestData, setRequestData] = useState<any[]>([]);
+  const [totalRequest, setTotalRequest] = useState(0);
   const [isLoading, setIsLoading] = useState(true);
 
   // ✅ Fetch data function (extracted for reuse)
@@ -70,6 +72,17 @@ export default function SocialMediaManagerPage() {
         const { list, total } = extractListAndTotal(json);
         setTopKomentarData(list);
         setTotalTopKomentar(total);
+      }
+
+      // Fetch Request
+      const requestRes = await fetch(
+        '/api/social-media-manager/request?limit=1000'
+      );
+      if (requestRes.ok) {
+        const json = await requestRes.json();
+        const { list, total } = extractListAndTotal(json);
+        setRequestData(list);
+        setTotalRequest(total);
       }
     } catch (error) {
       console.error('[SocialMediaManagerPage] Error fetching data:', error);
@@ -132,9 +145,11 @@ export default function SocialMediaManagerPage() {
           aktivatorData={aktivatorData}
           cyberTroopsData={cyberTroopsData}
           topKomentarData={topKomentarData}
+          requestData={requestData}
           totalAktivator={totalAktivator}
           totalCyberTroops={totalCyber}
           totalTopKomentar={totalTopKomentar}
+          totalRequest={totalRequest}
           onRefresh={() => fetchData(false)}
         />
       </div>

@@ -76,6 +76,10 @@ export async function POST(request: NextRequest) {
         jumlahKomentar: Number(body.jumlahKomentar),
         link: body.link ?? null,
         keterangan: body.keterangan ?? null,
+        requestId:
+          body.requestId !== undefined && body.requestId !== null
+            ? Number(body.requestId)
+            : null,
         organizationId: orgId
       }
     });

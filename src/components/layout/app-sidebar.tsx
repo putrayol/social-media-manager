@@ -89,7 +89,7 @@ export default function AppSidebar() {
     const sm = base.find((i) => i.title === 'Social Media Manager');
     if (sm && sm.items) {
       sm.items = sm.items.filter((sub) =>
-        ['Data Aktivitas', 'Laporan'].includes(sub.title)
+        ['Data Aktivitas', 'Laporan', 'Request'].includes(sub.title)
       );
     }
 

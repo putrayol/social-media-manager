@@ -19,28 +19,53 @@ import {
   ChartTooltipContent
 } from '@/components/ui/chart';
 
-interface CategoryData {
-  kategori: string;
+interface PlatformData {
+  platform: string;
   _count: number;
   fill: string;
 }
+
+const platformColors: Record<string, string> = {
+  TIKTOK: 'hsl(0, 0%, 0%)',
+  INSTAGRAM: 'hsl(330, 100%, 55%)',
+  FACEBOOK: 'hsl(221, 83%, 53%)',
+  TWITTER: 'hsl(207, 89%, 60%)',
+  YOUTUBE: 'hsl(0, 100%, 50%)',
+  OTHER: 'hsl(0, 0%, 60%)'
+};
 
 const chartConfig = {
   count: {
     label: 'Count'
   },
-  Positif: {
-    label: 'Positif',
-    color: 'hsl(142, 76%, 36%)'
+  TIKTOK: {
+    label: 'TikTok',
+    color: platformColors.TIKTOK
   },
-  Negatif: {
-    label: 'Negatif',
-    color: 'hsl(0, 84%, 60%)'
+  INSTAGRAM: {
+    label: 'Instagram',
+    color: platformColors.INSTAGRAM
+  },
+  FACEBOOK: {
+    label: 'Facebook',
+    color: platformColors.FACEBOOK
+  },
+  TWITTER: {
+    label: 'Twitter',
+    color: platformColors.TWITTER
+  },
+  YOUTUBE: {
+    label: 'YouTube',
+    color: platformColors.YOUTUBE
+  },
+  OTHER: {
+    label: 'Other',
+    color: platformColors.OTHER
   }
 } satisfies ChartConfig;
 
 export function PieGraph() {
-  const [chartData, setChartData] = React.useState<CategoryData[]>([]);
+  const [chartData, setChartData] = React.useState<PlatformData[]>([]);
   const [loading, setLoading] = React.useState(true);
 
   React.useEffect(() => {
@@ -48,19 +73,12 @@ export function PieGraph() {
       try {
         const response = await fetch('/api/social-media-manager/stats');
         const result = await response.json();
-        if (result.success && result.data.categoryDistribution) {
-          const colors = {
-            Positif: 'hsl(142, 76%, 36%)',
-            Negatif: 'hsl(0, 84%, 60%)'
-          };
-          const data = result.data.categoryDistribution.map(
-            (item: any, index: number) => ({
-              kategori: item.kategori,
-              _count: item._count,
-              fill:
-                colors[item.kategori as keyof typeof colors] || 'var(--primary)'
-            })
-          );
+        if (result.success && result.data.platformDistribution) {
+          const data = result.data.platformDistribution.map((item: any) => ({
+            platform: item.platform,
+            _count: item._count,
+            fill: platformColors[item.platform] || 'var(--primary)'
+          }));
           setChartData(data);
         }
       } catch (error) {
@@ -84,12 +102,12 @@ export function PieGraph() {
   return (
     <Card className='@container/card'>
       <CardHeader>
-        <CardTitle>Kategori Distribution</CardTitle>
+        <CardTitle>Platform Distribution</CardTitle>
         <CardDescription>
           <span className='hidden @[540px]/card:block'>
-            Cyber Troops by Category (Positif/Negatif)
+            Cyber Troops by Platform
           </span>
-          <span className='@[540px]/card:hidden'>Category distribution</span>
+          <span className='@[540px]/card:hidden'>Platform distribution</span>
         </CardDescription>
       </CardHeader>
       <CardContent className='px-2 pt-4 sm:px-6 sm:pt-6'>
@@ -99,10 +117,10 @@ export function PieGraph() {
         >
           <PieChart>
             <defs>
-              {chartData.map((item, index) => (
+              {chartData.map((item) => (
                 <linearGradient
-                  key={item.kategori}
-                  id={`fill${item.kategori}`}
+                  key={item.platform}
+                  id={`fill${item.platform}`}
                   x1='0'
                   y1='0'
                   x2='0'
@@ -120,10 +138,10 @@ export function PieGraph() {
             <Pie
               data={chartData.map((item) => ({
                 ...item,
-                fill: `url(#fill${item.kategori})`
+                fill: `url(#fill${item.platform})`
               }))}
               dataKey='_count'
-              nameKey='kategori'
+              nameKey='platform'
               innerRadius={60}
               strokeWidth={2}
               stroke='var(--background)'
@@ -163,12 +181,12 @@ export function PieGraph() {
       </CardContent>
       <CardFooter className='flex-col gap-2 text-sm'>
         <div className='flex items-center gap-2 leading-none font-medium'>
-          {chartData[0]?.kategori} leads with{' '}
+          {chartData[0]?.platform} leads with{' '}
           {((chartData[0]?._count / totalCount) * 100).toFixed(1)}%{' '}
           <IconTrendingUp className='h-4 w-4' />
         </div>
         <div className='text-muted-foreground leading-none'>
-          Cyber Troops category distribution
+          Cyber Troops platform distribution
         </div>
       </CardFooter>
     </Card>

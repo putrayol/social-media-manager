@@ -12,6 +12,7 @@ import {
 } from '@/components/ui/card';
 import { IconTrendingDown, IconTrendingUp } from '@tabler/icons-react';
 import React, { useEffect, useState } from 'react';
+import { DateRangeFilter } from '@/features/overview/components/date-range-filter';
 
 interface StatsData {
   aktivatorCount: number;
@@ -24,14 +25,27 @@ interface StatsData {
   categoryDistribution: Array<{ kategori: string; _count: number }>;
 }
 
-function StatsCards() {
+interface StatsCardsProps {
+  startDate?: Date | null;
+  endDate?: Date | null;
+}
+
+function StatsCards({ startDate, endDate }: StatsCardsProps) {
   const [stats, setStats] = useState<StatsData | null>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     const fetchStats = async () => {
       try {
-        const response = await fetch('/api/social-media-manager/stats');
+        let url = '/api/social-media-manager/stats';
+        if (startDate && endDate) {
+          const params = new URLSearchParams({
+            startDate: startDate.toISOString(),
+            endDate: endDate.toISOString()
+          });
+          url += `?${params.toString()}`;
+        }
+        const response = await fetch(url);
         const result = await response.json();
         if (result.success) {
           setStats(result.data);
@@ -44,7 +58,7 @@ function StatsCards() {
     };
 
     fetchStats();
-  }, []);
+  }, [startDate, endDate]);
 
   if (loading || !stats) {
     return null;
@@ -173,6 +187,14 @@ export default function OverViewLayout({
   area_stats: React.ReactNode;
   org_info: React.ReactNode;
 }) {
+  const [startDate, setStartDate] = useState<Date | null>(null);
+  const [endDate, setEndDate] = useState<Date | null>(null);
+
+  const handleDateRangeChange = (start: Date | null, end: Date | null) => {
+    setStartDate(start);
+    setEndDate(end);
+  };
+
   return (
     <PageContainer>
       <div className='flex flex-1 flex-col space-y-2'>
@@ -180,9 +202,10 @@ export default function OverViewLayout({
           <h2 className='text-2xl font-bold tracking-tight'>
             Hi, Welcome back 👋
           </h2>
+          <DateRangeFilter onDateRangeChange={handleDateRangeChange} />
         </div>
 
-        <StatsCards />
+        <StatsCards startDate={startDate} endDate={endDate} />
         <div className='grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-7'>
           <div className='col-span-4'>{bar_stats}</div>
           <div className='col-span-4 md:col-span-3'>

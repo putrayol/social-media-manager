@@ -83,6 +83,10 @@ export async function POST(request: NextRequest) {
         platform: String(body.platform).toUpperCase() as any,
         jenisKonten: String(body.jenisKonten),
         link: body.link ?? null,
+        requestId:
+          body.requestId !== undefined && body.requestId !== null
+            ? Number(body.requestId)
+            : null,
         organizationId: orgId
       }
     });

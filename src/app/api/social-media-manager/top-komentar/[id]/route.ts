@@ -100,7 +100,13 @@ export async function PUT(
         keterangan: body.keterangan ?? undefined,
         documentFilesData: body.documentFiles
           ? JSON.stringify(body.documentFiles)
-          : undefined
+          : undefined,
+        requestId:
+          body.requestId !== undefined
+            ? body.requestId !== null && body.requestId !== ''
+              ? Number(body.requestId)
+              : null
+            : undefined
       }
     });
 

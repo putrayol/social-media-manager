@@ -7,37 +7,59 @@ export async function GET(request: NextRequest) {
   try {
     const orgId = await requireOrganization();
 
+    // Get date range from query parameters
+    const searchParams = request.nextUrl.searchParams;
+    const startDateParam = searchParams.get('startDate');
+    const endDateParam = searchParams.get('endDate');
+
+    // Build date filter
+    const dateFilter: any = {};
+    if (startDateParam && endDateParam) {
+      const startDate = new Date(startDateParam);
+      const endDate = new Date(endDateParam);
+      dateFilter.createdAt = {
+        gte: startDate,
+        lte: endDate
+      };
+    }
+
     // Get counts for each data type
     const [aktivatorCount, cyberTroopsCount, topKomentarCount] =
       await Promise.all([
-        prisma.aktivator.count({ where: { organizationId: orgId } }),
-        prisma.cyberTroops.count({ where: { organizationId: orgId } }),
-        prisma.topKomentar.count({ where: { organizationId: orgId } })
+        prisma.aktivator.count({
+          where: { organizationId: orgId, ...dateFilter }
+        }),
+        prisma.cyberTroops.count({
+          where: { organizationId: orgId, ...dateFilter }
+        }),
+        prisma.topKomentar.count({
+          where: { organizationId: orgId, ...dateFilter }
+        })
       ]);
 
     // Get total comments from cyber troops
     const cyberTroopsData = await prisma.cyberTroops.aggregate({
-      where: { organizationId: orgId },
+      where: { organizationId: orgId, ...dateFilter },
       _sum: { jumlahKomentar: true }
     });
 
     // Get total top comments
     const topKomentarData = await prisma.topKomentar.aggregate({
-      where: { organizationId: orgId },
+      where: { organizationId: orgId, ...dateFilter },
       _sum: { jumlahTopKomentar: true }
     });
 
     // Get platform distribution
     const platformDistribution = await prisma.cyberTroops.groupBy({
       by: ['platform'],
-      where: { organizationId: orgId },
+      where: { organizationId: orgId, ...dateFilter },
       _count: true
     });
 
     // Get category distribution (Positif/Negatif)
     const categoryDistribution = await prisma.cyberTroops.groupBy({
       by: ['kategori'],
-      where: { organizationId: orgId },
+      where: { organizationId: orgId, ...dateFilter },
       _count: true
     });
 

@@ -7,20 +7,24 @@ import Link from 'next/link';
 import {
   SocialMediaAktivator,
   CyberTroops,
-  TopKomentarPostingan
+  TopKomentarPostingan,
+  RequestItem
 } from '../types';
 import { AktivatorTable } from './tables/aktivator-table';
 import { CyberTroopsTable } from './tables/cyber-troops-table';
 import { TopKomentarTable } from './tables/top-komentar-table';
+import { RequestTable } from './tables/request-table';
 import { useState } from 'react';
 
 interface SocialMediaListingProps {
   aktivatorData: SocialMediaAktivator[];
   cyberTroopsData: CyberTroops[];
   topKomentarData: TopKomentarPostingan[];
+  requestData: RequestItem[];
   totalAktivator: number;
   totalCyberTroops: number;
   totalTopKomentar: number;
+  totalRequest: number;
   onRefresh?: () => void;
 }
 
@@ -28,9 +32,11 @@ export function SocialMediaListing({
   aktivatorData,
   cyberTroopsData,
   topKomentarData,
+  requestData,
   totalAktivator,
   totalCyberTroops,
   totalTopKomentar,
+  totalRequest,
   onRefresh
 }: SocialMediaListingProps) {
   const [isRefreshing, setIsRefreshing] = useState(false);
@@ -62,6 +68,11 @@ export function SocialMediaListing({
             <span className='hidden sm:inline'>Top Komentar</span>
             <span className='sm:hidden'>Top</span>
             <span className='ml-1 text-xs'>({totalTopKomentar})</span>
+          </TabsTrigger>
+          <TabsTrigger value='request'>
+            <span className='hidden sm:inline'>Request</span>
+            <span className='sm:hidden'>Request</span>
+            <span className='ml-1 text-xs'>({totalRequest})</span>
           </TabsTrigger>
         </TabsList>
 
@@ -162,6 +173,34 @@ export function SocialMediaListing({
             data={topKomentarData}
             totalItems={totalTopKomentar}
           />
+        </TabsContent>
+
+        {/* Request Tab */}
+        <TabsContent value='request' className='mt-6 space-y-4'>
+          <div className='flex items-center justify-between'>
+            <h2 className='text-lg font-semibold'>Request</h2>
+            <div className='bg-background flex gap-1 rounded-lg border p-1'>
+              <Button
+                variant='ghost'
+                size='sm'
+                onClick={handleRefresh}
+                disabled={isRefreshing}
+                className='gap-2'
+              >
+                <RotateCw
+                  className={`h-4 w-4 ${isRefreshing ? 'animate-spin' : ''}`}
+                />
+                Refresh
+              </Button>
+              <Link href='/dashboard/social-media-manager/request/create'>
+                <Button variant='ghost' size='sm' className='gap-2'>
+                  <Plus className='h-4 w-4' />
+                  Tambah Data
+                </Button>
+              </Link>
+            </div>
+          </div>
+          <RequestTable data={requestData} totalItems={totalRequest} />
         </TabsContent>
       </Tabs>
     </div>

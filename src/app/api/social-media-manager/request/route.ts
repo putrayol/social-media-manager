@@ -6,7 +6,7 @@ import {
   requireOrganizationAdmin
 } from '@/lib/organization-utils';
 
-// GET - Fetch all top komentar data from DB (Prisma)
+// GET - Fetch all request data from DB (Prisma)
 export async function GET(request: NextRequest) {
   try {
     const orgId = await requireOrganization();
@@ -15,16 +15,16 @@ export async function GET(request: NextRequest) {
     const limit = Math.max(parseInt(searchParams.get('limit') || '10'), 1);
     const search = (searchParams.get('search') || '').trim();
 
-    const where: Prisma.TopKomentarWhereInput = {
+    const where: Prisma.RequestWhereInput = {
       organizationId: orgId,
       ...(search
         ? {
             OR: [
               {
-                namaAkun: { contains: search }
+                namaPaket: { contains: search }
               },
               {
-                keterangan: {
+                bonus: {
                   contains: search
                 }
               }
@@ -33,9 +33,9 @@ export async function GET(request: NextRequest) {
         : {})
     };
 
-    const [total, rawData] = await Promise.all([
-      prisma.topKomentar.count({ where }),
-      prisma.topKomentar.findMany({
+    const [total, data] = await Promise.all([
+      prisma.request.count({ where }),
+      prisma.request.findMany({
         where,
         orderBy: { createdAt: 'desc' },
         skip: (page - 1) * limit,
@@ -43,17 +43,9 @@ export async function GET(request: NextRequest) {
       })
     ]);
 
-    // Parse documentFilesData for each item
-    const data = rawData.map((item) => ({
-      ...item,
-      documentFiles: item.documentFilesData
-        ? JSON.parse(item.documentFilesData)
-        : []
-    }));
-
     return NextResponse.json({ success: true, data, total, page, limit });
   } catch (error) {
-    console.error('Error fetching top komentar:', error);
+    console.error('Error fetching request:', error);
 
     // Check if error is from requireOrganization
     if (error instanceof Error && error.message.includes('organization')) {
@@ -70,7 +62,7 @@ export async function GET(request: NextRequest) {
   }
 }
 
-// POST - Create new top komentar in DB (Prisma)
+// POST - Create new request in DB (Prisma)
 export async function POST(request: NextRequest) {
   try {
     // Check admin permission first
@@ -78,47 +70,49 @@ export async function POST(request: NextRequest) {
 
     const orgId = await requireOrganization();
     const body = await request.json();
-    const count = await prisma.topKomentar.count({
+    const count = await prisma.request.count({
       where: { organizationId: orgId }
     });
     const nextNo = Number.isFinite(Number(body.no))
       ? Number(body.no)
       : count + 1;
-    const created = await prisma.topKomentar.create({
+
+    const created = await prisma.request.create({
       data: {
         no: nextNo,
-        namaAkun: String(body.namaAkun),
-        platform: String(body.platform).toUpperCase() as any,
-        jumlahTopKomentar: Number(body.jumlahTopKomentar),
-        link: body.link ?? null,
-        keterangan: body.keterangan ?? null,
-        documentFilesData: body.documentFiles
-          ? JSON.stringify(body.documentFiles)
-          : null,
-        requestId:
-          body.requestId !== undefined && body.requestId !== null
-            ? Number(body.requestId)
-            : null,
+        tanggal: body.tanggal ? new Date(body.tanggal) : new Date(),
+        namaPaket: String(body.namaPaket),
+        tiktokPost: Number(body.tiktokPost) || 0,
+        tiktokKomen: Number(body.tiktokKomen) || 0,
+        tiktokLike: Number(body.tiktokLike) || 0,
+        instagramPost: Number(body.instagramPost) || 0,
+        instagramKomen: Number(body.instagramKomen) || 0,
+        instagramLike: Number(body.instagramLike) || 0,
+        facebookPost: Number(body.facebookPost) || 0,
+        facebookKomen: Number(body.facebookKomen) || 0,
+        facebookLike: Number(body.facebookLike) || 0,
+        twitterPost: Number(body.twitterPost) || 0,
+        twitterKomen: Number(body.twitterKomen) || 0,
+        twitterLike: Number(body.twitterLike) || 0,
+        youtubePost: Number(body.youtubePost) || 0,
+        youtubeKomen: Number(body.youtubeKomen) || 0,
+        youtubeLike: Number(body.youtubeLike) || 0,
+        otherPost: Number(body.otherPost) || 0,
+        otherKomen: Number(body.otherKomen) || 0,
+        otherLike: Number(body.otherLike) || 0,
+        bonus: body.bonus ?? null,
         organizationId: orgId
       }
     });
 
     return NextResponse.json({ success: true, data: created }, { status: 201 });
   } catch (error) {
-    console.error('Error creating top komentar:', error);
+    console.error('Error creating request:', error);
 
     // Check if error is from requireOrganizationAdmin
     if (error instanceof Error && error.message.includes('administrator')) {
       return NextResponse.json(
         { success: false, error: 'Only administrators can create data' },
-        { status: 403 }
-      );
-    }
-
-    // Check if error is from requireOrganization
-    if (error instanceof Error && error.message.includes('organization')) {
-      return NextResponse.json(
-        { success: false, error: 'Please select an organization first' },
         { status: 403 }
       );
     }

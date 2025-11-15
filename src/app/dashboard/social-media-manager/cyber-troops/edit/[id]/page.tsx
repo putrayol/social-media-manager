@@ -79,7 +79,8 @@ export default function EditCyberTroopsPage() {
             jenisIsu: cyberTroops.jenisIsu,
             jumlahKomentar: cyberTroops.jumlahKomentar,
             link: cyberTroops.link ?? '',
-            keterangan: cyberTroops.keterangan ?? ''
+            keterangan: cyberTroops.keterangan ?? '',
+            requestId: cyberTroops.requestId ?? null
           }}
         />
       </div>

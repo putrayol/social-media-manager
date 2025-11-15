@@ -80,7 +80,8 @@ export default function EditTopKomentarPage() {
             jumlahTopKomentar: topKomentar.jumlahTopKomentar,
             link: topKomentar.link ?? '',
             keterangan: topKomentar.keterangan ?? '',
-            documentFiles: topKomentar.documentFiles ?? []
+            documentFiles: topKomentar.documentFiles ?? [],
+            requestId: topKomentar.requestId ?? null
           }}
         />
       </div>
