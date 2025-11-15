@@ -7,6 +7,7 @@ import { useOrganization } from '@clerk/nextjs';
 import { RotateCw, Plus } from 'lucide-react';
 import Link from 'next/link';
 import { useEffect, useState } from 'react';
+import { toast } from 'sonner';
 
 function extractListAndTotal(json: any) {
   const list = Array.isArray(json)
@@ -37,18 +38,64 @@ export default function RequestListPage() {
   const [isRefreshing, setIsRefreshing] = useState(false);
 
   const fetchRequests = async (showLoading = true) => {
+    if (!organization) {
+      if (showLoading) {
+        setIsLoading(false);
+      }
+      console.warn(
+        '[RequestListPage] Tried to fetch requests without organization'
+      );
+      toast.error(
+        'Silakan pilih organisasi terlebih dahulu sebelum mengakses data Request'
+      );
+      setRequestData([]);
+      setTotalRequest(0);
+      return;
+    }
+
     if (showLoading) setIsLoading(true);
 
     try {
       const res = await fetch('/api/social-media-manager/request?limit=1000');
-      if (res.ok) {
-        const json = await res.json();
-        const { list, total } = extractListAndTotal(json);
-        setRequestData(list);
-        setTotalRequest(total);
+      const json = await res.json().catch(() => null);
+
+      if (!res.ok) {
+        const apiMessage =
+          (json as any)?.error ||
+          (json as any)?.message ||
+          (json as any)?.detail;
+        const isOrgError =
+          res.status === 403 &&
+          typeof apiMessage === 'string' &&
+          apiMessage.toLowerCase().includes('organization');
+
+        const message = isOrgError
+          ? 'Silakan pilih organisasi terlebih dahulu sebelum mengakses data Request'
+          : apiMessage || 'Gagal memuat data Request';
+
+        // Gunakan console.warn dan hanya di non-production agar tidak muncul sebagai error di console
+        if (process.env.NODE_ENV !== 'production') {
+          console.warn('[RequestListPage] Failed to fetch requests:', {
+            status: res.status,
+            statusText: res.statusText,
+            body: json
+          });
+        }
+
+        toast.error(message);
+        setRequestData([]);
+        setTotalRequest(0);
+        return;
       }
+
+      const { list, total } = extractListAndTotal(json);
+      setRequestData(list);
+      setTotalRequest(total);
     } catch (error) {
       console.error('[RequestListPage] Error fetching requests:', error);
+      toast.error('Terjadi kesalahan saat memuat data Request');
+      setRequestData([]);
+      setTotalRequest(0);
     } finally {
       if (showLoading) setIsLoading(false);
     }

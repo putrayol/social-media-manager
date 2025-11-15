@@ -11,8 +11,16 @@ export async function GET(request: NextRequest) {
   try {
     const orgId = await requireOrganization();
     const searchParams = request.nextUrl.searchParams;
-    const page = Math.max(parseInt(searchParams.get('page') || '1'), 1);
-    const limit = Math.max(parseInt(searchParams.get('limit') || '10'), 1);
+
+    // Safely parse pagination params to avoid NaN values causing Prisma errors
+    const parsePositiveInt = (value: string | null, defaultValue: number) => {
+      if (!value) return defaultValue;
+      const parsed = parseInt(value, 10);
+      return Number.isFinite(parsed) && parsed > 0 ? parsed : defaultValue;
+    };
+
+    const page = parsePositiveInt(searchParams.get('page'), 1);
+    const limit = parsePositiveInt(searchParams.get('limit'), 10);
     const search = (searchParams.get('search') || '').trim();
 
     const where: Prisma.RequestWhereInput = {
@@ -45,13 +53,29 @@ export async function GET(request: NextRequest) {
 
     return NextResponse.json({ success: true, data, total, page, limit });
   } catch (error) {
-    console.error('Error fetching request:', error);
+    console.error('Error fetching request:', {
+      error,
+      message: error instanceof Error ? error.message : String(error),
+      name: error instanceof Error ? error.name : 'UnknownError'
+    });
 
     // Check if error is from requireOrganization
     if (error instanceof Error && error.message.includes('organization')) {
       return NextResponse.json(
         { success: false, error: 'Please select an organization first' },
         { status: 403 }
+      );
+    }
+
+    // In development, include additional error detail to help debugging
+    if (process.env.NODE_ENV === 'development') {
+      return NextResponse.json(
+        {
+          success: false,
+          error: 'Failed to fetch data',
+          detail: error instanceof Error ? error.message : String(error)
+        },
+        { status: 500 }
       );
     }
 

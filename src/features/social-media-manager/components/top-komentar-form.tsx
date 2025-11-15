@@ -59,11 +59,22 @@ export default function TopKomentarForm({
       setLoadingRequests(true);
       try {
         const res = await fetch('/api/social-media-manager/request?limit=1000');
+        const json = await res.json().catch(() => null);
+
         if (!res.ok) {
-          throw new Error('Failed to fetch Request data');
+          const apiMessage = (json as any)?.error || (json as any)?.message;
+          const message =
+            res.status === 403 &&
+            apiMessage?.toLowerCase().includes('organization')
+              ? 'Silakan pilih organisasi terlebih dahulu sebelum mengakses data Request'
+              : apiMessage || 'Gagal memuat data Request';
+
+          toast.error(message);
+          setRequests([]);
+          return;
         }
-        const json = await res.json();
-        setRequests(json?.data ?? []);
+
+        setRequests((json as any)?.data ?? []);
       } catch (error) {
         console.error('Error fetching Request list:', error);
         toast.error('Gagal memuat data Request');
