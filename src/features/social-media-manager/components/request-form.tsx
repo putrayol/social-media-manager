@@ -118,7 +118,7 @@ export default function RequestForm({
   }
 
   return (
-    <Card className='mx-auto w-full'>
+    <Card className='w-full max-w-2xl'>
       <CardHeader>
         <CardTitle className='text-left text-2xl font-bold'>
           {pageTitle}
@@ -128,9 +128,9 @@ export default function RequestForm({
         <Form
           form={form}
           onSubmit={form.handleSubmit(handleSubmit)}
-          className='space-y-8'
+          className='space-y-4'
         >
-          <div className='grid grid-cols-1 gap-6 md:grid-cols-3'>
+          <div className='grid grid-cols-1 gap-4 md:grid-cols-2'>
             <FormInput
               control={form.control}
               name='namaPaket'
@@ -146,6 +146,8 @@ export default function RequestForm({
               type='date'
               required
             />
+          </div>
+          <div className='grid grid-cols-1 gap-4 md:grid-cols-1'>
             <FormTextarea
               control={form.control}
               name='bonus'
@@ -155,10 +157,10 @@ export default function RequestForm({
             />
           </div>
 
-          <div className='mt-8 space-y-6'>
-            <div className='space-y-2'>
+          <div className='mt-6 grid grid-cols-1 gap-4 md:grid-cols-2'>
+            <div className='space-y-2 rounded-sm border p-3'>
               <h3 className='text-lg font-semibold'>TikTok</h3>
-              <div className='grid grid-cols-1 gap-4 md:grid-cols-4'>
+              <div className='grid grid-cols-1 gap-3 md:grid-cols-1'>
                 <FormInput
                   control={form.control}
                   name='tiktokPost'
@@ -189,9 +191,9 @@ export default function RequestForm({
               </div>
             </div>
 
-            <div className='space-y-2'>
+            <div className='space-y-2 rounded-sm border p-3'>
               <h3 className='text-lg font-semibold'>Instagram</h3>
-              <div className='grid grid-cols-1 gap-4 md:grid-cols-4'>
+              <div className='grid grid-cols-1 gap-3 md:grid-cols-1'>
                 <FormInput
                   control={form.control}
                   name='instagramPost'
@@ -222,9 +224,9 @@ export default function RequestForm({
               </div>
             </div>
 
-            <div className='space-y-2'>
+            <div className='space-y-2 rounded-sm border p-3'>
               <h3 className='text-lg font-semibold'>Facebook</h3>
-              <div className='grid grid-cols-1 gap-4 md:grid-cols-4'>
+              <div className='grid grid-cols-1 gap-3 md:grid-cols-1'>
                 <FormInput
                   control={form.control}
                   name='facebookPost'
@@ -255,9 +257,9 @@ export default function RequestForm({
               </div>
             </div>
 
-            <div className='space-y-2'>
+            <div className='space-y-2 rounded-sm border p-3'>
               <h3 className='text-lg font-semibold'>Twitter / X</h3>
-              <div className='grid grid-cols-1 gap-4 md:grid-cols-4'>
+              <div className='grid grid-cols-1 gap-3 md:grid-cols-1'>
                 <FormInput
                   control={form.control}
                   name='twitterPost'
@@ -288,9 +290,9 @@ export default function RequestForm({
               </div>
             </div>
 
-            <div className='space-y-2'>
+            <div className='space-y-2 rounded-sm border p-3'>
               <h3 className='text-lg font-semibold'>YouTube</h3>
-              <div className='grid grid-cols-1 gap-4 md:grid-cols-4'>
+              <div className='grid grid-cols-1 gap-3 md:grid-cols-1'>
                 <FormInput
                   control={form.control}
                   name='youtubePost'
@@ -321,9 +323,9 @@ export default function RequestForm({
               </div>
             </div>
 
-            <div className='space-y-2'>
+            <div className='space-y-2 rounded-sm border p-3'>
               <h3 className='text-lg font-semibold'>Lainnya</h3>
-              <div className='grid grid-cols-1 gap-4 md:grid-cols-4'>
+              <div className='grid grid-cols-1 gap-3 md:grid-cols-1'>
                 <FormInput
                   control={form.control}
                   name='otherPost'
