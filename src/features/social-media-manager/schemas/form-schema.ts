@@ -127,10 +127,8 @@ const nonNegativeNumberOptional = (fieldMessage: string) =>
 
 export const requestSchema = z.object({
   id: z.union([z.string(), z.number()]).optional(),
-  tanggalMulai: z.string().min(1, { message: 'Tanggal mulai harus diisi' }),
-  tanggalBerakhir: z
-    .string()
-    .min(1, { message: 'Tanggal berakhir harus diisi' }),
+  tanggalMulai: z.date({ message: 'Tanggal mulai harus diisi' }),
+  tanggalBerakhir: z.date({ message: 'Tanggal berakhir harus diisi' }),
   namaPaket: z
     .string()
     .min(2, { message: 'Nama paket harus minimal 2 karakter' }),

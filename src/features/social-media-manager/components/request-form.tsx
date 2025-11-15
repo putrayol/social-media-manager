@@ -2,6 +2,7 @@
 
 import { FormInput } from '@/components/forms/form-input';
 import { FormTextarea } from '@/components/forms/form-textarea';
+import { FormDatePicker } from '@/components/forms/form-date-picker';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Form } from '@/components/ui/form';
@@ -14,10 +15,23 @@ import { requestSchema } from '../schemas/form-schema';
 type FormData = z.infer<typeof requestSchema>;
 
 interface RequestFormProps {
-  initialData?: FormData | null;
+  initialData?: Partial<FormData> | null;
   pageTitle: string;
   onSubmit?: (data: FormData) => Promise<void>;
 }
+
+// Helper to safely convert to Date
+const toDate = (value: any): Date => {
+  if (!value) return new Date();
+  if (value instanceof Date) return value;
+  try {
+    const date = new Date(value);
+    if (Number.isNaN(date.getTime())) return new Date();
+    return date;
+  } catch {
+    return new Date();
+  }
+};
 
 export default function RequestForm({
   initialData,
@@ -27,8 +41,8 @@ export default function RequestForm({
   const form = useForm<FormData>({
     resolver: zodResolver(requestSchema),
     defaultValues: {
-      tanggalMulai: initialData?.tanggalMulai || '',
-      tanggalBerakhir: initialData?.tanggalBerakhir || '',
+      tanggalMulai: toDate(initialData?.tanggalMulai),
+      tanggalBerakhir: toDate(initialData?.tanggalBerakhir),
       namaPaket: initialData?.namaPaket || '',
       tiktokPost: initialData?.tiktokPost ?? 0,
       tiktokKomen: initialData?.tiktokKomen ?? 0,
@@ -139,20 +153,16 @@ export default function RequestForm({
               placeholder='Contoh: Paket Spesial 1000'
               required
             />
-            <FormInput
+            <FormDatePicker
               control={form.control}
               name='tanggalMulai'
               label='Tanggal Mulai'
-              placeholder='Tanggal mulai'
-              type='date'
               required
             />
-            <FormInput
+            <FormDatePicker
               control={form.control}
               name='tanggalBerakhir'
               label='Tanggal Berakhir'
-              placeholder='Tanggal berakhir'
-              type='date'
               required
             />
           </div>

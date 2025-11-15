@@ -12,6 +12,7 @@ import { toast } from 'sonner';
 import { Button } from '@/components/ui/button';
 import { Progress } from '@/components/ui/progress';
 import { ScrollArea } from '@/components/ui/scroll-area';
+import { Input } from '@/components/ui/input';
 import { useControllableState } from '@/hooks/use-controllable-state';
 import { cn, formatBytes } from '@/lib/utils';
 
@@ -219,7 +220,7 @@ export function FileUploader(props: FileUploaderProps) {
             )}
             {...dropzoneProps}
           >
-            <input {...getInputProps()} />
+            <Input {...getInputProps()} />
             {isDragActive ? (
               <div className='flex flex-col items-center justify-center gap-4 sm:px-5'>
                 <div className='rounded-full border border-dashed p-3'>

@@ -72,11 +72,11 @@ export default function EditRequestPage() {
           pageTitle='Edit Request'
           initialData={{
             tanggalMulai: requestItem.tanggalMulai
-              ? new Date(requestItem.tanggalMulai).toISOString().slice(0, 10)
-              : '',
+              ? new Date(requestItem.tanggalMulai)
+              : undefined,
             tanggalBerakhir: requestItem.tanggalBerakhir
-              ? new Date(requestItem.tanggalBerakhir).toISOString().slice(0, 10)
-              : '',
+              ? new Date(requestItem.tanggalBerakhir)
+              : undefined,
             namaPaket: requestItem.namaPaket ?? '',
             tiktokPost: requestItem.tiktokPost ?? 0,
             tiktokKomen: requestItem.tiktokKomen ?? 0,
