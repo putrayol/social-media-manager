@@ -62,7 +62,6 @@ export function RequestTable({ data, totalItems }: RequestTableProps) {
           <Table>
             <TableHeader>
               <TableRow>
-                <TableHead>No</TableHead>
                 <TableHead>Nama Paket</TableHead>
                 <TableHead className='text-right'>Aksi</TableHead>
               </TableRow>
@@ -109,9 +108,6 @@ export function RequestTable({ data, totalItems }: RequestTableProps) {
                         }))
                       }
                     >
-                      <TableCell className='align-top text-xs'>
-                        No {item.no}
-                      </TableCell>
                       <TableCell className='align-top'>
                         <div className='flex flex-col gap-0.5'>
                           <span className='text-sm font-medium'>
@@ -131,7 +127,7 @@ export function RequestTable({ data, totalItems }: RequestTableProps) {
                     </TableRow>
                     {isExpanded && (
                       <TableRow className='bg-muted/40'>
-                        <TableCell colSpan={3}>
+                        <TableCell colSpan={2}>
                           <div className='grid grid-cols-2 gap-x-4 gap-y-2 text-xs'>
                             <span className='text-muted-foreground font-medium'>
                               TikTok Post
