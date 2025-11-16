@@ -78,7 +78,7 @@ export const mockTopKomentar: TopKomentarPostingan[] = [
 ];
 
 export const mockLapsus: LaporanKhusus = {
-  id: 1,
+  id: '1',
   tanggal: new Date('2025-11-11'),
   jumlahKomentar: 1500,
   jumlahPostingan: 1,
@@ -86,7 +86,7 @@ export const mockLapsus: LaporanKhusus = {
     'Report Komentar Cyber Troops mencapai 1.500 Komentar, 1 Postingan Konten Video, 2 Top Komen 100 Reply',
   documentFiles: [
     {
-      id: 1,
+      id: '1',
       fileName: 'Cyber Troops (Daily Reports, Screenshot Komentar)',
       fileUrl: '/documents/cyber-troops.pdf',
       fileType: 'application/pdf',
@@ -94,7 +94,7 @@ export const mockLapsus: LaporanKhusus = {
       uploadedAt: new Date('2025-11-11')
     },
     {
-      id: 2,
+      id: '2',
       fileName: 'Laporan Komentar',
       fileUrl: '/documents/laporan-komentar.xlsx',
       fileType:
@@ -108,7 +108,7 @@ export const mockLapsus: LaporanKhusus = {
 };
 
 export const mockReport: SocialMediaReport = {
-  id: 1,
+  id: '1',
   reportNo: '#088',
   tanggal: new Date('2025-11-11'),
   aktivator: mockAktivator,
