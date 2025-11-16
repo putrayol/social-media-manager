@@ -194,7 +194,7 @@ export function FileUploader(props: FileUploaderProps) {
     return () => {
       if (!files) return;
       files.forEach((file) => {
-        if (isFileWithPreview(file)) {
+        if (isFileObject(file) && isFileWithPreview(file)) {
           URL.revokeObjectURL(file.preview);
         }
       });
