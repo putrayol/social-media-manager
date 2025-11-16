@@ -1,16 +1,16 @@
 'use client';
 
 import { useOrganizationAuth } from '@/hooks/use-organization-auth';
-import { Button, ButtonProps } from '@/components/ui/button';
+import { Button } from '@/components/ui/button';
 import {
   Tooltip,
   TooltipContent,
   TooltipProvider,
   TooltipTrigger
 } from '@/components/ui/tooltip';
-import { ReactNode } from 'react';
+import { ReactNode, ComponentProps } from 'react';
 
-interface ProtectedActionButtonProps extends ButtonProps {
+interface ProtectedActionButtonProps extends ComponentProps<typeof Button> {
   requiredPermission:
     | 'read'
     | 'write'
