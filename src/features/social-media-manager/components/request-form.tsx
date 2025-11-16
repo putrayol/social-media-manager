@@ -38,7 +38,7 @@ export default function RequestForm({
   pageTitle,
   onSubmit
 }: RequestFormProps) {
-  const form = useForm<FormData>({
+  const form = useForm({
     resolver: zodResolver(requestSchema),
     defaultValues: {
       tanggalMulai: toDate(initialData?.tanggalMulai),
@@ -66,24 +66,24 @@ export default function RequestForm({
     }
   });
 
-  const tiktokPost = form.watch('tiktokPost') || 0;
-  const tiktokKomen = form.watch('tiktokKomen') || 0;
-  const tiktokLike = form.watch('tiktokLike') || 0;
-  const instagramPost = form.watch('instagramPost') || 0;
-  const instagramKomen = form.watch('instagramKomen') || 0;
-  const instagramLike = form.watch('instagramLike') || 0;
-  const facebookPost = form.watch('facebookPost') || 0;
-  const facebookKomen = form.watch('facebookKomen') || 0;
-  const facebookLike = form.watch('facebookLike') || 0;
-  const twitterPost = form.watch('twitterPost') || 0;
-  const twitterKomen = form.watch('twitterKomen') || 0;
-  const twitterLike = form.watch('twitterLike') || 0;
-  const youtubePost = form.watch('youtubePost') || 0;
-  const youtubeKomen = form.watch('youtubeKomen') || 0;
-  const youtubeLike = form.watch('youtubeLike') || 0;
-  const otherPost = form.watch('otherPost') || 0;
-  const otherKomen = form.watch('otherKomen') || 0;
-  const otherLike = form.watch('otherLike') || 0;
+  const tiktokPost = Number(form.watch('tiktokPost') || 0);
+  const tiktokKomen = Number(form.watch('tiktokKomen') || 0);
+  const tiktokLike = Number(form.watch('tiktokLike') || 0);
+  const instagramPost = Number(form.watch('instagramPost') || 0);
+  const instagramKomen = Number(form.watch('instagramKomen') || 0);
+  const instagramLike = Number(form.watch('instagramLike') || 0);
+  const facebookPost = Number(form.watch('facebookPost') || 0);
+  const facebookKomen = Number(form.watch('facebookKomen') || 0);
+  const facebookLike = Number(form.watch('facebookLike') || 0);
+  const twitterPost = Number(form.watch('twitterPost') || 0);
+  const twitterKomen = Number(form.watch('twitterKomen') || 0);
+  const twitterLike = Number(form.watch('twitterLike') || 0);
+  const youtubePost = Number(form.watch('youtubePost') || 0);
+  const youtubeKomen = Number(form.watch('youtubeKomen') || 0);
+  const youtubeLike = Number(form.watch('youtubeLike') || 0);
+  const otherPost = Number(form.watch('otherPost') || 0);
+  const otherKomen = Number(form.watch('otherKomen') || 0);
+  const otherLike = Number(form.watch('otherLike') || 0);
 
   const tiktokTotal = tiktokPost + tiktokKomen + tiktokLike;
   const instagramTotal = instagramPost + instagramKomen + instagramLike;
