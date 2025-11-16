@@ -32,7 +32,7 @@ export default function TopKomentarForm({
   const [requests, setRequests] = useState<RequestItem[]>([]);
   const [loadingRequests, setLoadingRequests] = useState(false);
 
-  const form = useForm<FormData>({
+  const form = useForm({
     resolver: zodResolver(topKomentarPostinganSchema),
     defaultValues: {
       namaAkun: initialData?.namaAkun || '',
