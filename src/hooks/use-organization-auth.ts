@@ -9,7 +9,7 @@ import { useEffect } from 'react';
  * Memastikan hanya user yang di-invite sebagai member dalam organization dapat mengakses
  */
 export function useOrganizationAuth() {
-  const { organization, isLoaded: orgLoaded } = useOrganization();
+  const { organization, membership, isLoaded: orgLoaded } = useOrganization();
   const { user, isLoaded: userLoaded } = useUser();
   const router = useRouter();
 
@@ -21,10 +21,7 @@ export function useOrganizationAuth() {
 
   // Get user role from organization
   // Default to 'member' if organization exists but role not explicitly set
-  const userRole =
-    organization?.memberships?.find(
-      (m) => m.publicUserData?.userId === user?.id
-    )?.role || (organization ? 'member' : undefined);
+  const userRole = membership?.role || (organization ? 'member' : undefined);
 
   // Check if user has specific permission
   const hasPermission = (permission: string): boolean => {
