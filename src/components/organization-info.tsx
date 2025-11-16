@@ -1,6 +1,6 @@
 'use client';
 
-import { useOrganization, useUser } from '@clerk/nextjs';
+import { useOrganization, useUser, useOrganizationList } from '@clerk/nextjs';
 import {
   Card,
   CardContent,
@@ -17,7 +17,7 @@ import { Loader2 } from 'lucide-react';
  * Berguna untuk debugging dan menampilkan context kepada user
  */
 export function OrganizationInfo() {
-  const { organization, isLoaded: orgLoaded } = useOrganization();
+  const { organization, isLoaded: orgLoaded, membership } = useOrganization();
   const { user, isLoaded: userLoaded } = useUser();
 
   const isLoaded = orgLoaded && userLoaded;
@@ -46,9 +46,7 @@ export function OrganizationInfo() {
   }
 
   // Get user's role in organization
-  const userRole = organization?.memberships?.find(
-    (m) => m.publicUserData?.userId === user?.id
-  )?.role;
+  const userRole = membership?.role;
 
   // Get role badge color
   const getRoleBadgeVariant = (role?: string) => {
