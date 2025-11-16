@@ -26,7 +26,7 @@ export default function LapsusForm({
   pageTitle,
   onSubmit
 }: LapsusFormProps) {
-  const form = useForm<FormData>({
+  const form = useForm({
     resolver: zodResolver(laporanKhususSchema),
     defaultValues: {
       tanggal: initialData?.tanggal || new Date(),
