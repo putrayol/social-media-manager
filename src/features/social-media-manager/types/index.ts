@@ -111,6 +111,7 @@ export interface DocumentFile {
 export interface SocialMediaReport {
   id: string;
   reportNo: string;
+  namaLaporan?: string;
   tanggal: Date;
   aktivator: SocialMediaAktivator[];
   cyberTroops: CyberTroops[];
