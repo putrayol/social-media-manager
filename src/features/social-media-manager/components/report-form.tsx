@@ -452,7 +452,7 @@ export default function ReportForm({
       ...current,
       {
         namaAkun: '',
-        platform: '',
+        platform: 'TIKTOK' as const,
         jenisKonten: '',
         link: ''
       }
@@ -473,8 +473,8 @@ export default function ReportForm({
       ...current,
       {
         namaAkun: '',
-        platform: '',
-        kategori: '',
+        platform: 'TIKTOK' as const,
+        kategori: 'Positif' as const,
         jenisIsu: '',
         jumlahKomentar: 0,
         jumlahLike: 0,
@@ -498,7 +498,7 @@ export default function ReportForm({
       ...current,
       {
         namaAkun: '',
-        platform: '',
+        platform: 'TIKTOK' as const,
         jumlahTopKomentar: 0,
         jumlahLike: 0,
         link: '',
