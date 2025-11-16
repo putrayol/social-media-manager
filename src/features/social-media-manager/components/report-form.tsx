@@ -69,7 +69,7 @@ export default function ReportForm({
     }
   };
 
-  const form = useForm<FormData>({
+  const form = useForm({
     resolver: zodResolver(socialMediaReportSchema),
     defaultValues: {
       reportNo: initialData?.reportNo || '',
