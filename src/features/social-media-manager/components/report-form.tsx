@@ -342,7 +342,8 @@ export default function ReportForm({
     const exists = current.some(
       (x) =>
         x.id === item.id ||
-        (x.namaAkun === item.namaAkun &&
+        ('namaAkun' in x &&
+          x.namaAkun === item.namaAkun &&
           x.platform === item.platform &&
           x.jenisKonten === item.jenisKonten)
     );
@@ -371,7 +372,8 @@ export default function ReportForm({
     const exists = current.some(
       (x) =>
         x.id === item.id ||
-        (x.namaAkun === item.namaAkun &&
+        ('namaAkun' in x &&
+          x.namaAkun === item.namaAkun &&
           x.platform === item.platform &&
           x.jenisIsu === item.jenisIsu)
     );
@@ -406,7 +408,8 @@ export default function ReportForm({
     const exists = current.some(
       (x) =>
         x.id === item.id ||
-        (x.namaAkun === item.namaAkun &&
+        ('namaAkun' in x &&
+          x.namaAkun === item.namaAkun &&
           x.platform === item.platform &&
           Number(x.jumlahTopKomentar) === Number(item.jumlahTopKomentar))
     );
