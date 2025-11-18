@@ -71,16 +71,56 @@ export function PieGraph() {
   React.useEffect(() => {
     const fetchData = async () => {
       try {
-        const response = await fetch('/api/social-media-manager/stats');
-        const result = await response.json();
-        if (result.success && result.data.platformDistribution) {
-          const data = result.data.platformDistribution.map((item: any) => ({
-            platform: item.platform,
-            _count: item._count,
-            fill: platformColors[item.platform] || 'var(--primary)'
-          }));
-          setChartData(data);
-        }
+        const [aktivatorRes, cyberRes, topRes] = await Promise.all([
+          fetch('/api/social-media-manager/aktivator?limit=1000'),
+          fetch('/api/social-media-manager/cyber-troops?limit=1000'),
+          fetch('/api/social-media-manager/top-komentar?limit=1000')
+        ]);
+
+        const aktivatorJson = await aktivatorRes.json();
+        const cyberJson = await cyberRes.json();
+        const topJson = await topRes.json();
+
+        const platforms = [
+          'TIKTOK',
+          'INSTAGRAM',
+          'FACEBOOK',
+          'TWITTER',
+          'YOUTUBE',
+          'OTHER'
+        ] as const;
+
+        const agg: Record<string, number> = Object.fromEntries(
+          platforms.map((p) => [p, 0])
+        );
+
+        (aktivatorJson?.data || []).forEach((a: any) => {
+          const p = a.platform as string;
+          if (p && agg[p] !== undefined) agg[p] += 1;
+        });
+
+        (cyberJson?.data || []).forEach((c: any) => {
+          const p = c.platform as string;
+          const val = Number(c.jumlahKomentar || 0) + Number(c.jumlahLike || 0);
+          if (p && agg[p] !== undefined) agg[p] += val;
+        });
+
+        (topJson?.data || []).forEach((t: any) => {
+          const p = t.platform as string;
+          const val =
+            Number(t.jumlahTopKomentar || 0) + Number(t.jumlahLike || 0);
+          if (p && agg[p] !== undefined) agg[p] += val;
+        });
+
+        const data = platforms
+          .map((p) => ({
+            platform: p,
+            _count: agg[p],
+            fill: platformColors[p] || 'var(--primary)'
+          }))
+          .filter((d) => d._count > 0);
+
+        setChartData(data);
       } catch (error) {
         console.error('Failed to fetch chart data:', error);
       } finally {
@@ -105,7 +145,7 @@ export function PieGraph() {
         <CardTitle>Platform Distribution</CardTitle>
         <CardDescription>
           <span className='hidden @[540px]/card:block'>
-            Cyber Troops by Platform
+            All Inputs by Platform
           </span>
           <span className='@[540px]/card:hidden'>Platform distribution</span>
         </CardDescription>
@@ -168,7 +208,7 @@ export function PieGraph() {
                           y={(viewBox.cy || 0) + 24}
                           className='fill-muted-foreground text-sm'
                         >
-                          Total Cyber Troops
+                          Total Input
                         </tspan>
                       </text>
                     );
@@ -186,7 +226,7 @@ export function PieGraph() {
           <IconTrendingUp className='h-4 w-4' />
         </div>
         <div className='text-muted-foreground leading-none'>
-          Cyber Troops platform distribution
+          All inputs platform distribution
         </div>
       </CardFooter>
     </Card>

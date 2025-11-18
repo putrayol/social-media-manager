@@ -40,13 +40,13 @@ export async function GET(request: NextRequest) {
     // Get total comments from cyber troops
     const cyberTroopsData = await prisma.cyberTroops.aggregate({
       where: { organizationId: orgId, ...dateFilter },
-      _sum: { jumlahKomentar: true }
+      _sum: { jumlahKomentar: true, jumlahLike: true }
     });
 
     // Get total top comments
     const topKomentarData = await prisma.topKomentar.aggregate({
       where: { organizationId: orgId, ...dateFilter },
-      _sum: { jumlahTopKomentar: true }
+      _sum: { jumlahTopKomentar: true, jumlahLike: true }
     });
 
     // Get platform distribution
@@ -66,6 +66,9 @@ export async function GET(request: NextRequest) {
     const totalComments =
       (cyberTroopsData._sum.jumlahKomentar || 0) +
       (topKomentarData._sum.jumlahTopKomentar || 0);
+    const totalLikes =
+      (cyberTroopsData._sum.jumlahLike || 0) +
+      (topKomentarData._sum.jumlahLike || 0);
 
     return NextResponse.json({
       success: true,
@@ -74,6 +77,7 @@ export async function GET(request: NextRequest) {
         cyberTroopsCount,
         topKomentarCount,
         totalComments,
+        totalLikes,
         totalTopComments: topKomentarData._sum.jumlahTopKomentar || 0,
         totalCyberComments: cyberTroopsData._sum.jumlahKomentar || 0,
         platformDistribution,

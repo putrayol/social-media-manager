@@ -23,6 +23,7 @@ interface StatsData {
   totalCyberComments: number;
   platformDistribution: Array<{ platform: string; _count: number }>;
   categoryDistribution: Array<{ kategori: string; _count: number }>;
+  totalLikes: number;
 }
 
 interface StatsCardsProps {
@@ -146,17 +147,15 @@ function StatsCards({ startDate, endDate }: StatsCardsProps) {
       </Card>
       <Card className='@container/card'>
         <CardHeader>
-          <CardDescription>Top Komentar</CardDescription>
+          <CardDescription>Total Like</CardDescription>
           <CardTitle className='text-2xl font-semibold tabular-nums @[250px]/card:text-3xl'>
-            {stats.topKomentarCount.toLocaleString()}
+            {stats.totalLikes.toLocaleString()}
           </CardTitle>
           <CardAction>
             <Badge variant='outline'>
               <IconTrendingUp />+
               {Math.round(
-                (stats.topKomentarCount /
-                  Math.max(stats.topKomentarCount - 5, 1)) *
-                  100 -
+                (stats.totalLikes / Math.max(stats.totalLikes - 50, 1)) * 100 -
                   100
               )}
               %
@@ -165,9 +164,9 @@ function StatsCards({ startDate, endDate }: StatsCardsProps) {
         </CardHeader>
         <CardFooter className='flex-col items-start gap-1.5 text-sm'>
           <div className='line-clamp-1 flex gap-2 font-medium'>
-            High priority <IconTrendingUp className='size-4' />
+            Strong engagement <IconTrendingUp className='size-4' />
           </div>
-          <div className='text-muted-foreground'>Top comments tracked</div>
+          <div className='text-muted-foreground'>Total likes tracked</div>
         </CardFooter>
       </Card>
     </div>
@@ -179,13 +178,15 @@ export default function OverViewLayout({
   pie_stats,
   bar_stats,
   area_stats,
-  org_info
+  org_info,
+  req_vs_input
 }: {
   sales: React.ReactNode;
   pie_stats: React.ReactNode;
   bar_stats: React.ReactNode;
   area_stats: React.ReactNode;
   org_info: React.ReactNode;
+  req_vs_input: React.ReactNode;
 }) {
   const [startDate, setStartDate] = useState<Date | null>(null);
   const [endDate, setEndDate] = useState<Date | null>(null);
@@ -208,10 +209,8 @@ export default function OverViewLayout({
         <StatsCards startDate={startDate} endDate={endDate} />
         <div className='grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-7'>
           <div className='col-span-4'>{bar_stats}</div>
-          <div className='col-span-4 md:col-span-3'>
-            {/* sales arallel routes */}
-            {sales}
-          </div>
+          <div className='col-span-4 md:col-span-3'>{req_vs_input}</div>
+          <div className='col-span-4 md:col-span-3'>{sales}</div>
           <div className='col-span-4'>{area_stats}</div>
           <div className='col-span-4 md:col-span-3'>{pie_stats}</div>
           <div className='col-span-4 md:col-span-7'>{org_info}</div>
