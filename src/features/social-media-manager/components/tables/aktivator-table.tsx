@@ -25,9 +25,5 @@ export function AktivatorTable({ data, totalItems }: AktivatorTableProps) {
     debounceMs: 500
   });
 
-  return (
-    <DataTable table={table}>
-      <DataTableToolbar table={table} />
-    </DataTable>
-  );
+  return <DataTable table={table}></DataTable>;
 }

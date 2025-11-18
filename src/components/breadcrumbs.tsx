@@ -34,7 +34,7 @@ export function Breadcrumbs(props: { items?: BreadcrumbItemType[] } = {}) {
             )}
             {index < items.length - 1 && (
               <BreadcrumbSeparator className='hidden md:block'>
-                <IconSlash />
+                |
               </BreadcrumbSeparator>
             )}
             {index === items.length - 1 && (

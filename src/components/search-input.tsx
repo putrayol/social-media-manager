@@ -7,6 +7,7 @@ export default function SearchInput() {
   const { query } = useKBar();
   return (
     <div className='w-full space-y-2'>
+      {/* Tombol pencarian: membuka Command Palette (KBar) via klik atau ⌘K */}
       <Button
         variant='outline'
         className='bg-background text-muted-foreground relative h-9 w-full justify-start rounded-[0.5rem] text-sm font-normal shadow-none sm:pr-12 md:w-40 lg:w-64'

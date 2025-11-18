@@ -55,7 +55,7 @@ export function SocialMediaListing({
         {/* ✅ Tab List - Use default shadcn styling */}
         <TabsList className='w-fit'>
           <TabsTrigger value='aktivator'>
-            <span className='hidden sm:inline'>Social Media Aktivator</span>
+            <span className='hidden sm:inline'>Aktivator</span>
             <span className='sm:hidden'>Aktivator</span>
             <span className='ml-1 text-xs'>({totalAktivator})</span>
           </TabsTrigger>
@@ -80,7 +80,7 @@ export function SocialMediaListing({
         <TabsContent value='aktivator' className='mt-6 space-y-4'>
           <div className='flex items-center justify-between'>
             <h2 className='text-lg font-semibold'>
-              Social Media Aktivator (Report Giat Konten)
+              Aktivator (Report Giat Konten)
             </h2>
             {/* ✅ Button Group */}
             <div className='bg-background flex gap-1 rounded-lg border p-1'>

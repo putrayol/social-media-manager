@@ -141,14 +141,14 @@ export default function ViewReportPage({ params }: ViewReportPageProps) {
                   <Table>
                     <TableHeader>
                       <TableRow>
-                        <TableHead>NO</TableHead>
-                        <TableHead>NAMA AKUN</TableHead>
-                        <TableHead>PLATFORM</TableHead>
-                        <TableHead>JENIS / KATEGORI</TableHead>
-                        <TableHead>JENIS ISU</TableHead>
+                        <TableHead>No.</TableHead>
+                        <TableHead>Nama Akun</TableHead>
+                        <TableHead></TableHead>
+                        <TableHead></TableHead>
+                        <TableHead></TableHead>
                         <TableHead>Komentar</TableHead>
                         <TableHead>Like</TableHead>
-                        <TableHead>LINK</TableHead>
+                        <TableHead></TableHead>
                       </TableRow>
                     </TableHeader>
                     <TableBody>
@@ -165,26 +165,37 @@ export default function ViewReportPage({ params }: ViewReportPageProps) {
                           {report.aktivator.map((item: any) => (
                             <TableRow key={`aktivator-${item.id}`}>
                               <TableCell>{item.no}</TableCell>
-                              <TableCell>{item.namaAkun}</TableCell>
                               <TableCell>
-                                <Badge variant='outline' className='capitalize'>
-                                  {String(item.platform).toLowerCase()}
-                                </Badge>
+                                <div className='flex flex-col gap-0.5'>
+                                  <span className='font-bold'>
+                                    {item.namaAkun}{' '}
+                                  </span>
+                                  <span className=''>
+                                    Platform :{' '}
+                                    <Badge
+                                      variant='outline'
+                                      className='capitalize'
+                                    >
+                                      {String(item.platform).toLowerCase()}
+                                    </Badge>
+                                  </span>
+                                  Jenis : {item.jenisKonten}
+                                  <a
+                                    href={item.link}
+                                    target='_blank'
+                                    rel='noopener noreferrer'
+                                    className='py-2 text-blue-600 hover:underline'
+                                  >
+                                    Link
+                                  </a>
+                                </div>
                               </TableCell>
-                              <TableCell>{item.jenisKonten}</TableCell>
                               <TableCell></TableCell>
                               <TableCell></TableCell>
                               <TableCell></TableCell>
-                              <TableCell>
-                                <a
-                                  href={item.link}
-                                  target='_blank'
-                                  rel='noopener noreferrer'
-                                  className='text-blue-600 hover:underline'
-                                >
-                                  LINK
-                                </a>
-                              </TableCell>
+                              <TableCell></TableCell>
+                              <TableCell></TableCell>
+                              <TableCell></TableCell>
                             </TableRow>
                           ))}
                         </>
@@ -203,36 +214,50 @@ export default function ViewReportPage({ params }: ViewReportPageProps) {
                           {report.cyberTroops.map((item: any) => (
                             <TableRow key={`cyber-${item.id}`}>
                               <TableCell>{item.no}</TableCell>
-                              <TableCell>{item.namaAkun}</TableCell>
                               <TableCell>
-                                <Badge variant='outline' className='capitalize'>
-                                  {String(item.platform).toLowerCase()}
-                                </Badge>
+                                <div className='flex flex-col gap-0.5'>
+                                  <span className='font-bold'>
+                                    {item.namaAkun}
+                                  </span>
+                                  <span className=''>
+                                    Platform :
+                                    <Badge
+                                      variant='outline'
+                                      className='ml-2 capitalize'
+                                    >
+                                      {String(item.platform).toLowerCase()}
+                                    </Badge>
+                                  </span>
+                                  <span>
+                                    Kategori :
+                                    <Badge
+                                      className='ml-2'
+                                      variant={
+                                        item.kategori === 'Positif'
+                                          ? 'default'
+                                          : 'destructive'
+                                      }
+                                    >
+                                      {item.kategori}
+                                    </Badge>
+                                  </span>
+                                  <span>Jenis Isu : {item.jenisIsu}</span>
+                                  <a
+                                    href={item.link}
+                                    target='_blank'
+                                    rel='noopener noreferrer'
+                                    className='py-2 text-blue-600 hover:underline'
+                                  >
+                                    Link
+                                  </a>
+                                </div>
                               </TableCell>
-                              <TableCell>
-                                <Badge
-                                  variant={
-                                    item.kategori === 'Positif'
-                                      ? 'default'
-                                      : 'destructive'
-                                  }
-                                >
-                                  {item.kategori}
-                                </Badge>
-                              </TableCell>
-                              <TableCell>{item.jenisIsu}</TableCell>
+                              <TableCell></TableCell>
+                              <TableCell></TableCell>
+                              <TableCell></TableCell>
                               <TableCell>{item.jumlahKomentar}</TableCell>
                               <TableCell>{item.jumlahLike ?? '-'}</TableCell>
-                              <TableCell>
-                                <a
-                                  href={item.link}
-                                  target='_blank'
-                                  rel='noopener noreferrer'
-                                  className='text-blue-600 hover:underline'
-                                >
-                                  LINK
-                                </a>
-                              </TableCell>
+                              <TableCell></TableCell>
                             </TableRow>
                           ))}
                           <TableRow className='bg-muted font-semibold'>
@@ -271,26 +296,36 @@ export default function ViewReportPage({ params }: ViewReportPageProps) {
                           {report.topKomentar.map((item: any) => (
                             <TableRow key={`topkomentar-${item.id}`}>
                               <TableCell>{item.no}</TableCell>
-                              <TableCell>{item.namaAkun}</TableCell>
                               <TableCell>
-                                <Badge variant='outline' className='capitalize'>
-                                  {String(item.platform).toLowerCase()}
-                                </Badge>
+                                <div className='flex flex-col gap-0.5'>
+                                  <span className='font-bold'>
+                                    {item.namaAkun}
+                                  </span>
+                                  <span>
+                                    Platform :{' '}
+                                    <Badge
+                                      variant='outline'
+                                      className='ml-2 capitalize'
+                                    >
+                                      {String(item.platform).toLowerCase()}
+                                    </Badge>
+                                  </span>
+                                  <a
+                                    href={item.link}
+                                    target='_blank'
+                                    rel='noopener noreferrer'
+                                    className='py-2 text-blue-600 hover:underline'
+                                  >
+                                    Link
+                                  </a>
+                                </div>
                               </TableCell>
+                              <TableCell></TableCell>
                               <TableCell></TableCell>
                               <TableCell></TableCell>
                               <TableCell>{item.jumlahTopKomentar}</TableCell>
                               <TableCell>{item.jumlahLike ?? '-'}</TableCell>
-                              <TableCell>
-                                <a
-                                  href={item.link}
-                                  target='_blank'
-                                  rel='noopener noreferrer'
-                                  className='text-blue-600 hover:underline'
-                                >
-                                  LINK
-                                </a>
-                              </TableCell>
+                              <TableCell></TableCell>
                             </TableRow>
                           ))}
                           <TableRow className='bg-muted font-semibold'>

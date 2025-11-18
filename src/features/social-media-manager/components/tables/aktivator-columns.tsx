@@ -22,28 +22,23 @@ export const aktivatorColumns: ColumnDef<SocialMediaAktivator>[] = [
     header: ({ column }) => (
       <DataTableColumnHeader column={column} title='Nama Akun' />
     ),
-    cell: ({ row }) => <div>{row.getValue('namaAkun')}</div>
-  },
-  {
-    accessorKey: 'platform',
-    header: ({ column }) => (
-      <DataTableColumnHeader column={column} title='Platform' />
-    ),
     cell: ({ row }) => {
-      const platform = row.getValue('platform') as string;
+      const item = row.original as SocialMediaAktivator;
       return (
-        <Badge variant='outline' className='capitalize'>
-          {platform.toLowerCase()}
-        </Badge>
+        <div className='flex flex-col gap-0.5'>
+          <span className='text-sm font-medium'>{item.namaAkun}</span>
+          <div className='text-muted-foreground flex items-center gap-2 text-xs'>
+            <span>Platform :</span>
+            <Badge variant='outline' className='capitalize'>
+              {item.platform.toLowerCase()}
+            </Badge>
+          </div>
+          <span className='text-muted-foreground text-xs'>
+            Jenis Konten: {item.jenisKonten}
+          </span>
+        </div>
       );
     }
-  },
-  {
-    accessorKey: 'jenisKonten',
-    header: ({ column }) => (
-      <DataTableColumnHeader column={column} title='Jenis Konten' />
-    ),
-    cell: ({ row }) => <div>{row.getValue('jenisKonten')}</div>
   },
   {
     accessorKey: 'link',

@@ -25,9 +25,5 @@ export function TopKomentarTable({ data, totalItems }: TopKomentarTableProps) {
     debounceMs: 500
   });
 
-  return (
-    <DataTable table={table}>
-      <DataTableToolbar table={table} />
-    </DataTable>
-  );
+  return <DataTable table={table}></DataTable>;
 }

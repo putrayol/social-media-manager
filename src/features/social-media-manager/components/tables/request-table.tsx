@@ -57,8 +57,6 @@ export function RequestTable({ data, totalItems }: RequestTableProps) {
   return (
     <div className='flex flex-col gap-4'>
       <div className='space-y-2'>
-        <DataTableToolbar table={table} className='px-1' />
-
         <div className='bg-background rounded-lg border'>
           <Table>
             <TableHeader>

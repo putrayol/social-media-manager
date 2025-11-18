@@ -25,9 +25,5 @@ export function CyberTroopsTable({ data, totalItems }: CyberTroopsTableProps) {
     debounceMs: 500
   });
 
-  return (
-    <DataTable table={table}>
-      <DataTableToolbar table={table} />
-    </DataTable>
-  );
+  return <DataTable table={table}></DataTable>;
 }

@@ -22,56 +22,32 @@ export const cyberTroopsColumns: ColumnDef<CyberTroops>[] = [
     header: ({ column }) => (
       <DataTableColumnHeader column={column} title='Nama Akun' />
     ),
-    cell: ({ row }) => <div>{row.getValue('namaAkun')}</div>
-  },
-  {
-    accessorKey: 'platform',
-    header: ({ column }) => (
-      <DataTableColumnHeader column={column} title='Platform' />
-    ),
     cell: ({ row }) => {
-      const platform = row.getValue('platform') as string;
+      const item = row.original as CyberTroops;
+      const kategoriVariant =
+        item.kategori === 'Positif' ? 'default' : 'destructive';
       return (
-        <Badge variant='outline' className='capitalize'>
-          {platform.toLowerCase()}
-        </Badge>
+        <div className='flex flex-col gap-0.5'>
+          <span className='text-sm font-medium'>{item.namaAkun}</span>
+          <div className='text-muted-foreground flex items-center gap-2 text-xs'>
+            <span>Platform :</span>
+            <Badge variant='outline' className='capitalize'>
+              {item.platform.toLowerCase()}
+            </Badge>
+          </div>
+          <div className='text-muted-foreground flex items-center gap-2 text-xs'>
+            <span>Kategori :</span>
+            <Badge variant={kategoriVariant}>{item.kategori}</Badge>
+          </div>
+          <span className='text-muted-foreground text-xs'>
+            Jenis Isu: {item.jenisIsu}
+          </span>
+          <span className='text-muted-foreground text-xs'>
+            Komentar: {item.jumlahKomentar} • Like: {item.jumlahLike}
+          </span>
+        </div>
       );
     }
-  },
-  {
-    accessorKey: 'kategori',
-    header: ({ column }) => (
-      <DataTableColumnHeader column={column} title='Kategori' />
-    ),
-    cell: ({ row }) => {
-      const kategori = row.getValue('kategori') as string;
-      return (
-        <Badge variant={kategori === 'Positif' ? 'default' : 'destructive'}>
-          {kategori}
-        </Badge>
-      );
-    }
-  },
-  {
-    accessorKey: 'jenisIsu',
-    header: ({ column }) => (
-      <DataTableColumnHeader column={column} title='Jenis Isu' />
-    ),
-    cell: ({ row }) => <div>{row.getValue('jenisIsu')}</div>
-  },
-  {
-    accessorKey: 'jumlahKomentar',
-    header: ({ column }) => (
-      <DataTableColumnHeader column={column} title='Jumlah Komentar' />
-    ),
-    cell: ({ row }) => <div>{row.getValue('jumlahKomentar')}</div>
-  },
-  {
-    accessorKey: 'jumlahLike',
-    header: ({ column }) => (
-      <DataTableColumnHeader column={column} title='Jumlah Like' />
-    ),
-    cell: ({ row }) => <div>{row.getValue('jumlahLike')}</div>
   },
   {
     accessorKey: 'link',

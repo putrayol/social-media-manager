@@ -22,35 +22,26 @@ export const topKomentarColumns: ColumnDef<TopKomentarPostingan>[] = [
     header: ({ column }) => (
       <DataTableColumnHeader column={column} title='Nama Akun' />
     ),
-    cell: ({ row }) => <div>{row.getValue('namaAkun')}</div>
-  },
-  {
-    accessorKey: 'platform',
-    header: ({ column }) => (
-      <DataTableColumnHeader column={column} title='Platform' />
-    ),
     cell: ({ row }) => {
-      const platform = row.getValue('platform') as string;
+      const item = row.original as TopKomentarPostingan;
       return (
-        <Badge variant='outline' className='capitalize'>
-          {platform.toLowerCase()}
-        </Badge>
+        <div className='flex flex-col gap-0.5'>
+          <span className='text-sm font-medium'>{item.namaAkun}</span>
+          <div className='text-muted-foreground flex items-center gap-2 text-xs'>
+            <span>Platform :</span>
+            <Badge variant='outline' className='capitalize'>
+              {item.platform.toLowerCase()}
+            </Badge>
+          </div>
+          <span className='text-muted-foreground text-xs'>
+            Top Komentar: {item.jumlahTopKomentar} • Like: {item.jumlahLike}
+          </span>
+          <span className='text-muted-foreground text-xs'>
+            Keterangan: {item.keterangan || '-'}
+          </span>
+        </div>
       );
     }
-  },
-  {
-    accessorKey: 'jumlahTopKomentar',
-    header: ({ column }) => (
-      <DataTableColumnHeader column={column} title='Jumlah Top Komentar' />
-    ),
-    cell: ({ row }) => <div>{row.getValue('jumlahTopKomentar')}</div>
-  },
-  {
-    accessorKey: 'jumlahLike',
-    header: ({ column }) => (
-      <DataTableColumnHeader column={column} title='Jumlah Like' />
-    ),
-    cell: ({ row }) => <div>{row.getValue('jumlahLike')}</div>
   },
   {
     accessorKey: 'link',
@@ -71,13 +62,6 @@ export const topKomentarColumns: ColumnDef<TopKomentarPostingan>[] = [
         </a>
       );
     }
-  },
-  {
-    accessorKey: 'keterangan',
-    header: ({ column }) => (
-      <DataTableColumnHeader column={column} title='Keterangan' />
-    ),
-    cell: ({ row }) => <div>{row.getValue('keterangan') || '-'}</div>
   },
   {
     id: 'actions',
