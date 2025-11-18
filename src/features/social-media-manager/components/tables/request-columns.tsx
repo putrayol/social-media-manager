@@ -8,6 +8,9 @@ import { RequestCellAction } from './request-cell-action';
 export const requestColumns: ColumnDef<RequestItem>[] = [
   {
     accessorKey: 'no',
+    size: 64,
+    minSize: 48,
+    maxSize: 80,
     header: ({ column }) => (
       <DataTableColumnHeader column={column} title='No' />
     ),
@@ -143,6 +146,7 @@ export const requestColumns: ColumnDef<RequestItem>[] = [
   },
   {
     id: 'actions',
+    header: () => <div className='w-full text-right'>Aksi</div>,
     cell: ({ row }) => <RequestCellAction row={row} />
   }
 ];

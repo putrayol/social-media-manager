@@ -10,6 +10,9 @@ import { TopKomentarCellAction } from './top-komentar-cell-action';
 export const topKomentarColumns: ColumnDef<TopKomentarPostingan>[] = [
   {
     accessorKey: 'no',
+    size: 64,
+    minSize: 48,
+    maxSize: 80,
     header: ({ column }) => (
       <DataTableColumnHeader column={column} title='No' />
     ),
@@ -65,6 +68,7 @@ export const topKomentarColumns: ColumnDef<TopKomentarPostingan>[] = [
   },
   {
     id: 'actions',
+    header: () => <div className='w-full text-right'>Aksi</div>,
     cell: ({ row }) => <TopKomentarCellAction row={row} />
   }
 ];

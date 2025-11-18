@@ -10,6 +10,9 @@ import { CyberTroopsCellAction } from './cyber-troops-cell-action';
 export const cyberTroopsColumns: ColumnDef<CyberTroops>[] = [
   {
     accessorKey: 'no',
+    size: 64,
+    minSize: 48,
+    maxSize: 80,
     header: ({ column }) => (
       <DataTableColumnHeader column={column} title='No' />
     ),
@@ -71,6 +74,7 @@ export const cyberTroopsColumns: ColumnDef<CyberTroops>[] = [
   },
   {
     id: 'actions',
+    header: () => <div className='w-full text-right'>Aksi</div>,
     cell: ({ row }) => <CyberTroopsCellAction row={row} />
   }
 ];

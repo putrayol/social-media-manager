@@ -10,6 +10,9 @@ import { AktivatorCellAction } from './aktivator-cell-action';
 export const aktivatorColumns: ColumnDef<SocialMediaAktivator>[] = [
   {
     accessorKey: 'no',
+    size: 64,
+    minSize: 48,
+    maxSize: 80,
     header: ({ column }) => (
       <DataTableColumnHeader column={column} title='No' />
     ),
@@ -62,6 +65,7 @@ export const aktivatorColumns: ColumnDef<SocialMediaAktivator>[] = [
   },
   {
     id: 'actions',
+    header: () => <div className='w-full text-right'>Aksi</div>,
     cell: ({ row }) => <AktivatorCellAction row={row} />
   }
 ];

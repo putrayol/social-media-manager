@@ -10,7 +10,7 @@ import {
   TableRow
 } from '@/components/ui/table';
 import { Badge } from '@/components/ui/badge';
-import { Plus, Eye, Edit, Trash2, Download, RotateCw } from 'lucide-react';
+import { Plus, Eye, Edit, Trash2, RotateCw } from 'lucide-react';
 import Link from 'next/link';
 import { SocialMediaReport } from '../types';
 import { useState } from 'react';
@@ -122,41 +122,30 @@ export function ReportListing({ reports, onRefresh }: ReportListingProps) {
             <Table>
               <TableHeader className='bg-muted sticky top-0 z-10'>
                 <TableRow>
-                  <TableHead>No. Laporan</TableHead>
-                  <TableHead>Tanggal</TableHead>
-                  <TableHead>Aktivator</TableHead>
-                  <TableHead>Cyber Troops</TableHead>
-                  <TableHead>Top Komentar</TableHead>
-                  <TableHead>Status</TableHead>
+                  <TableHead>Nomor Laporan</TableHead>
                   <TableHead className='text-right'>Aksi</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
                 {reports.map((report) => (
                   <TableRow key={report.id}>
-                    <TableCell className='font-semibold'>
-                      {report.reportNo}
-                    </TableCell>
                     <TableCell>
-                      {new Date(report.tanggal).toLocaleDateString('id-ID')}
-                    </TableCell>
-                    <TableCell>
-                      <Badge variant='outline'>
-                        {report.aktivator?.length || 0}
-                      </Badge>
-                    </TableCell>
-                    <TableCell>
-                      <Badge variant='outline'>
-                        {report.cyberTroops?.length || 0}
-                      </Badge>
-                    </TableCell>
-                    <TableCell>
-                      <Badge variant='outline'>
-                        {report.topKomentar?.length || 0}
-                      </Badge>
-                    </TableCell>
-                    <TableCell>
-                      <Badge variant='default'>Selesai</Badge>
+                      <div className='flex flex-col gap-0.5'>
+                        <span className='text-sm font-medium'>
+                          {report.reportNo}
+                        </span>
+                        <span className='text-muted-foreground text-xs'>
+                          {new Date(report.tanggal).toLocaleDateString('id-ID')}
+                        </span>
+                        <span className='text-muted-foreground text-xs'>
+                          Aktivator: {report.aktivator?.length ?? 0} • Cyber:{' '}
+                          {report.cyberTroops?.length ?? 0} • Top:{' '}
+                          {report.topKomentar?.length ?? 0}
+                        </span>
+                        <div className='pt-1'>
+                          <Badge variant='default'>Selesai</Badge>
+                        </div>
+                      </div>
                     </TableCell>
                     <TableCell className='text-right'>
                       <div className='flex justify-end gap-2'>
