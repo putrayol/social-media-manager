@@ -1,4 +1,5 @@
 'use client';
+// Force recompilation - inline editing enabled
 
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -523,15 +524,13 @@ export default function ReportForm({
 
       // ✅ IMPORTANT: Keep ID if item has it (existing item from DB)
       // Only include full data if item doesn't have ID (new item)
+      // ✅ IMPORTANT: Send full data for both new and existing items
+      // The backend will handle updating existing items and creating new ones
       if (processedValues.aktivator && processedValues.aktivator.length > 0) {
         processedValues.aktivator = processedValues.aktivator.map(
           (item: any, index: number) => {
-            // If item has ID, it's from database - only send ID
-            if (item.id) {
-              return { id: item.id };
-            }
-            // Otherwise, it's a new item - send full data
             return {
+              id: item.id, // Include ID if it exists
               no: item.no || index + 1,
               namaAkun: item.namaAkun,
               platform: item.platform,
@@ -547,12 +546,8 @@ export default function ReportForm({
       ) {
         processedValues.cyberTroops = processedValues.cyberTroops.map(
           (item: any, index: number) => {
-            // If item has ID, it's from database - only send ID
-            if (item.id) {
-              return { id: item.id };
-            }
-            // Otherwise, it's a new item - send full data
             return {
+              id: item.id, // Include ID if it exists
               no: item.no || index + 1,
               namaAkun: item.namaAkun,
               platform: item.platform,
@@ -572,12 +567,8 @@ export default function ReportForm({
       ) {
         processedValues.topKomentar = processedValues.topKomentar.map(
           (item: any, index: number) => {
-            // If item has ID, it's from database - only send ID
-            if (item.id) {
-              return { id: item.id };
-            }
-            // Otherwise, it's a new item - send full data
             return {
+              id: item.id, // Include ID if it exists
               no: item.no || index + 1,
               namaAkun: item.namaAkun,
               platform: item.platform,
@@ -865,71 +856,56 @@ export default function ReportForm({
                     </TableRow>
                   )}
                   {aktivatorRows.map((item: any, idx: number) => {
-                    const isExisting = !!item.id;
                     return (
                       <TableRow key={idx}>
                         <TableCell>{item.no || idx + 1}</TableCell>
                         <TableCell>
-                          {isExisting ? (
-                            <span>{item.namaAkun}</span>
-                          ) : (
-                            <Input
-                              value={item.namaAkun || ''}
-                              onChange={(e) =>
-                                updateAktivatorField(
-                                  idx,
-                                  'namaAkun',
-                                  e.target.value
-                                )
-                              }
-                              placeholder='Nama akun'
-                            />
-                          )}
+                          <Input
+                            value={item.namaAkun || ''}
+                            onChange={(e) =>
+                              updateAktivatorField(
+                                idx,
+                                'namaAkun',
+                                e.target.value
+                              )
+                            }
+                            placeholder='Nama akun'
+                          />
                         </TableCell>
                         <TableCell>
-                          {isExisting ? (
-                            <span>{item.platform}</span>
-                          ) : (
-                            <Select
-                              value={item.platform || ''}
-                              onValueChange={(val) =>
-                                updateAktivatorField(idx, 'platform', val)
-                              }
-                            >
-                              <SelectTrigger className='w-full'>
-                                <SelectValue placeholder='Pilih platform' />
-                              </SelectTrigger>
-                              <SelectContent>
-                                <SelectItem value='TIKTOK'>TikTok</SelectItem>
-                                <SelectItem value='INSTAGRAM'>
-                                  Instagram
-                                </SelectItem>
-                                <SelectItem value='FACEBOOK'>
-                                  Facebook
-                                </SelectItem>
-                                <SelectItem value='TWITTER'>Twitter</SelectItem>
-                                <SelectItem value='YOUTUBE'>YouTube</SelectItem>
-                                <SelectItem value='OTHER'>Lainnya</SelectItem>
-                              </SelectContent>
-                            </Select>
-                          )}
+                          <Select
+                            value={item.platform || ''}
+                            onValueChange={(val) =>
+                              updateAktivatorField(idx, 'platform', val)
+                            }
+                          >
+                            <SelectTrigger className='w-full'>
+                              <SelectValue placeholder='Pilih platform' />
+                            </SelectTrigger>
+                            <SelectContent>
+                              <SelectItem value='TIKTOK'>TikTok</SelectItem>
+                              <SelectItem value='INSTAGRAM'>
+                                Instagram
+                              </SelectItem>
+                              <SelectItem value='FACEBOOK'>Facebook</SelectItem>
+                              <SelectItem value='TWITTER'>Twitter</SelectItem>
+                              <SelectItem value='YOUTUBE'>YouTube</SelectItem>
+                              <SelectItem value='OTHER'>Lainnya</SelectItem>
+                            </SelectContent>
+                          </Select>
                         </TableCell>
                         <TableCell>
-                          {isExisting ? (
-                            <span>{item.jenisKonten}</span>
-                          ) : (
-                            <Input
-                              value={item.jenisKonten || ''}
-                              onChange={(e) =>
-                                updateAktivatorField(
-                                  idx,
-                                  'jenisKonten',
-                                  e.target.value
-                                )
-                              }
-                              placeholder='Jenis / Kategori'
-                            />
-                          )}
+                          <Input
+                            value={item.jenisKonten || ''}
+                            onChange={(e) =>
+                              updateAktivatorField(
+                                idx,
+                                'jenisKonten',
+                                e.target.value
+                              )
+                            }
+                            placeholder='Jenis / Kategori'
+                          />
                         </TableCell>
                         <TableCell>
                           <span className='text-muted-foreground'>-</span>
@@ -941,32 +917,13 @@ export default function ReportForm({
                           <span className='text-muted-foreground'>-</span>
                         </TableCell>
                         <TableCell>
-                          {isExisting ? (
-                            item.link ? (
-                              <a
-                                href={item.link}
-                                target='_blank'
-                                rel='noreferrer'
-                                className='text-primary underline'
-                              >
-                                Link
-                              </a>
-                            ) : (
-                              <span className='text-muted-foreground'>-</span>
-                            )
-                          ) : (
-                            <Input
-                              value={item.link || ''}
-                              onChange={(e) =>
-                                updateAktivatorField(
-                                  idx,
-                                  'link',
-                                  e.target.value
-                                )
-                              }
-                              placeholder='Link'
-                            />
-                          )}
+                          <Input
+                            value={item.link || ''}
+                            onChange={(e) =>
+                              updateAktivatorField(idx, 'link', e.target.value)
+                            }
+                            placeholder='Link'
+                          />
                         </TableCell>
                         <TableCell className='text-center'>
                           <Button
@@ -1041,151 +998,101 @@ export default function ReportForm({
                     </TableRow>
                   )}
                   {cyberRows.map((item: any, idx: number) => {
-                    const isExisting = !!item.id;
                     return (
                       <TableRow key={idx}>
                         <TableCell>{item.no || idx + 1}</TableCell>
                         <TableCell>
-                          {isExisting ? (
-                            <span>{item.namaAkun}</span>
-                          ) : (
-                            <Input
-                              value={item.namaAkun || ''}
-                              onChange={(e) =>
-                                updateCyberField(
-                                  idx,
-                                  'namaAkun',
-                                  e.target.value
-                                )
-                              }
-                              placeholder='Nama akun'
-                            />
-                          )}
+                          <Input
+                            value={item.namaAkun || ''}
+                            onChange={(e) =>
+                              updateCyberField(idx, 'namaAkun', e.target.value)
+                            }
+                            placeholder='Nama akun'
+                          />
                         </TableCell>
                         <TableCell>
-                          {isExisting ? (
-                            <span>{item.platform}</span>
-                          ) : (
-                            <Select
-                              value={item.platform || ''}
-                              onValueChange={(val) =>
-                                updateCyberField(idx, 'platform', val)
-                              }
-                            >
-                              <SelectTrigger className='w-full'>
-                                <SelectValue placeholder='Pilih platform' />
-                              </SelectTrigger>
-                              <SelectContent>
-                                <SelectItem value='TIKTOK'>TikTok</SelectItem>
-                                <SelectItem value='INSTAGRAM'>
-                                  Instagram
-                                </SelectItem>
-                                <SelectItem value='FACEBOOK'>
-                                  Facebook
-                                </SelectItem>
-                                <SelectItem value='TWITTER'>Twitter</SelectItem>
-                                <SelectItem value='YOUTUBE'>YouTube</SelectItem>
-                                <SelectItem value='OTHER'>Lainnya</SelectItem>
-                              </SelectContent>
-                            </Select>
-                          )}
+                          <Select
+                            value={item.platform || ''}
+                            onValueChange={(val) =>
+                              updateCyberField(idx, 'platform', val)
+                            }
+                          >
+                            <SelectTrigger className='w-full'>
+                              <SelectValue placeholder='Pilih platform' />
+                            </SelectTrigger>
+                            <SelectContent>
+                              <SelectItem value='TIKTOK'>TikTok</SelectItem>
+                              <SelectItem value='INSTAGRAM'>
+                                Instagram
+                              </SelectItem>
+                              <SelectItem value='FACEBOOK'>Facebook</SelectItem>
+                              <SelectItem value='TWITTER'>Twitter</SelectItem>
+                              <SelectItem value='YOUTUBE'>YouTube</SelectItem>
+                              <SelectItem value='OTHER'>Lainnya</SelectItem>
+                            </SelectContent>
+                          </Select>
                         </TableCell>
                         <TableCell>
-                          {isExisting ? (
-                            <span>{item.kategori}</span>
-                          ) : (
-                            <Select
-                              value={item.kategori || ''}
-                              onValueChange={(val) =>
-                                updateCyberField(idx, 'kategori', val)
-                              }
-                            >
-                              <SelectTrigger className='w-full'>
-                                <SelectValue placeholder='Pilih kategori' />
-                              </SelectTrigger>
-                              <SelectContent>
-                                <SelectItem value='Positif'>Positif</SelectItem>
-                                <SelectItem value='Negatif'>Negatif</SelectItem>
-                              </SelectContent>
-                            </Select>
-                          )}
+                          <Select
+                            value={item.kategori || ''}
+                            onValueChange={(val) =>
+                              updateCyberField(idx, 'kategori', val)
+                            }
+                          >
+                            <SelectTrigger className='w-full'>
+                              <SelectValue placeholder='Pilih kategori' />
+                            </SelectTrigger>
+                            <SelectContent>
+                              <SelectItem value='Positif'>Positif</SelectItem>
+                              <SelectItem value='Negatif'>Negatif</SelectItem>
+                            </SelectContent>
+                          </Select>
                         </TableCell>
                         <TableCell>
-                          {isExisting ? (
-                            <span>{item.jenisIsu}</span>
-                          ) : (
-                            <Input
-                              value={item.jenisIsu || ''}
-                              onChange={(e) =>
-                                updateCyberField(
-                                  idx,
-                                  'jenisIsu',
-                                  e.target.value
-                                )
-                              }
-                              placeholder='Jenis isu'
-                            />
-                          )}
+                          <Input
+                            value={item.jenisIsu || ''}
+                            onChange={(e) =>
+                              updateCyberField(idx, 'jenisIsu', e.target.value)
+                            }
+                            placeholder='Jenis isu'
+                          />
                         </TableCell>
                         <TableCell>
-                          {isExisting ? (
-                            <span>{item.jumlahKomentar}</span>
-                          ) : (
-                            <Input
-                              type='number'
-                              value={item.jumlahKomentar ?? 0}
-                              onChange={(e) =>
-                                updateCyberField(
-                                  idx,
-                                  'jumlahKomentar',
-                                  Number(e.target.value || 0)
-                                )
-                              }
-                              placeholder='0'
-                            />
-                          )}
+                          <Input
+                            type='number'
+                            value={item.jumlahKomentar ?? 0}
+                            onChange={(e) =>
+                              updateCyberField(
+                                idx,
+                                'jumlahKomentar',
+                                Number(e.target.value || 0)
+                              )
+                            }
+                            placeholder='0'
+                          />
                         </TableCell>
                         <TableCell>
-                          {isExisting ? (
-                            <span>{item.jumlahLike ?? '-'}</span>
-                          ) : (
-                            <Input
-                              type='number'
-                              value={item.jumlahLike ?? 0}
-                              onChange={(e) =>
-                                updateCyberField(
-                                  idx,
-                                  'jumlahLike',
-                                  Number(e.target.value || 0)
-                                )
-                              }
-                              placeholder='0'
-                            />
-                          )}
+                          <Input
+                            type='number'
+                            value={item.jumlahLike ?? 0}
+                            onChange={(e) =>
+                              updateCyberField(
+                                idx,
+                                'jumlahLike',
+                                Number(e.target.value || 0)
+                              )
+                            }
+                            placeholder='0'
+                          />
                         </TableCell>
                         <TableCell>
-                          {isExisting ? (
-                            item.link ? (
-                              <a
-                                href={item.link}
-                                target='_blank'
-                                rel='noreferrer'
-                                className='text-primary underline'
-                              >
-                                Link
-                              </a>
-                            ) : (
-                              <span className='text-muted-foreground'>-</span>
-                            )
-                          ) : (
-                            <Input
-                              value={item.link || ''}
-                              onChange={(e) =>
-                                updateCyberField(idx, 'link', e.target.value)
-                              }
-                              placeholder='Link'
-                            />
-                          )}
+                          <Input
+                            value={item.link || ''}
+                            onChange={(e) =>
+                              updateCyberField(idx, 'link', e.target.value)
+                            }
+                            placeholder='Link'
+                          />
                         </TableCell>
                         <TableCell className='text-center'>
                           <Button
@@ -1281,50 +1188,39 @@ export default function ReportForm({
                     </TableRow>
                   )}
                   {topRows.map((item: any, idx: number) => {
-                    const isExisting = !!item.id;
                     return (
                       <TableRow key={idx}>
                         <TableCell>{item.no || idx + 1}</TableCell>
                         <TableCell>
-                          {isExisting ? (
-                            <span>{item.namaAkun}</span>
-                          ) : (
-                            <Input
-                              value={item.namaAkun || ''}
-                              onChange={(e) =>
-                                updateTopField(idx, 'namaAkun', e.target.value)
-                              }
-                              placeholder='Nama akun'
-                            />
-                          )}
+                          <Input
+                            value={item.namaAkun || ''}
+                            onChange={(e) =>
+                              updateTopField(idx, 'namaAkun', e.target.value)
+                            }
+                            placeholder='Nama akun'
+                          />
                         </TableCell>
                         <TableCell>
-                          {isExisting ? (
-                            <span>{item.platform}</span>
-                          ) : (
-                            <Select
-                              value={item.platform || ''}
-                              onValueChange={(val) =>
-                                updateTopField(idx, 'platform', val)
-                              }
-                            >
-                              <SelectTrigger className='w-full'>
-                                <SelectValue placeholder='Pilih platform' />
-                              </SelectTrigger>
-                              <SelectContent>
-                                <SelectItem value='TIKTOK'>TikTok</SelectItem>
-                                <SelectItem value='INSTAGRAM'>
-                                  Instagram
-                                </SelectItem>
-                                <SelectItem value='FACEBOOK'>
-                                  Facebook
-                                </SelectItem>
-                                <SelectItem value='TWITTER'>Twitter</SelectItem>
-                                <SelectItem value='YOUTUBE'>YouTube</SelectItem>
-                                <SelectItem value='OTHER'>Lainnya</SelectItem>
-                              </SelectContent>
-                            </Select>
-                          )}
+                          <Select
+                            value={item.platform || ''}
+                            onValueChange={(val) =>
+                              updateTopField(idx, 'platform', val)
+                            }
+                          >
+                            <SelectTrigger className='w-full'>
+                              <SelectValue placeholder='Pilih platform' />
+                            </SelectTrigger>
+                            <SelectContent>
+                              <SelectItem value='TIKTOK'>TikTok</SelectItem>
+                              <SelectItem value='INSTAGRAM'>
+                                Instagram
+                              </SelectItem>
+                              <SelectItem value='FACEBOOK'>Facebook</SelectItem>
+                              <SelectItem value='TWITTER'>Twitter</SelectItem>
+                              <SelectItem value='YOUTUBE'>YouTube</SelectItem>
+                              <SelectItem value='OTHER'>Lainnya</SelectItem>
+                            </SelectContent>
+                          </Select>
                         </TableCell>
                         <TableCell>
                           <span className='text-muted-foreground'>-</span>
@@ -1333,64 +1229,41 @@ export default function ReportForm({
                           <span className='text-muted-foreground'>-</span>
                         </TableCell>
                         <TableCell>
-                          {isExisting ? (
-                            <span>{item.jumlahTopKomentar}</span>
-                          ) : (
-                            <Input
-                              type='number'
-                              value={item.jumlahTopKomentar ?? 0}
-                              onChange={(e) =>
-                                updateTopField(
-                                  idx,
-                                  'jumlahTopKomentar',
-                                  Number(e.target.value || 0)
-                                )
-                              }
-                              placeholder='0'
-                            />
-                          )}
+                          <Input
+                            type='number'
+                            value={item.jumlahTopKomentar ?? 0}
+                            onChange={(e) =>
+                              updateTopField(
+                                idx,
+                                'jumlahTopKomentar',
+                                Number(e.target.value || 0)
+                              )
+                            }
+                            placeholder='0'
+                          />
                         </TableCell>
                         <TableCell>
-                          {isExisting ? (
-                            <span>{item.jumlahLike ?? '-'}</span>
-                          ) : (
-                            <Input
-                              type='number'
-                              value={item.jumlahLike ?? 0}
-                              onChange={(e) =>
-                                updateTopField(
-                                  idx,
-                                  'jumlahLike',
-                                  Number(e.target.value || 0)
-                                )
-                              }
-                              placeholder='0'
-                            />
-                          )}
+                          <Input
+                            type='number'
+                            value={item.jumlahLike ?? 0}
+                            onChange={(e) =>
+                              updateTopField(
+                                idx,
+                                'jumlahLike',
+                                Number(e.target.value || 0)
+                              )
+                            }
+                            placeholder='0'
+                          />
                         </TableCell>
                         <TableCell>
-                          {isExisting ? (
-                            item.link ? (
-                              <a
-                                href={item.link}
-                                target='_blank'
-                                rel='noreferrer'
-                                className='text-primary underline'
-                              >
-                                Link
-                              </a>
-                            ) : (
-                              <span className='text-muted-foreground'>-</span>
-                            )
-                          ) : (
-                            <Input
-                              value={item.link || ''}
-                              onChange={(e) =>
-                                updateTopField(idx, 'link', e.target.value)
-                              }
-                              placeholder='Link'
-                            />
-                          )}
+                          <Input
+                            value={item.link || ''}
+                            onChange={(e) =>
+                              updateTopField(idx, 'link', e.target.value)
+                            }
+                            placeholder='Link'
+                          />
                         </TableCell>
                         <TableCell className='text-center'>
                           <Button

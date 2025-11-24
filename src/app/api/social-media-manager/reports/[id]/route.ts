@@ -92,9 +92,13 @@ export async function PUT(
     };
 
     // Separate existing items (with IDs) from new items (without IDs)
-    const aktivatorExistingIds = extractIds(aktivator);
-    const cyberExistingIds = extractIds(cyberTroops);
-    const topExistingIds = extractIds(topKomentar);
+    const aktivatorExisting = aktivator.filter((item: any) => item?.id != null);
+    const cyberExisting = cyberTroops.filter((item: any) => item?.id != null);
+    const topExisting = topKomentar.filter((item: any) => item?.id != null);
+
+    const aktivatorExistingIds = aktivatorExisting.map((item: any) => item.id);
+    const cyberExistingIds = cyberExisting.map((item: any) => item.id);
+    const topExistingIds = topExisting.map((item: any) => item.id);
 
     const aktivatorNew = aktivator.filter((item: any) => item?.id == null);
     const cyberNew = cyberTroops.filter((item: any) => item?.id == null);
@@ -144,34 +148,49 @@ export async function PUT(
         data: { reportId: null }
       });
 
-      // Step 2: Link existing items to this report by updating their reportId
-      if (aktivatorExistingIds.length > 0) {
-        await tx.aktivator.updateMany({
-          where: {
-            id: { in: aktivatorExistingIds },
-            organizationId: orgId
-          },
-          data: { reportId: id }
+      // Step 2: Link and Update existing items
+      for (const item of aktivatorExisting) {
+        await tx.aktivator.update({
+          where: { id: item.id, organizationId: orgId },
+          data: {
+            reportId: id,
+            namaAkun: item.namaAkun,
+            platform: item.platform,
+            jenisKonten: item.jenisKonten,
+            link: item.link || null
+          }
         });
       }
 
-      if (cyberExistingIds.length > 0) {
-        await tx.cyberTroops.updateMany({
-          where: {
-            id: { in: cyberExistingIds },
-            organizationId: orgId
-          },
-          data: { reportId: id }
+      for (const item of cyberExisting) {
+        await tx.cyberTroops.update({
+          where: { id: item.id, organizationId: orgId },
+          data: {
+            reportId: id,
+            namaAkun: item.namaAkun,
+            platform: item.platform,
+            kategori: item.kategori,
+            jenisIsu: item.jenisIsu,
+            jumlahKomentar: item.jumlahKomentar || 0,
+            jumlahLike: item.jumlahLike || 0,
+            link: item.link || null,
+            keterangan: item.keterangan || null
+          }
         });
       }
 
-      if (topExistingIds.length > 0) {
-        await tx.topKomentar.updateMany({
-          where: {
-            id: { in: topExistingIds },
-            organizationId: orgId
-          },
-          data: { reportId: id }
+      for (const item of topExisting) {
+        await tx.topKomentar.update({
+          where: { id: item.id, organizationId: orgId },
+          data: {
+            reportId: id,
+            namaAkun: item.namaAkun,
+            platform: item.platform,
+            jumlahTopKomentar: item.jumlahTopKomentar || 0,
+            jumlahLike: item.jumlahLike || 0,
+            link: item.link || null,
+            keterangan: item.keterangan || null
+          }
         });
       }
 

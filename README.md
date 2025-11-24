@@ -124,3 +124,10 @@ Cheers! 🥂
  </picture>
 </a>
 
+## Docker
+
+1. Duplikat `env.example.txt` menjadi `.env` lalu isi variabel yang dibutuhkan (Docker Compose akan memuat file ini).
+2. Build image: `docker compose build app`
+3. Jalankan stack: `docker compose up -d` lalu akses http://localhost:3000
+4. Secara default `DATABASE_URL` diarahkan ke SQLite `file:./prisma/dev.db` yang dipersist lewat mount `./prisma`. Untuk ganti ke Postgres container, set `DATABASE_URL=postgresql://postgres:postgres@db:5432/smm?schema=public` dan pastikan schema Prisma sudah memakai provider Postgres sebelum build.
+5. Migrations dijalankan otomatis di container saat start melalui `pnpm prisma migrate deploy`.

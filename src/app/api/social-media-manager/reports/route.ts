@@ -78,20 +78,16 @@ export async function POST(request: NextRequest) {
       lapsus
     } = requestBody;
 
-    // Helper function to extract IDs from items (now numeric)
-    const extractIds = (items: any[]): number[] => {
-      return items
-        .filter((item) => item?.id != null)
-        .map((item) =>
-          typeof item.id === 'number' ? item.id : parseInt(item.id, 10)
-        )
-        .filter((id) => !isNaN(id));
-    };
-
     // Separate existing items (with IDs) from new items (without IDs)
-    const aktivatorExistingIds = extractIds(aktivator || []);
-    const cyberExistingIds = extractIds(cyberTroops || []);
-    const topExistingIds = extractIds(topKomentar || []);
+    const aktivatorExisting = (aktivator || []).filter(
+      (item: any) => item?.id != null
+    );
+    const cyberExisting = (cyberTroops || []).filter(
+      (item: any) => item?.id != null
+    );
+    const topExisting = (topKomentar || []).filter(
+      (item: any) => item?.id != null
+    );
 
     const aktivatorNew = (aktivator || []).filter(
       (item: any) => item?.id == null
@@ -114,34 +110,49 @@ export async function POST(request: NextRequest) {
         }
       });
 
-      // Link existing items to the new report
-      if (aktivatorExistingIds.length > 0) {
-        await tx.aktivator.updateMany({
-          where: {
-            id: { in: aktivatorExistingIds },
-            organizationId: orgId
-          },
-          data: { reportId: report.id }
+      // Link and Update existing items
+      for (const item of aktivatorExisting) {
+        await tx.aktivator.update({
+          where: { id: item.id, organizationId: orgId },
+          data: {
+            reportId: report.id,
+            namaAkun: item.namaAkun,
+            platform: item.platform,
+            jenisKonten: item.jenisKonten,
+            link: item.link || null
+          }
         });
       }
 
-      if (cyberExistingIds.length > 0) {
-        await tx.cyberTroops.updateMany({
-          where: {
-            id: { in: cyberExistingIds },
-            organizationId: orgId
-          },
-          data: { reportId: report.id }
+      for (const item of cyberExisting) {
+        await tx.cyberTroops.update({
+          where: { id: item.id, organizationId: orgId },
+          data: {
+            reportId: report.id,
+            namaAkun: item.namaAkun,
+            platform: item.platform,
+            kategori: item.kategori,
+            jenisIsu: item.jenisIsu,
+            jumlahKomentar: item.jumlahKomentar || 0,
+            jumlahLike: item.jumlahLike || 0,
+            link: item.link || null,
+            keterangan: item.keterangan || null
+          }
         });
       }
 
-      if (topExistingIds.length > 0) {
-        await tx.topKomentar.updateMany({
-          where: {
-            id: { in: topExistingIds },
-            organizationId: orgId
-          },
-          data: { reportId: report.id }
+      for (const item of topExisting) {
+        await tx.topKomentar.update({
+          where: { id: item.id, organizationId: orgId },
+          data: {
+            reportId: report.id,
+            namaAkun: item.namaAkun,
+            platform: item.platform,
+            jumlahTopKomentar: item.jumlahTopKomentar || 0,
+            jumlahLike: item.jumlahLike || 0,
+            link: item.link || null,
+            keterangan: item.keterangan || null
+          }
         });
       }
 
