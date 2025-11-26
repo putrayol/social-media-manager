@@ -16,8 +16,8 @@ const META_THEME_COLORS = {
 };
 
 export const metadata: Metadata = {
-  title: 'Next Shadcn',
-  description: 'Basic dashboard with Next.js and Shadcn'
+  title: 'Narativa-X',
+  description: 'Social Media Analytics'
 };
 
 export const viewport: Viewport = {
