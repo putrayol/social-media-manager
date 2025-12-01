@@ -10,7 +10,7 @@ import {
   TableRow
 } from '@/components/ui/table';
 import { Badge } from '@/components/ui/badge';
-import { Plus, Eye, Edit, Trash2, RotateCw } from 'lucide-react';
+import { Plus, Edit, Trash2, RotateCw } from 'lucide-react';
 import Link from 'next/link';
 import { SocialMediaReport } from '../types';
 import { useState } from 'react';
@@ -26,6 +26,7 @@ import {
   AlertDialogTitle
 } from '@/components/ui/alert-dialog';
 import { ScrollArea, ScrollBar } from '@/components/ui/scroll-area';
+import { useOrganizationAuth } from '@/hooks/use-organization-auth';
 
 interface ReportListingProps {
   reports: SocialMediaReport[];
@@ -34,6 +35,7 @@ interface ReportListingProps {
 
 export function ReportListing({ reports, onRefresh }: ReportListingProps) {
   const router = useRouter();
+  const { isAdmin } = useOrganizationAuth();
   const [selectedReport, setSelectedReport] = useState<string | null>(null);
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
@@ -99,12 +101,14 @@ export function ReportListing({ reports, onRefresh }: ReportListingProps) {
             />
             Refresh
           </Button>
-          <Link href='/dashboard/social-media-manager/reports/create'>
-            <Button variant='ghost' size='sm' className='gap-2'>
-              <Plus className='h-4 w-4' />
-              Buat Laporan Baru
-            </Button>
-          </Link>
+          {isAdmin && (
+            <Link href='/dashboard/social-media-manager/reports/create'>
+              <Button variant='ghost' size='sm' className='gap-2'>
+                <Plus className='h-4 w-4' />
+                Buat Laporan Baru
+              </Button>
+            </Link>
+          )}
         </div>
       </div>
 
@@ -112,9 +116,11 @@ export function ReportListing({ reports, onRefresh }: ReportListingProps) {
       {reports.length === 0 ? (
         <div className='rounded-lg border py-8 text-center'>
           <p className='text-muted-foreground mb-4'>Belum ada laporan</p>
-          <Link href='/dashboard/social-media-manager/reports/create'>
-            <Button>Buat Laporan Pertama</Button>
-          </Link>
+          {isAdmin && (
+            <Link href='/dashboard/social-media-manager/reports/create'>
+              <Button>Buat Laporan Pertama</Button>
+            </Link>
+          )}
         </div>
       ) : (
         <div className='overflow-hidden rounded-lg border'>
@@ -123,12 +129,22 @@ export function ReportListing({ reports, onRefresh }: ReportListingProps) {
               <TableHeader className='bg-muted sticky top-0 z-10'>
                 <TableRow>
                   <TableHead>Nomor Laporan</TableHead>
-                  <TableHead className='text-right'>Aksi</TableHead>
+                  {isAdmin && (
+                    <TableHead className='text-right'>Aksi</TableHead>
+                  )}
                 </TableRow>
               </TableHeader>
               <TableBody>
                 {reports.map((report) => (
-                  <TableRow key={report.id}>
+                  <TableRow
+                    key={report.id}
+                    className='hover:bg-muted/50 cursor-pointer'
+                    onClick={() =>
+                      router.push(
+                        `/dashboard/social-media-manager/reports/${report.id}`
+                      )
+                    }
+                  >
                     <TableCell>
                       <div className='flex flex-col gap-0.5'>
                         <span className='text-sm font-medium'>
@@ -147,33 +163,30 @@ export function ReportListing({ reports, onRefresh }: ReportListingProps) {
                         </div>
                       </div>
                     </TableCell>
-                    <TableCell className='text-right'>
-                      <div className='flex justify-end gap-2'>
-                        <Link
-                          href={`/dashboard/social-media-manager/reports/${report.id}`}
-                          prefetch={false}
-                        >
-                          <Button size='sm' variant='ghost'>
-                            <Eye className='h-4 w-4' />
+                    {isAdmin && (
+                      <TableCell
+                        className='text-right'
+                        onClick={(e) => e.stopPropagation()}
+                      >
+                        <div className='flex justify-end gap-2'>
+                          <Link
+                            href={`/dashboard/social-media-manager/reports/${report.id}/edit`}
+                            prefetch={false}
+                          >
+                            <Button size='sm' variant='ghost'>
+                              <Edit className='h-4 w-4' />
+                            </Button>
+                          </Link>
+                          <Button
+                            size='sm'
+                            variant='ghost'
+                            onClick={() => handleDelete(report.id)}
+                          >
+                            <Trash2 className='h-4 w-4 text-red-600' />
                           </Button>
-                        </Link>
-                        <Link
-                          href={`/dashboard/social-media-manager/reports/${report.id}/edit`}
-                          prefetch={false}
-                        >
-                          <Button size='sm' variant='ghost'>
-                            <Edit className='h-4 w-4' />
-                          </Button>
-                        </Link>
-                        <Button
-                          size='sm'
-                          variant='ghost'
-                          onClick={() => handleDelete(report.id)}
-                        >
-                          <Trash2 className='h-4 w-4 text-red-600' />
-                        </Button>
-                      </div>
-                    </TableCell>
+                        </div>
+                      </TableCell>
+                    )}
                   </TableRow>
                 ))}
               </TableBody>

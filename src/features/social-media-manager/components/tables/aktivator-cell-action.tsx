@@ -8,6 +8,7 @@ import { useState } from 'react';
 import { Row } from '@tanstack/react-table';
 import { SocialMediaAktivator } from '../../types';
 import { useCrudFeedback } from '@/lib/use-crud-feedback';
+import { useOrganizationAuth } from '@/hooks/use-organization-auth';
 
 interface AktivatorCellActionProps {
   row: Row<SocialMediaAktivator>;
@@ -16,6 +17,7 @@ interface AktivatorCellActionProps {
 export function AktivatorCellAction({ row }: AktivatorCellActionProps) {
   const router = useRouter();
   const { run } = useCrudFeedback();
+  const { isAdmin } = useOrganizationAuth();
   const [open, setOpen] = useState(false);
   const [loading, setLoading] = useState(false);
 
@@ -49,6 +51,11 @@ export function AktivatorCellAction({ row }: AktivatorCellActionProps) {
       setLoading(false);
     }
   };
+
+  // Only show action buttons for admin users
+  if (!isAdmin) {
+    return null;
+  }
 
   return (
     <>

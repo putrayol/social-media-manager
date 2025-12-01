@@ -8,6 +8,7 @@ import { useState } from 'react';
 import { useCrudFeedback } from '@/lib/use-crud-feedback';
 import { Row } from '@tanstack/react-table';
 import { CyberTroops } from '../../types';
+import { useOrganizationAuth } from '@/hooks/use-organization-auth';
 
 interface CyberTroopsCellActionProps {
   row: Row<CyberTroops>;
@@ -16,6 +17,7 @@ interface CyberTroopsCellActionProps {
 export function CyberTroopsCellAction({ row }: CyberTroopsCellActionProps) {
   const router = useRouter();
   const { run } = useCrudFeedback();
+  const { isAdmin } = useOrganizationAuth();
   const [open, setOpen] = useState(false);
   const [loading, setLoading] = useState(false);
 
@@ -49,6 +51,11 @@ export function CyberTroopsCellAction({ row }: CyberTroopsCellActionProps) {
       setLoading(false);
     }
   };
+
+  // Only show action buttons for admin users
+  if (!isAdmin) {
+    return null;
+  }
 
   return (
     <>

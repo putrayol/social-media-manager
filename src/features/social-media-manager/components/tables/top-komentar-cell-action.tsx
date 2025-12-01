@@ -8,6 +8,7 @@ import { useState } from 'react';
 import { useCrudFeedback } from '@/lib/use-crud-feedback';
 import { Row } from '@tanstack/react-table';
 import { TopKomentarPostingan } from '../../types';
+import { useOrganizationAuth } from '@/hooks/use-organization-auth';
 
 interface TopKomentarCellActionProps {
   row: Row<TopKomentarPostingan>;
@@ -16,6 +17,7 @@ interface TopKomentarCellActionProps {
 export function TopKomentarCellAction({ row }: TopKomentarCellActionProps) {
   const router = useRouter();
   const { run } = useCrudFeedback();
+  const { isAdmin } = useOrganizationAuth();
   const [open, setOpen] = useState(false);
   const [loading, setLoading] = useState(false);
 
@@ -49,6 +51,11 @@ export function TopKomentarCellAction({ row }: TopKomentarCellActionProps) {
       setLoading(false);
     }
   };
+
+  // Only show action buttons for admin users
+  if (!isAdmin) {
+    return null;
+  }
 
   return (
     <>

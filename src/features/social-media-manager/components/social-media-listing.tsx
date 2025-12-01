@@ -15,6 +15,7 @@ import { CyberTroopsTable } from './tables/cyber-troops-table';
 import { TopKomentarTable } from './tables/top-komentar-table';
 import { RequestTable } from './tables/request-table';
 import { useState, useEffect } from 'react';
+import { useOrganizationAuth } from '@/hooks/use-organization-auth';
 
 interface SocialMediaListingProps {
   aktivatorData: SocialMediaAktivator[];
@@ -43,6 +44,7 @@ export function SocialMediaListing({
 }: SocialMediaListingProps) {
   const [isRefreshing, setIsRefreshing] = useState(false);
   const [activeTab, setActiveTab] = useState('aktivator');
+  const { isAdmin } = useOrganizationAuth();
 
   // Read hash from URL on mount and on hash change
   useEffect(() => {
@@ -126,15 +128,17 @@ export function SocialMediaListing({
                 />
                 Refresh
               </Button>
-              <Link
-                href='/dashboard/social-media-manager/aktivator/create'
-                prefetch={false}
-              >
-                <Button variant='ghost' size='sm' className='gap-2'>
-                  <Plus className='h-4 w-4' />
-                  Tambah Data
-                </Button>
-              </Link>
+              {isAdmin && (
+                <Link
+                  href='/dashboard/social-media-manager/aktivator/create'
+                  prefetch={false}
+                >
+                  <Button variant='ghost' size='sm' className='gap-2'>
+                    <Plus className='h-4 w-4' />
+                    Tambah Data
+                  </Button>
+                </Link>
+              )}
             </div>
           </div>
           <AktivatorTable data={aktivatorData} totalItems={totalAktivator} />
@@ -160,15 +164,17 @@ export function SocialMediaListing({
                 />
                 Refresh
               </Button>
-              <Link
-                href='/dashboard/social-media-manager/cyber-troops/create'
-                prefetch={false}
-              >
-                <Button variant='ghost' size='sm' className='gap-2'>
-                  <Plus className='h-4 w-4' />
-                  Tambah Data
-                </Button>
-              </Link>
+              {isAdmin && (
+                <Link
+                  href='/dashboard/social-media-manager/cyber-troops/create'
+                  prefetch={false}
+                >
+                  <Button variant='ghost' size='sm' className='gap-2'>
+                    <Plus className='h-4 w-4' />
+                    Tambah Data
+                  </Button>
+                </Link>
+              )}
             </div>
           </div>
           <CyberTroopsTable
@@ -197,15 +203,17 @@ export function SocialMediaListing({
                 />
                 Refresh
               </Button>
-              <Link
-                href='/dashboard/social-media-manager/top-komentar/create'
-                prefetch={false}
-              >
-                <Button variant='ghost' size='sm' className='gap-2'>
-                  <Plus className='h-4 w-4' />
-                  Tambah Data
-                </Button>
-              </Link>
+              {isAdmin && (
+                <Link
+                  href='/dashboard/social-media-manager/top-komentar/create'
+                  prefetch={false}
+                >
+                  <Button variant='ghost' size='sm' className='gap-2'>
+                    <Plus className='h-4 w-4' />
+                    Tambah Data
+                  </Button>
+                </Link>
+              )}
             </div>
           </div>
           <TopKomentarTable
@@ -231,15 +239,17 @@ export function SocialMediaListing({
                 />
                 Refresh
               </Button>
-              <Link
-                href='/dashboard/social-media-manager/request/create'
-                prefetch={false}
-              >
-                <Button variant='ghost' size='sm' className='gap-2'>
-                  <Plus className='h-4 w-4' />
-                  Tambah Data
-                </Button>
-              </Link>
+              {isAdmin && (
+                <Link
+                  href='/dashboard/social-media-manager/request/create'
+                  prefetch={false}
+                >
+                  <Button variant='ghost' size='sm' className='gap-2'>
+                    <Plus className='h-4 w-4' />
+                    Tambah Data
+                  </Button>
+                </Link>
+              )}
             </div>
           </div>
           <RequestTable data={requestData} totalItems={totalRequest} />

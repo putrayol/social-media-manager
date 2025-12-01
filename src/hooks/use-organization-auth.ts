@@ -23,6 +23,12 @@ export function useOrganizationAuth() {
   // Default to 'member' if organization exists but role not explicitly set
   const userRole = membership?.role || (organization ? 'member' : undefined);
 
+  // Check if user is admin (handles both 'admin' and 'org:admin' formats)
+  const isAdmin =
+    userRole === 'admin' ||
+    userRole === 'org:admin' ||
+    userRole === 'administrator';
+
   // Check if user has specific permission
   const hasPermission = (permission: string): boolean => {
     if (!userRole) return false;
@@ -30,7 +36,22 @@ export function useOrganizationAuth() {
     // Define role-based permissions
     const rolePermissions: Record<string, string[]> = {
       admin: ['read', 'write', 'delete', 'manage_members', 'manage_settings'],
+      'org:admin': [
+        'read',
+        'write',
+        'delete',
+        'manage_members',
+        'manage_settings'
+      ],
+      administrator: [
+        'read',
+        'write',
+        'delete',
+        'manage_members',
+        'manage_settings'
+      ],
       member: ['read', 'write'],
+      'org:member': ['read', 'write'],
       guest: ['read']
     };
 
@@ -50,6 +71,7 @@ export function useOrganizationAuth() {
     isLoaded,
     isMember,
     userRole,
+    isAdmin,
     hasPermission,
     canRead: hasPermission('read'),
     canWrite: hasPermission('write'),

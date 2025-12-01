@@ -13,9 +13,10 @@ import {
 import { DataTablePagination } from '@/components/ui/table/data-table-pagination';
 import { DataTableToolbar } from '@/components/ui/table/data-table-toolbar';
 import { useDataTable } from '@/hooks/use-data-table';
+import { useOrganizationAuth } from '@/hooks/use-organization-auth';
 import { parseAsInteger, useQueryState } from 'nuqs';
 import { RequestItem } from '../../types';
-import { requestColumns } from './request-columns';
+import { getRequestColumns } from './request-columns';
 import { RequestCellAction } from './request-cell-action';
 
 interface RequestTableProps {
@@ -26,6 +27,7 @@ interface RequestTableProps {
 export function RequestTable({ data, totalItems }: RequestTableProps) {
   const [page] = useQueryState('page', parseAsInteger.withDefault(1));
   const [pageSize] = useQueryState('perPage', parseAsInteger.withDefault(10));
+  const { isAdmin } = useOrganizationAuth();
   const pageCount = Math.ceil((totalItems || 0) / (pageSize || 1)) || 1;
 
   const paginatedData = useMemo(() => {
@@ -37,9 +39,11 @@ export function RequestTable({ data, totalItems }: RequestTableProps) {
     return data.slice(start, start + pageSize);
   }, [data, page, pageSize]);
 
+  const columns = useMemo(() => getRequestColumns(isAdmin), [isAdmin]);
+
   const { table } = useDataTable({
     data: paginatedData,
-    columns: requestColumns,
+    columns,
     pageCount,
     shallow: false,
     debounceMs: 500
@@ -62,7 +66,7 @@ export function RequestTable({ data, totalItems }: RequestTableProps) {
             <TableHeader>
               <TableRow>
                 <TableHead>Nama Paket</TableHead>
-                <TableHead className='text-right'>Aksi</TableHead>
+                {isAdmin && <TableHead className='text-right'>Aksi</TableHead>}
               </TableRow>
             </TableHeader>
             <TableBody>
@@ -123,16 +127,18 @@ export function RequestTable({ data, totalItems }: RequestTableProps) {
                           </span>
                         </div>
                       </TableCell>
-                      <TableCell
-                        className='text-right align-top'
-                        onClick={(e) => e.stopPropagation()}
-                      >
-                        <RequestCellAction row={row} />
-                      </TableCell>
+                      {isAdmin && (
+                        <TableCell
+                          className='text-right align-top'
+                          onClick={(e) => e.stopPropagation()}
+                        >
+                          <RequestCellAction row={row} />
+                        </TableCell>
+                      )}
                     </TableRow>
                     {isExpanded && (
                       <TableRow className='bg-muted/40'>
-                        <TableCell colSpan={2}>
+                        <TableCell colSpan={isAdmin ? 2 : 1}>
                           <div className='grid w-full grid-cols-2 gap-x-4 gap-y-2 text-xs'>
                             <span className='text-muted-foreground font-medium'>
                               TikTok Post

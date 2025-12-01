@@ -8,6 +8,7 @@ import { Edit, Trash } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { useState } from 'react';
 import { RequestItem } from '../../types';
+import { useOrganizationAuth } from '@/hooks/use-organization-auth';
 
 interface RequestCellActionProps {
   row: Row<RequestItem>;
@@ -16,6 +17,7 @@ interface RequestCellActionProps {
 export function RequestCellAction({ row }: RequestCellActionProps) {
   const router = useRouter();
   const { run } = useCrudFeedback();
+  const { isAdmin } = useOrganizationAuth();
   const [open, setOpen] = useState(false);
   const [loading, setLoading] = useState(false);
 
@@ -47,6 +49,11 @@ export function RequestCellAction({ row }: RequestCellActionProps) {
       setLoading(false);
     }
   };
+
+  // Only show action buttons for admin users
+  if (!isAdmin) {
+    return null;
+  }
 
   return (
     <>
