@@ -18,6 +18,7 @@ import { RecentSales } from './recent-sales';
 import { IconTrendingUp, IconTrendingDown } from '@tabler/icons-react';
 import { Badge } from '@/components/ui/badge';
 import { useEffect, useState } from 'react';
+import { useRouter } from 'next/navigation';
 
 interface StatsData {
   aktivatorCount: number;
@@ -29,6 +30,7 @@ interface StatsData {
 }
 
 export default function OverViewPage() {
+  const router = useRouter();
   const [stats, setStats] = useState<StatsData | null>(null);
   const [loading, setLoading] = useState(true);
 
@@ -74,7 +76,14 @@ export default function OverViewPage() {
                 <CardHeader>
                   <CardDescription>Total Aktivator</CardDescription>
                   <CardTitle className='text-2xl font-semibold tabular-nums @[250px]/card:text-3xl'>
-                    {loading ? '-' : stats?.aktivatorCount || 0}
+                    <span
+                      className='cursor-pointer hover:underline'
+                      onClick={() =>
+                        router.push('/dashboard/social-media-manager/aktivator')
+                      }
+                    >
+                      {loading ? '-' : stats?.aktivatorCount || 0}
+                    </span>
                   </CardTitle>
                   <CardAction>
                     <Badge variant='outline'>
@@ -96,7 +105,16 @@ export default function OverViewPage() {
                 <CardHeader>
                   <CardDescription>Cyber Troops</CardDescription>
                   <CardTitle className='text-2xl font-semibold tabular-nums @[250px]/card:text-3xl'>
-                    {loading ? '-' : stats?.cyberTroopsCount || 0}
+                    <span
+                      className='cursor-pointer hover:underline'
+                      onClick={() =>
+                        router.push(
+                          '/dashboard/social-media-manager/cyber-troops'
+                        )
+                      }
+                    >
+                      {loading ? '-' : stats?.cyberTroopsCount || 0}
+                    </span>
                   </CardTitle>
                   <CardAction>
                     <Badge variant='outline'>
@@ -142,7 +160,18 @@ export default function OverViewPage() {
                 <CardHeader>
                   <CardDescription>Top Komentar</CardDescription>
                   <CardTitle className='text-2xl font-semibold tabular-nums @[250px]/card:text-3xl'>
-                    {loading ? '-' : stats?.topKomentarCount || 0}
+                    <span
+                      className='cursor-pointer hover:underline'
+                      onClick={() =>
+                        router.push(
+                          '/dashboard/social-media-manager/top-komentar'
+                        )
+                      }
+                    >
+                      {loading
+                        ? '-'
+                        : (stats?.totalComments || 0).toLocaleString()}
+                    </span>
                   </CardTitle>
                   <CardAction>
                     <Badge variant='outline'>

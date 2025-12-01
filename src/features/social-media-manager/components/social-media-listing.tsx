@@ -14,7 +14,7 @@ import { AktivatorTable } from './tables/aktivator-table';
 import { CyberTroopsTable } from './tables/cyber-troops-table';
 import { TopKomentarTable } from './tables/top-komentar-table';
 import { RequestTable } from './tables/request-table';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 
 interface SocialMediaListingProps {
   aktivatorData: SocialMediaAktivator[];
@@ -28,6 +28,8 @@ interface SocialMediaListingProps {
   onRefresh?: () => void;
 }
 
+const validTabs = ['aktivator', 'cyber-troops', 'top-komentar', 'request'];
+
 export function SocialMediaListing({
   aktivatorData,
   cyberTroopsData,
@@ -40,6 +42,30 @@ export function SocialMediaListing({
   onRefresh
 }: SocialMediaListingProps) {
   const [isRefreshing, setIsRefreshing] = useState(false);
+  const [activeTab, setActiveTab] = useState('aktivator');
+
+  // Read hash from URL on mount and on hash change
+  useEffect(() => {
+    const getTabFromHash = () => {
+      const hash = window.location.hash.replace('#', '');
+      return validTabs.includes(hash) ? hash : 'aktivator';
+    };
+
+    setActiveTab(getTabFromHash());
+
+    const handleHashChange = () => {
+      setActiveTab(getTabFromHash());
+    };
+
+    window.addEventListener('hashchange', handleHashChange);
+    return () => window.removeEventListener('hashchange', handleHashChange);
+  }, []);
+
+  // Update URL hash when tab changes
+  const handleTabChange = (value: string) => {
+    setActiveTab(value);
+    window.history.replaceState(null, '', `#${value}`);
+  };
 
   const handleRefresh = () => {
     setIsRefreshing(true);
@@ -51,7 +77,11 @@ export function SocialMediaListing({
   return (
     <div className='flex flex-col gap-6'>
       {/* ✅ Tabs with proper spacing */}
-      <Tabs defaultValue='aktivator' className='w-full'>
+      <Tabs
+        value={activeTab}
+        onValueChange={handleTabChange}
+        className='w-full'
+      >
         {/* ✅ Tab List - Use default shadcn styling */}
         <TabsList className='w-fit'>
           <TabsTrigger value='aktivator'>
