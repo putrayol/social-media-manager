@@ -13,7 +13,7 @@ import { useForm } from 'react-hook-form';
 import * as z from 'zod';
 import { cyberTroopsSchema } from '../schemas/form-schema';
 import { toast } from 'sonner';
-import type { RequestItem } from '../types';
+import type { RequestItem, SocialMediaAktivator } from '../types';
 
 type FormData = z.infer<typeof cyberTroopsSchema>;
 
@@ -30,10 +30,17 @@ export default function CyberTroopsForm({
 }: CyberTroopsFormProps) {
   const [requests, setRequests] = useState<RequestItem[]>([]);
   const [loadingRequests, setLoadingRequests] = useState(false);
+  const [aktivatorList, setAktivatorList] = useState<SocialMediaAktivator[]>(
+    []
+  );
+  const [loadingAktivator, setLoadingAktivator] = useState(false);
 
   const form = useForm({
     resolver: zodResolver(cyberTroopsSchema),
     defaultValues: {
+      aktivatorId: initialData?.aktivatorId
+        ? String(initialData.aktivatorId)
+        : undefined,
       namaAkun: initialData?.namaAkun || '',
       platform: initialData?.platform || 'TIKTOK',
       kategori: initialData?.kategori || 'Positif',
@@ -54,6 +61,44 @@ export default function CyberTroopsForm({
   const isLoading = form.formState.isSubmitting;
 
   const selectedPlatform = form.watch('platform') || 'TIKTOK';
+  const selectedAktivatorId = form.watch('aktivatorId');
+
+  // Fetch aktivator list
+  useEffect(() => {
+    const fetchAktivator = async () => {
+      setLoadingAktivator(true);
+      try {
+        const res = await fetch(
+          '/api/social-media-manager/aktivator?limit=1000'
+        );
+        if (!res.ok) {
+          throw new Error('Failed to fetch Aktivator data');
+        }
+        const json = await res.json();
+        setAktivatorList(json?.data ?? []);
+      } catch (error) {
+        console.error('Error fetching Aktivator list:', error);
+        toast.error('Gagal memuat data Aktivator');
+      } finally {
+        setLoadingAktivator(false);
+      }
+    };
+
+    fetchAktivator();
+  }, []);
+
+  // Update namaAkun and platform when aktivator is selected
+  useEffect(() => {
+    if (selectedAktivatorId) {
+      const selectedAktivator = aktivatorList.find(
+        (a) => String(a.id) === String(selectedAktivatorId)
+      );
+      if (selectedAktivator) {
+        form.setValue('namaAkun', selectedAktivator.namaAkun);
+        form.setValue('platform', selectedAktivator.platform);
+      }
+    }
+  }, [selectedAktivatorId, aktivatorList, form]);
 
   useEffect(() => {
     const fetchRequests = async () => {
@@ -80,6 +125,10 @@ export default function CyberTroopsForm({
     try {
       const processedValues: FormData = {
         ...values,
+        aktivatorId:
+          values.aktivatorId != null && values.aktivatorId !== ''
+            ? Number(values.aktivatorId)
+            : undefined,
         requestId:
           values.requestId != null && values.requestId !== ''
             ? Number(values.requestId)
@@ -153,12 +202,26 @@ export default function CyberTroopsForm({
           className='space-y-8'
         >
           <div className='grid grid-cols-1 gap-6 md:grid-cols-2'>
-            <FormInput
+            {/* Aktivator Select - Primary field */}
+            <FormSelect
               control={form.control}
-              name='namaAkun'
-              label='Nama Akun'
-              placeholder='Masukkan nama akun'
-              required
+              name='aktivatorId'
+              label='Aktivator'
+              placeholder={
+                loadingAktivator
+                  ? 'Memuat data Aktivator...'
+                  : 'Pilih Aktivator'
+              }
+              options={aktivatorList.map((aktivator) => ({
+                label: `${aktivator.namaAkun} (${aktivator.platform})`,
+                value: String(aktivator.id)
+              }))}
+              disabled={loadingAktivator || aktivatorList.length === 0}
+              description={
+                !loadingAktivator && aktivatorList.length === 0
+                  ? 'Belum ada data Aktivator. Silakan tambah Aktivator terlebih dahulu.'
+                  : 'Pilih aktivator untuk mengisi nama akun dan platform otomatis'
+              }
             />
 
             <FormSelect
@@ -167,6 +230,7 @@ export default function CyberTroopsForm({
               label='Platform'
               placeholder='Pilih platform'
               required
+              disabled={!!selectedAktivatorId}
               options={[
                 { label: 'TikTok', value: 'TIKTOK' },
                 { label: 'Instagram', value: 'INSTAGRAM' },
@@ -175,6 +239,25 @@ export default function CyberTroopsForm({
                 { label: 'YouTube', value: 'YOUTUBE' },
                 { label: 'Lainnya', value: 'OTHER' }
               ]}
+              description={
+                selectedAktivatorId
+                  ? 'Platform diambil dari Aktivator yang dipilih'
+                  : undefined
+              }
+            />
+
+            <FormInput
+              control={form.control}
+              name='namaAkun'
+              label='Nama Akun'
+              placeholder='Masukkan nama akun'
+              required
+              disabled={!!selectedAktivatorId}
+              description={
+                selectedAktivatorId
+                  ? 'Nama akun diambil dari Aktivator yang dipilih'
+                  : undefined
+              }
             />
 
             <FormSelect
@@ -287,10 +370,10 @@ export default function CyberTroopsForm({
             <FormInput
               control={form.control}
               name='link'
-              label='Link'
-              placeholder='Masukkan URL link'
+              label='Link Postingan'
+              placeholder='Masukkan URL postingan (contoh: https://tiktok.com/@user/video/123)'
               type='url'
-              required
+              description='Link ke postingan yang dikomentari'
             />
           </div>
 

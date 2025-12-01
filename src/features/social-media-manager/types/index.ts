@@ -16,9 +16,11 @@ export interface SocialMediaAktivator {
   no: number;
   namaAkun: string;
   platform: Platform;
-  jenisKonten: string;
-  link: string;
-  requestId?: number | null;
+  link?: string | null; // Profile URL
+  cyberTroops?: CyberTroops[]; // Related cyber troops
+  // Aggregated stats from cyber troops
+  totalKomentar?: number;
+  totalLike?: number;
   createdAt: Date;
   updatedAt: Date;
 }
@@ -27,13 +29,15 @@ export interface SocialMediaAktivator {
 export interface CyberTroops {
   id: number;
   no: number;
-  namaAkun: string;
+  aktivatorId?: number | null; // Relation to Aktivator
+  aktivator?: SocialMediaAktivator | null; // Populated aktivator
+  namaAkun: string; // Derived from aktivator or manually set
   platform: Platform;
   kategori: IssueCategory;
   jenisIsu: string;
   jumlahKomentar: number;
   jumlahLike: number;
-  link: string;
+  link?: string | null; // Posting URL
   keterangan?: string;
   requestId?: number | null;
   createdAt: Date;
@@ -48,7 +52,8 @@ export interface TopKomentarPostingan {
   platform: Platform;
   jumlahTopKomentar: number;
   jumlahLike: number;
-  link: string;
+  linkProfile?: string | null; // Profile URL
+  link?: string | null; // Posting URL
   keterangan?: string;
   requestId?: number | null;
   createdAt: Date;

@@ -15,7 +15,7 @@ import * as z from 'zod';
 import { socialMediaReportSchema } from '../schemas/form-schema';
 import { SocialMediaReport } from '../types';
 import { useEffect, useState } from 'react';
-import { Plus, Trash2 } from 'lucide-react';
+import { Plus, Trash2, Search, ChevronDown } from 'lucide-react';
 import AktivatorForm from './aktivator-form';
 import CyberTroopsForm from './cyber-troops-form';
 import TopKomentarForm from './top-komentar-form';
@@ -47,6 +47,13 @@ import {
   TableHeader,
   TableRow
 } from '@/components/ui/table';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+  DropdownMenuSeparator
+} from '@/components/ui/dropdown-menu';
 
 type FormData = z.infer<typeof socialMediaReportSchema>;
 
@@ -815,18 +822,31 @@ export default function ReportForm({
               <div className='text-sm font-medium'>
                 Dipilih untuk laporan: {aktivatorRows.length}
               </div>
-              <Button
-                type='button'
-                size='sm'
-                variant='outline'
-                onClick={() => {
-                  setShowSearchAktivator(true);
-                  setAktivatorQuery('');
-                }}
-              >
-                <Plus className='mr-2 h-4 w-4' />
-                Tambah dari data Aktivator
-              </Button>
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button type='button' size='sm' variant='outline'>
+                    <Plus className='mr-2 h-4 w-4' />
+                    Tambah Baris
+                    <ChevronDown className='ml-2 h-4 w-4' />
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align='end'>
+                  <DropdownMenuItem
+                    onClick={() => {
+                      setShowSearchAktivator(true);
+                      setAktivatorQuery('');
+                    }}
+                  >
+                    <Search className='mr-2 h-4 w-4' />
+                    Cari dari data Aktivator
+                  </DropdownMenuItem>
+                  <DropdownMenuSeparator />
+                  <DropdownMenuItem onClick={addAktivatorRow}>
+                    <Plus className='mr-2 h-4 w-4' />
+                    Buat baris baru
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
             </div>
 
             <div className='bg-background overflow-x-auto rounded-md border'>
@@ -940,10 +960,6 @@ export default function ReportForm({
                 </TableBody>
               </Table>
             </div>
-
-            <Button type='button' variant='outline' onClick={addAktivatorRow}>
-              + Tambah baris
-            </Button>
           </CardContent>
         </Card>
 
@@ -957,18 +973,31 @@ export default function ReportForm({
               <div className='text-sm font-medium'>
                 Dipilih untuk laporan: {cyberRows.length}
               </div>
-              <Button
-                type='button'
-                size='sm'
-                variant='outline'
-                onClick={() => {
-                  setShowSearchCyber(true);
-                  setCyberQuery('');
-                }}
-              >
-                <Plus className='mr-2 h-4 w-4' />
-                Tambah dari data Cyber Troops
-              </Button>
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button type='button' size='sm' variant='outline'>
+                    <Plus className='mr-2 h-4 w-4' />
+                    Tambah Baris
+                    <ChevronDown className='ml-2 h-4 w-4' />
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align='end'>
+                  <DropdownMenuItem
+                    onClick={() => {
+                      setShowSearchCyber(true);
+                      setCyberQuery('');
+                    }}
+                  >
+                    <Search className='mr-2 h-4 w-4' />
+                    Cari dari data Cyber Troops
+                  </DropdownMenuItem>
+                  <DropdownMenuSeparator />
+                  <DropdownMenuItem onClick={addCyberRow}>
+                    <Plus className='mr-2 h-4 w-4' />
+                    Buat baris baru
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
             </div>
 
             <div className='bg-background overflow-x-auto rounded-md border'>
@@ -1130,10 +1159,6 @@ export default function ReportForm({
                 </TableBody>
               </Table>
             </div>
-
-            <Button type='button' variant='outline' onClick={addCyberRow}>
-              + Tambah baris
-            </Button>
           </CardContent>
         </Card>
 
@@ -1147,18 +1172,31 @@ export default function ReportForm({
               <div className='text-sm font-medium'>
                 Dipilih untuk laporan: {topRows.length}
               </div>
-              <Button
-                type='button'
-                size='sm'
-                variant='outline'
-                onClick={() => {
-                  setShowSearchTop(true);
-                  setTopQuery('');
-                }}
-              >
-                <Plus className='mr-2 h-4 w-4' />
-                Tambah dari data Top Komentar
-              </Button>
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button type='button' size='sm' variant='outline'>
+                    <Plus className='mr-2 h-4 w-4' />
+                    Tambah Baris
+                    <ChevronDown className='ml-2 h-4 w-4' />
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align='end'>
+                  <DropdownMenuItem
+                    onClick={() => {
+                      setShowSearchTop(true);
+                      setTopQuery('');
+                    }}
+                  >
+                    <Search className='mr-2 h-4 w-4' />
+                    Cari dari data Top Komentar
+                  </DropdownMenuItem>
+                  <DropdownMenuSeparator />
+                  <DropdownMenuItem onClick={addTopRow}>
+                    <Plus className='mr-2 h-4 w-4' />
+                    Buat baris baru
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
             </div>
 
             <div className='bg-background overflow-x-auto rounded-md border'>
@@ -1301,10 +1339,6 @@ export default function ReportForm({
                 </TableBody>
               </Table>
             </div>
-
-            <Button type='button' variant='outline' onClick={addTopRow}>
-              + Tambah baris
-            </Button>
           </CardContent>
         </Card>
 

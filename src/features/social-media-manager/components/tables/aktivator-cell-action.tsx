@@ -45,6 +45,7 @@ export function AktivatorCellAction({ row }: AktivatorCellActionProps) {
         }
       );
       setOpen(false);
+      router.refresh();
     } catch (error) {
       console.error('Error deleting:', error);
     } finally {

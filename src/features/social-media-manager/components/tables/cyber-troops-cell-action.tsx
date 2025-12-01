@@ -45,6 +45,7 @@ export function CyberTroopsCellAction({ row }: CyberTroopsCellActionProps) {
         }
       );
       setOpen(false);
+      router.refresh();
     } catch (error) {
       console.error('Error deleting:', error);
     } finally {

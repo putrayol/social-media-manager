@@ -23,7 +23,7 @@ export const uploadedFileSchema = z.object({
   uploadedAt: z.union([z.date(), z.string()])
 });
 
-// Social Media Aktivator Schema
+// Social Media Aktivator Schema (simplified - only profile info)
 export const socialMediaAktivatorSchema = z.object({
   id: z.union([z.string(), z.number()]).optional(), // ✅ Accept both string and number for ID
   namaAkun: z
@@ -35,21 +35,18 @@ export const socialMediaAktivatorSchema = z.object({
       message: 'Pilih platform yang valid'
     }
   ),
-  jenisKonten: z
-    .string()
-    .min(3, { message: 'Jenis konten harus minimal 3 karakter' }),
   link: z
     .string()
-    .url({ message: 'Link harus URL yang valid' })
+    .url({ message: 'Link profil harus URL yang valid' })
     .or(z.literal(''))
     .optional()
-    .nullable(),
-  requestId: z.union([z.string(), z.number()]).optional().nullable()
+    .nullable()
 });
 
-// Cyber Troops Schema
+// Cyber Troops Schema (with aktivator relation)
 export const cyberTroopsSchema = z.object({
   id: z.union([z.string(), z.number()]).optional(), // ✅ Accept both string and number for ID
+  aktivatorId: z.union([z.string(), z.number()]).optional().nullable(), // Relation to Aktivator
   namaAkun: z
     .string()
     .min(2, { message: 'Nama akun harus minimal 2 karakter' }),
@@ -74,7 +71,7 @@ export const cyberTroopsSchema = z.object({
     .optional(),
   link: z
     .string()
-    .url({ message: 'Link harus URL yang valid' })
+    .url({ message: 'Link postingan harus URL yang valid' })
     .or(z.literal(''))
     .optional()
     .nullable(),
@@ -82,7 +79,7 @@ export const cyberTroopsSchema = z.object({
   requestId: z.union([z.string(), z.number()]).optional().nullable()
 });
 
-// Top Komentar Postingan Schema
+// Top Komentar Postingan Schema (with both profile and posting links)
 export const topKomentarPostinganSchema = z.object({
   id: z.union([z.string(), z.number()]).optional(), // ✅ Accept both string and number for ID
   namaAkun: z
@@ -103,9 +100,15 @@ export const topKomentarPostinganSchema = z.object({
     .number()
     .min(0, { message: 'Jumlah like tidak boleh negatif' })
     .optional(),
+  linkProfile: z
+    .string()
+    .url({ message: 'Link profil harus URL yang valid' })
+    .or(z.literal(''))
+    .optional()
+    .nullable(),
   link: z
     .string()
-    .url({ message: 'Link harus URL yang valid' })
+    .url({ message: 'Link postingan harus URL yang valid' })
     .or(z.literal(''))
     .optional()
     .nullable(),

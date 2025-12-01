@@ -118,7 +118,6 @@ export async function POST(request: NextRequest) {
             reportId: report.id,
             namaAkun: item.namaAkun,
             platform: item.platform,
-            jenisKonten: item.jenisKonten,
             link: item.link || null
           }
         });
@@ -151,6 +150,7 @@ export async function POST(request: NextRequest) {
             jumlahTopKomentar: item.jumlahTopKomentar || 0,
             jumlahLike: item.jumlahLike || 0,
             link: item.link || null,
+            linkProfile: item.linkProfile || null,
             keterangan: item.keterangan || null
           }
         });
@@ -164,7 +164,6 @@ export async function POST(request: NextRequest) {
             no: item.no || 1,
             namaAkun: item.namaAkun,
             platform: item.platform,
-            jenisKonten: item.jenisKonten,
             link: item.link || null,
             organizationId: orgId
           }))
@@ -199,6 +198,7 @@ export async function POST(request: NextRequest) {
             jumlahTopKomentar: item.jumlahTopKomentar || 0,
             jumlahLike: item.jumlahLike || 0,
             link: item.link || null,
+            linkProfile: item.linkProfile || null,
             keterangan: item.keterangan || null,
             organizationId: orgId
           }))

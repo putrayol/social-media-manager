@@ -6,7 +6,7 @@ import {
   requireOrganizationAdmin
 } from '@/lib/organization-utils';
 
-// GET - Fetch all cyber troops data from DB (Prisma)
+// GET - Fetch all cyber troops data from DB (Prisma) with aktivator relation
 export async function GET(request: NextRequest) {
   try {
     const orgId = await requireOrganization();
@@ -40,7 +40,17 @@ export async function GET(request: NextRequest) {
         where,
         orderBy: { createdAt: 'desc' },
         skip: (page - 1) * limit,
-        take: limit
+        take: limit,
+        include: {
+          aktivator: {
+            select: {
+              id: true,
+              namaAkun: true,
+              platform: true,
+              link: true
+            }
+          }
+        }
       })
     ]);
 
@@ -69,6 +79,10 @@ export async function POST(request: NextRequest) {
     const created = await prisma.cyberTroops.create({
       data: {
         no: nextNo,
+        aktivatorId:
+          body.aktivatorId !== undefined && body.aktivatorId !== null
+            ? Number(body.aktivatorId)
+            : null,
         namaAkun: String(body.namaAkun),
         platform: String(body.platform).toUpperCase() as any,
         kategori: String(body.kategori),
@@ -82,6 +96,16 @@ export async function POST(request: NextRequest) {
             ? Number(body.requestId)
             : null,
         organizationId: orgId
+      },
+      include: {
+        aktivator: {
+          select: {
+            id: true,
+            namaAkun: true,
+            platform: true,
+            link: true
+          }
+        }
       }
     });
 

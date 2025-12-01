@@ -6,7 +6,7 @@ import {
 } from '@/lib/organization-utils';
 import { revalidatePath } from 'next/cache';
 
-// GET - Fetch single cyber troops
+// GET - Fetch single cyber troops with aktivator
 export async function GET(
   request: NextRequest,
   { params }: { params: Promise<{ id: string }> }
@@ -22,7 +22,17 @@ export async function GET(
       );
     }
     const cyberTroops = await prisma.cyberTroops.findUnique({
-      where: { id: numericId }
+      where: { id: numericId },
+      include: {
+        aktivator: {
+          select: {
+            id: true,
+            namaAkun: true,
+            platform: true,
+            link: true
+          }
+        }
+      }
     });
     if (!cyberTroops || cyberTroops.organizationId !== orgId) {
       return NextResponse.json(
@@ -74,6 +84,12 @@ export async function PUT(
       where: { id: numericId },
       data: {
         no: body.no !== undefined ? Number(body.no) : undefined,
+        aktivatorId:
+          body.aktivatorId !== undefined
+            ? body.aktivatorId !== null && body.aktivatorId !== ''
+              ? Number(body.aktivatorId)
+              : null
+            : undefined,
         namaAkun: body.namaAkun,
         platform: body.platform
           ? (String(body.platform).toUpperCase() as any)
@@ -94,6 +110,16 @@ export async function PUT(
               ? Number(body.requestId)
               : null
             : undefined
+      },
+      include: {
+        aktivator: {
+          select: {
+            id: true,
+            namaAkun: true,
+            platform: true,
+            link: true
+          }
+        }
       }
     });
 

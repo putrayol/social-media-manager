@@ -3,9 +3,10 @@
 import { Badge } from '@/components/ui/badge';
 import { DataTableColumnHeader } from '@/components/ui/table/data-table-column-header';
 import { ColumnDef } from '@tanstack/react-table';
-import { ExternalLink } from 'lucide-react';
+import { ExternalLink, User, MessageSquare, Heart } from 'lucide-react';
 import { CyberTroops } from '../../types';
 import { CyberTroopsCellAction } from './cyber-troops-cell-action';
+import { SocialPreviewButton } from '../social-embed-modal';
 
 export const getCyberTroopsColumns = (
   isAdmin: boolean
@@ -13,65 +14,79 @@ export const getCyberTroopsColumns = (
   const columns: ColumnDef<CyberTroops>[] = [
     {
       accessorKey: 'no',
-      size: 64,
-      minSize: 48,
-      maxSize: 80,
+      size: 50,
+      minSize: 40,
+      maxSize: 60,
       header: ({ column }) => (
         <DataTableColumnHeader column={column} title='No' />
       ),
-      cell: ({ row }) => <div className='w-8'>{row.getValue('no')}</div>,
+      cell: ({ row }) => (
+        <div className='w-6 text-center'>{row.getValue('no')}</div>
+      ),
       enableSorting: false,
       enableHiding: false
     },
     {
       accessorKey: 'namaAkun',
       header: ({ column }) => (
-        <DataTableColumnHeader column={column} title='Nama Akun' />
+        <DataTableColumnHeader column={column} title='Info Cyber Troops' />
       ),
       cell: ({ row }) => {
         const item = row.original as CyberTroops;
+        const namaAkun = item.aktivator?.namaAkun || item.namaAkun;
+        const platform = item.aktivator?.platform || item.platform;
+        const link = item.link;
         const kategoriVariant =
           item.kategori === 'Positif' ? 'default' : 'destructive';
+
         return (
-          <div className='flex flex-col gap-0.5'>
-            <span className='text-sm font-medium'>{item.namaAkun}</span>
-            <div className='text-muted-foreground flex items-center gap-2 text-xs'>
-              <span>Platform :</span>
-              <Badge variant='outline' className='capitalize'>
-                {item.platform.toLowerCase()}
+          <div className='flex flex-col gap-1.5 py-1'>
+            {/* Account Name & Platform */}
+            <div className='flex items-center gap-2'>
+              <span className='text-sm font-medium'>{namaAkun}</span>
+              <Badge variant='outline' className='text-xs capitalize'>
+                {platform.toLowerCase()}
+              </Badge>
+              |
+              <Badge variant={kategoriVariant} className='text-xs'>
+                {item.kategori}
               </Badge>
             </div>
-            <div className='text-muted-foreground flex items-center gap-2 text-xs'>
-              <span>Kategori :</span>
-              <Badge variant={kategoriVariant}>{item.kategori}</Badge>
+
+            {/* Category & Issue */}
+            <div className='flex flex-wrap items-center gap-2 text-sm'>
+              <span className='text-muted-foreground'>
+                Isu: {item.jenisIsu}
+              </span>
             </div>
-            <span className='text-muted-foreground text-xs'>
-              Jenis Isu: {item.jenisIsu}
-            </span>
-            <span className='text-muted-foreground text-xs'>
-              Komentar: {item.jumlahKomentar} • Like: {item.jumlahLike}
-            </span>
+
+            {/* Stats: Comments & Likes */}
+            <div className='text-muted-foreground flex items-center gap-3 text-sm'>
+              <span className='flex items-center gap-1'>
+                <MessageSquare className='h-3.5 w-3.5' />
+                {item.jumlahKomentar}
+              </span>
+              <span className='flex items-center gap-1'>
+                <Heart className='h-3.5 w-3.5' />
+                {item.jumlahLike}
+              </span>
+            </div>
+
+            {/* Link Postingan */}
+            {link && (
+              <div className='flex items-center gap-2'>
+                <a
+                  href={link}
+                  target='_blank'
+                  rel='noopener noreferrer'
+                  className='flex items-center gap-1 text-xs text-blue-600 hover:underline'
+                >
+                  <ExternalLink className='h-3.5 w-3.5' />
+                  Buka
+                </a>
+              </div>
+            )}
           </div>
-        );
-      }
-    },
-    {
-      accessorKey: 'link',
-      header: ({ column }) => (
-        <DataTableColumnHeader column={column} title='Link' />
-      ),
-      cell: ({ row }) => {
-        const link = row.getValue('link') as string;
-        return (
-          <a
-            href={link}
-            target='_blank'
-            rel='noopener noreferrer'
-            className='flex items-center gap-2 text-blue-600 hover:underline'
-          >
-            <ExternalLink className='h-4 w-4' />
-            Buka
-          </a>
         );
       }
     }
@@ -81,6 +96,7 @@ export const getCyberTroopsColumns = (
   if (isAdmin) {
     columns.push({
       id: 'actions',
+      size: 60,
       header: () => <div className='w-full text-right'>Aksi</div>,
       cell: ({ row }) => <CyberTroopsCellAction row={row} />
     });

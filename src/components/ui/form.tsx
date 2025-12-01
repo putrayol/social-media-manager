@@ -24,19 +24,13 @@ const Form = <TFieldValues extends FieldValues = FieldValues>({
   className
 }: {
   children: React.ReactNode;
-  onSubmit: (data: any) => void;
+  onSubmit: (e: React.FormEvent<HTMLFormElement>) => void;
   form: UseFormReturn<TFieldValues, any, any>;
   className?: string;
 }) => {
-  const handleFormSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
-    console.log('Form onSubmit triggered');
-    await onSubmit(e);
-  };
-
   return (
     <FormProvider {...form}>
-      <form onSubmit={handleFormSubmit} className={className}>
+      <form onSubmit={onSubmit} className={className}>
         {children}
       </form>
     </FormProvider>

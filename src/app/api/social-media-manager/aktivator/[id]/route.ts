@@ -6,7 +6,7 @@ import {
 } from '@/lib/organization-utils';
 import { revalidatePath } from 'next/cache';
 
-// GET - Fetch single aktivator
+// GET - Fetch single aktivator with cyber troops
 export async function GET(
   request: NextRequest,
   { params }: { params: Promise<{ id: string }> }
@@ -22,7 +22,16 @@ export async function GET(
       );
     }
     const aktivator = await prisma.aktivator.findUnique({
-      where: { id: numericId }
+      where: { id: numericId },
+      include: {
+        cyberTroops: {
+          select: {
+            id: true,
+            jumlahKomentar: true,
+            jumlahLike: true
+          }
+        }
+      }
     });
 
     if (!aktivator || aktivator.organizationId !== orgId) {
@@ -32,7 +41,25 @@ export async function GET(
       );
     }
 
-    return NextResponse.json({ success: true, data: aktivator });
+    // Add aggregated stats
+    const totalKomentar = aktivator.cyberTroops.reduce(
+      (sum, ct) => sum + ct.jumlahKomentar,
+      0
+    );
+    const totalLike = aktivator.cyberTroops.reduce(
+      (sum, ct) => sum + ct.jumlahLike,
+      0
+    );
+
+    return NextResponse.json({
+      success: true,
+      data: {
+        ...aktivator,
+        totalKomentar,
+        totalLike,
+        cyberTroopsCount: aktivator.cyberTroops.length
+      }
+    });
   } catch (error) {
     console.error('Error fetching aktivator:', error);
     return NextResponse.json(
@@ -82,14 +109,7 @@ export async function PUT(
         platform: body.platform
           ? (String(body.platform).toUpperCase() as any)
           : undefined,
-        jenisKonten: body.jenisKonten,
-        link: body.link ?? undefined,
-        requestId:
-          body.requestId !== undefined
-            ? body.requestId !== null && body.requestId !== ''
-              ? Number(body.requestId)
-              : null
-            : undefined
+        link: body.link ?? undefined
       }
     });
 

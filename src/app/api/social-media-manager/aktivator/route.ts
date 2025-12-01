@@ -6,7 +6,7 @@ import {
   requireOrganizationAdmin
 } from '@/lib/organization-utils';
 
-// GET - Fetch all aktivator data from DB (Prisma)
+// GET - Fetch all aktivator data from DB (Prisma) with cyber troops aggregation
 export async function GET(request: NextRequest) {
   try {
     const orgId = await requireOrganization();
@@ -22,11 +22,6 @@ export async function GET(request: NextRequest) {
             OR: [
               {
                 namaAkun: { contains: search }
-              },
-              {
-                jenisKonten: {
-                  contains: search
-                }
               }
             ]
           }
@@ -39,11 +34,44 @@ export async function GET(request: NextRequest) {
         where,
         orderBy: { createdAt: 'desc' },
         skip: (page - 1) * limit,
-        take: limit
+        take: limit,
+        include: {
+          cyberTroops: {
+            select: {
+              id: true,
+              jumlahKomentar: true,
+              jumlahLike: true
+            }
+          }
+        }
       })
     ]);
 
-    return NextResponse.json({ success: true, data, total, page, limit });
+    // Add aggregated stats to each aktivator
+    const dataWithStats = data.map((aktivator) => {
+      const totalKomentar = aktivator.cyberTroops.reduce(
+        (sum, ct) => sum + ct.jumlahKomentar,
+        0
+      );
+      const totalLike = aktivator.cyberTroops.reduce(
+        (sum, ct) => sum + ct.jumlahLike,
+        0
+      );
+      return {
+        ...aktivator,
+        totalKomentar,
+        totalLike,
+        cyberTroopsCount: aktivator.cyberTroops.length
+      };
+    });
+
+    return NextResponse.json({
+      success: true,
+      data: dataWithStats,
+      total,
+      page,
+      limit
+    });
   } catch (error) {
     console.error('Error fetching aktivator:', error);
 
@@ -81,12 +109,7 @@ export async function POST(request: NextRequest) {
         no: nextNo,
         namaAkun: String(body.namaAkun),
         platform: String(body.platform).toUpperCase() as any,
-        jenisKonten: String(body.jenisKonten),
         link: body.link ?? null,
-        requestId:
-          body.requestId !== undefined && body.requestId !== null
-            ? Number(body.requestId)
-            : null,
         organizationId: orgId
       }
     });

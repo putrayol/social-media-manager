@@ -43,6 +43,7 @@ export function RequestCellAction({ row }: RequestCellActionProps) {
         }
       );
       setOpen(false);
+      router.refresh();
     } catch (error) {
       console.error('Error deleting request:', error);
     } finally {

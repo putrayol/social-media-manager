@@ -98,6 +98,7 @@ export async function PUT(
             : undefined,
         jumlahLike:
           body.jumlahLike !== undefined ? Number(body.jumlahLike) : undefined,
+        linkProfile: body.linkProfile ?? undefined,
         link: body.link ?? undefined,
         keterangan: body.keterangan ?? undefined,
         documentFilesData: body.documentFiles

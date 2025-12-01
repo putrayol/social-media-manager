@@ -39,6 +39,7 @@ export default function TopKomentarForm({
       platform: initialData?.platform || 'TIKTOK',
       jumlahTopKomentar: initialData?.jumlahTopKomentar || 0,
       jumlahLike: initialData?.jumlahLike || 0,
+      linkProfile: initialData?.linkProfile || '',
       link: initialData?.link || '',
       keterangan: initialData?.keterangan || '',
       documentFiles: initialData?.documentFiles || [],
@@ -317,11 +318,20 @@ export default function TopKomentarForm({
 
             <FormInput
               control={form.control}
-              name='link'
-              label='Link'
-              placeholder='Masukkan URL link'
+              name='linkProfile'
+              label='Link Profil'
+              placeholder='Masukkan URL profil (contoh: https://tiktok.com/@username)'
               type='url'
-              required
+              description='Link ke profil akun di platform yang dipilih'
+            />
+
+            <FormInput
+              control={form.control}
+              name='link'
+              label='Link Postingan'
+              placeholder='Masukkan URL postingan (contoh: https://tiktok.com/@user/video/123)'
+              type='url'
+              description='Link ke postingan yang dikomentari'
             />
           </div>
 

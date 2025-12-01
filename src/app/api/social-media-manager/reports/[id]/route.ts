@@ -156,7 +156,6 @@ export async function PUT(
             reportId: id,
             namaAkun: item.namaAkun,
             platform: item.platform,
-            jenisKonten: item.jenisKonten,
             link: item.link || null
           }
         });
@@ -189,6 +188,7 @@ export async function PUT(
             jumlahTopKomentar: item.jumlahTopKomentar || 0,
             jumlahLike: item.jumlahLike || 0,
             link: item.link || null,
+            linkProfile: item.linkProfile || null,
             keterangan: item.keterangan || null
           }
         });
@@ -202,7 +202,6 @@ export async function PUT(
             no: item.no || 1,
             namaAkun: item.namaAkun,
             platform: item.platform,
-            jenisKonten: item.jenisKonten,
             link: item.link || null,
             organizationId: orgId
           }))
@@ -237,6 +236,7 @@ export async function PUT(
             jumlahTopKomentar: item.jumlahTopKomentar || 0,
             jumlahLike: item.jumlahLike || 0,
             link: item.link || null,
+            linkProfile: item.linkProfile || null,
             keterangan: item.keterangan || null,
             organizationId: orgId
           }))
