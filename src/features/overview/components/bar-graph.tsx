@@ -1,7 +1,7 @@
 'use client';
 
 import * as React from 'react';
-import { Bar, BarChart, CartesianGrid, XAxis } from 'recharts';
+import { Bar, BarChart, CartesianGrid, XAxis, Cell } from 'recharts';
 
 import {
   Card,
@@ -19,16 +19,33 @@ import {
 
 export const description = 'Platform distribution bar chart';
 
+// Platform colors for consistent styling
+const platformColors: Record<string, string> = {
+  TIKTOK: '#000000',
+  INSTAGRAM: '#E1306C',
+  FACEBOOK: '#1877F2',
+  TWITTER: '#1DA1F2',
+  YOUTUBE: '#FF0000',
+  OTHER: '#6B7280'
+};
+
 interface PlatformData {
   platform: string;
   count: number;
+  fill: string;
 }
 
 const chartConfig = {
   count: {
     label: 'Count',
     color: 'var(--primary)'
-  }
+  },
+  TIKTOK: { label: 'TikTok', color: platformColors.TIKTOK },
+  INSTAGRAM: { label: 'Instagram', color: platformColors.INSTAGRAM },
+  FACEBOOK: { label: 'Facebook', color: platformColors.FACEBOOK },
+  TWITTER: { label: 'Twitter', color: platformColors.TWITTER },
+  YOUTUBE: { label: 'YouTube', color: platformColors.YOUTUBE },
+  OTHER: { label: 'Other', color: platformColors.OTHER }
 } satisfies ChartConfig;
 
 export function BarGraph() {
@@ -48,7 +65,8 @@ export function BarGraph() {
         if (result.success && result.data.platformDistribution) {
           const data = result.data.platformDistribution.map((item: any) => ({
             platform: item.platform,
-            count: item._count
+            count: item._count,
+            fill: platformColors[item.platform] || platformColors.OTHER
           }));
           setChartData(data);
         }
@@ -74,9 +92,9 @@ export function BarGraph() {
   }
 
   return (
-    <Card className='@container/card !pt-3'>
-      <CardHeader className='flex flex-col items-stretch space-y-0 border-b !p-0 sm:flex-row'>
-        <div className='flex flex-1 flex-col justify-center gap-1 px-6 !py-0'>
+    <Card className='@container/card pt-3!'>
+      <CardHeader className='flex flex-col items-stretch space-y-0 border-b p-0! sm:flex-row'>
+        <div className='flex flex-1 flex-col justify-center gap-1 px-6 py-0!'>
           <CardTitle>Platform Distribution</CardTitle>
           <CardDescription>
             <span className='hidden @[540px]/card:block'>
@@ -106,21 +124,7 @@ export function BarGraph() {
               right: 12
             }}
           >
-            <defs>
-              <linearGradient id='fillBar' x1='0' y1='0' x2='0' y2='1'>
-                <stop
-                  offset='0%'
-                  stopColor='var(--primary)'
-                  stopOpacity={0.8}
-                />
-                <stop
-                  offset='100%'
-                  stopColor='var(--primary)'
-                  stopOpacity={0.2}
-                />
-              </linearGradient>
-            </defs>
-            <CartesianGrid vertical={false} />
+            <CartesianGrid vertical={false} strokeDasharray='3 3' />
             <XAxis
               dataKey='platform'
               tickLine={false}
@@ -128,12 +132,30 @@ export function BarGraph() {
               tickMargin={8}
             />
             <ChartTooltip
-              cursor={{ fill: 'var(--primary)', opacity: 0.1 }}
+              cursor={{ fill: 'rgba(0,0,0,0.05)' }}
               content={<ChartTooltipContent className='w-[150px]' />}
             />
-            <Bar dataKey='count' fill='url(#fillBar)' radius={[4, 4, 0, 0]} />
+            <Bar dataKey='count' radius={[4, 4, 0, 0]}>
+              {chartData.map((entry, index) => (
+                <Cell key={`cell-${index}`} fill={entry.fill} />
+              ))}
+            </Bar>
           </BarChart>
         </ChartContainer>
+        {/* Platform Legend */}
+        <div className='mt-4 flex flex-wrap justify-center gap-4'>
+          {chartData.map((item) => (
+            <div key={item.platform} className='flex items-center gap-2'>
+              <div
+                className='h-3 w-3 rounded-sm'
+                style={{ backgroundColor: item.fill }}
+              />
+              <span className='text-muted-foreground text-xs'>
+                {item.platform}
+              </span>
+            </div>
+          ))}
+        </div>
       </CardContent>
     </Card>
   );
