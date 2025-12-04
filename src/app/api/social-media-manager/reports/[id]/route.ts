@@ -68,6 +68,14 @@ export async function PUT(
     } = body;
 
     console.log('PUT request received for report:', id);
+    console.log(
+      'CyberTroops data received:',
+      JSON.stringify(cyberTroops, null, 2)
+    );
+    console.log(
+      'TopKomentar data received:',
+      JSON.stringify(topKomentar, null, 2)
+    );
 
     // Check if report exists
     const existingReport = await prisma.socialMediaReport.findUnique({

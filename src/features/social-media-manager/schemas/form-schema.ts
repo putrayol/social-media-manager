@@ -35,12 +35,14 @@ export const socialMediaAktivatorSchema = z.object({
       message: 'Pilih platform yang valid'
     }
   ),
+  jenisKonten: z.string().optional(), // Jenis konten aktivator
   link: z
     .string()
     .url({ message: 'Link profil harus URL yang valid' })
     .or(z.literal(''))
     .optional()
-    .nullable()
+    .nullable(),
+  requestId: z.union([z.string(), z.number()]).optional().nullable()
 });
 
 // Cyber Troops Schema (with aktivator relation)
@@ -223,23 +225,13 @@ export const laporanKhususSchema = z.object({
     .optional()
 });
 
-// ✅ Schema for report items that can be either:
-// 1. Existing items from DB (only ID)
-// 2. New items (full data without ID)
-const reportAktivatorSchema = z.union([
-  z.object({ id: z.union([z.string(), z.number()]) }), // Existing item - only ID
-  socialMediaAktivatorSchema // New item - full data
-]);
+// ✅ Schema for report items - all items include full data
+// The ID field is optional to distinguish between new and existing items
+const reportAktivatorSchema = socialMediaAktivatorSchema;
 
-const reportCyberTroopsSchema = z.union([
-  z.object({ id: z.union([z.string(), z.number()]) }), // Existing item - only ID
-  cyberTroopsSchema // New item - full data
-]);
+const reportCyberTroopsSchema = cyberTroopsSchema;
 
-const reportTopKomentarSchema = z.union([
-  z.object({ id: z.union([z.string(), z.number()]) }), // Existing item - only ID
-  topKomentarPostinganSchema // New item - full data
-]);
+const reportTopKomentarSchema = topKomentarPostinganSchema;
 
 // Combined Report Schema
 export const socialMediaReportSchema = z.object({

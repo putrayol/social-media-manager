@@ -16,8 +16,10 @@ export interface SocialMediaAktivator {
   no: number;
   namaAkun: string;
   platform: Platform;
+  jenisKonten?: string; // Jenis konten aktivator
   link?: string | null; // Profile URL
   cyberTroops?: CyberTroops[]; // Related cyber troops
+  requestId?: number | null;
   // Aggregated stats from cyber troops
   totalKomentar?: number;
   totalLike?: number;
