@@ -84,7 +84,7 @@
     "postcss": "8.5.6",
     "print-js": "^1.6.0",
     "react": "19.2.4",
-    "react-day-picker": "^9.11.2",
+    "react-day-picker": "^8.10.1",
     "react-dom": "19.2.4",
     "react-dropzone": "^14.3.8",
     "react-hook-form": "^7.66.1",

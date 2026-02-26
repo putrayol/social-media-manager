@@ -283,12 +283,16 @@ export default function OverViewLayout({
   return (
     <PageContainer>
       <div className='flex flex-1 flex-col space-y-2'>
-        <div className='flex items-center justify-between space-y-2'>
+        <div className='mb-4 flex flex-col justify-between gap-4 sm:flex-row sm:items-center'>
           <h2 className='text-2xl font-bold tracking-tight'>
             Hi, Welcome back 👋
           </h2>
-          <DateRangeFilter onDateRangeChange={handleDateRangeChange} />
+          <div className='flex items-center'>
+            <DateRangeFilter onDateRangeChange={handleDateRangeChange} />
+          </div>
         </div>
+
+        <div className='mb-4'>{org_info}</div>
 
         <StatsCards startDate={startDate} endDate={endDate} />
         <div className='grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-7'>
@@ -297,7 +301,6 @@ export default function OverViewLayout({
           <div className='col-span-4 md:col-span-3'>{sales}</div>
           <div className='col-span-4'>{area_stats}</div>
           <div className='col-span-4 md:col-span-3'>{pie_stats}</div>
-          <div className='col-span-4 md:col-span-7'>{org_info}</div>
         </div>
       </div>
     </PageContainer>
