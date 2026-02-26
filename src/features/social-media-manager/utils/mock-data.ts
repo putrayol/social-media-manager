@@ -12,7 +12,6 @@ export const mockAktivator: SocialMediaAktivator[] = [
     no: 1,
     namaAkun: 'janganpanikinya_',
     platform: 'TIKTOK',
-    jenisKonten: 'Dr Reza Bag - Bag Makanan Gratis',
     link: 'https://tiktok.com/@janganpanikinya_',
     createdAt: new Date('2025-11-11'),
     updatedAt: new Date('2025-11-11')

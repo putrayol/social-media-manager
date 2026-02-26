@@ -11,7 +11,6 @@ export const mockReports: SocialMediaReport[] = [
         no: 1,
         namaAkun: 'jangganpaniknya_',
         platform: 'TIKTOK',
-        jenisKonten: 'Dr Reza Bagi - Bagi Makanan Gratis',
         link: 'https://tiktok.com/video/1',
         createdAt: new Date(),
         updatedAt: new Date()

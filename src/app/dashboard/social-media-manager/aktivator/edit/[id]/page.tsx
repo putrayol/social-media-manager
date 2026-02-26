@@ -77,9 +77,7 @@ export default function EditAktivatorPage() {
           initialData={{
             namaAkun: aktivator.namaAkun,
             platform: aktivator.platform,
-            jenisKonten: aktivator.jenisKonten,
-            link: aktivator.link ?? '',
-            requestId: aktivator.requestId ?? null
+            link: aktivator.link ?? ''
           }}
         />
       </div>

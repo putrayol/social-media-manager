@@ -352,15 +352,13 @@ export default function ReportForm({
         x.id === item.id ||
         ('namaAkun' in x &&
           x.namaAkun === item.namaAkun &&
-          x.platform === item.platform &&
-          x.jenisKonten === item.jenisKonten)
+          x.platform === item.platform)
     );
     if (exists) return;
     const mapped = {
       id: item.id, // ✅ Include ID to link existing data
       namaAkun: item.namaAkun,
       platform: item.platform,
-      jenisKonten: item.jenisKonten,
       link: item.link || '' // ✅ Ensure link is always a string (empty string if not provided)
     };
     form.setValue('aktivator', [...current, mapped], { shouldValidate: true });
@@ -461,7 +459,6 @@ export default function ReportForm({
       {
         namaAkun: '',
         platform: 'TIKTOK' as const,
-        jenisKonten: '',
         link: ''
       }
     ];
@@ -541,7 +538,6 @@ export default function ReportForm({
               no: item.no || index + 1,
               namaAkun: item.namaAkun,
               platform: item.platform,
-              jenisKonten: item.jenisKonten,
               link: item.link || null
             };
           }
@@ -913,19 +909,6 @@ export default function ReportForm({
                               <SelectItem value='OTHER'>Lainnya</SelectItem>
                             </SelectContent>
                           </Select>
-                        </TableCell>
-                        <TableCell>
-                          <Input
-                            value={item.jenisKonten || ''}
-                            onChange={(e) =>
-                              updateAktivatorField(
-                                idx,
-                                'jenisKonten',
-                                e.target.value
-                              )
-                            }
-                            placeholder='Jenis / Kategori'
-                          />
                         </TableCell>
                         <TableCell>
                           <span className='text-muted-foreground'>-</span>
@@ -1498,7 +1481,7 @@ export default function ReportForm({
                   setShowSearchAktivator(false);
                 }}
               >
-                {item.namaAkun} • {item.platform} — Konten: {item.jenisKonten}
+                {item.namaAkun} • {item.platform}
               </CommandItem>
             ))}
           </CommandGroup>

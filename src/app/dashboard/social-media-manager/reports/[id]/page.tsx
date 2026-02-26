@@ -179,7 +179,6 @@ export default function ViewReportPage({ params }: ViewReportPageProps) {
                                       {String(item.platform).toLowerCase()}
                                     </Badge>
                                   </span>
-                                  Jenis : {item.jenisKonten}
                                   <a
                                     href={item.link}
                                     target='_blank'
